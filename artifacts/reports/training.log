@@ -1,0 +1,21 @@
+uv run aurora train --smoke --epochs 3 --output artifacts/checkpoints/smoke.pt
+{
+  "checkpoint": "artifacts/checkpoints/smoke.pt",
+  "trained_steps": 15,
+  "data_kind": "fixture",
+  "last_epoch": {
+    "epoch": 3,
+    "train_loss": 0.9581915259361267,
+    "validation_ce": 0.8234858512878418,
+    "loss_terms": {
+      "ce": 0.9111701965332032,
+      "contrastive": 0.42172898054122926,
+      "margin": 0.060993528366088866,
+      "consistency": 1.3306238031418615e-07,
+      "entropy": -1.250942015647888
+    },
+    "nonconverged_batches": 0
+  }
+}
+uv run aurora evaluate --smoke --checkpoint artifacts/checkpoints/smoke.pt --output artifacts/reports/evaluation-smoke.json
+/Users/ardan/Developer/aurora-visual/artifacts/reports/evaluation-smoke.json

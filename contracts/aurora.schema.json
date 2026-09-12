@@ -1,0 +1,1980 @@
+{
+  "$defs": {
+    "Analysis": {
+      "additionalProperties": false,
+      "properties": {
+        "run": {
+          "$ref": "#/$defs/RunInfo"
+        },
+        "atom_set_id": {
+          "title": "Atom Set Id",
+          "type": "string"
+        },
+        "atomic_claims": {
+          "items": {
+            "$ref": "#/$defs/Atom"
+          },
+          "title": "Atomic Claims",
+          "type": "array"
+        },
+        "visual_assessments": {
+          "items": {
+            "$ref": "#/$defs/VisualAssessment"
+          },
+          "title": "Visual Assessments",
+          "type": "array"
+        },
+        "ocr": {
+          "items": {
+            "$ref": "#/$defs/OCRItem"
+          },
+          "title": "Ocr",
+          "type": "array"
+        }
+      },
+      "required": [
+        "run",
+        "atom_set_id",
+        "atomic_claims",
+        "visual_assessments",
+        "ocr"
+      ],
+      "title": "Analysis",
+      "type": "object"
+    },
+    "Atom": {
+      "additionalProperties": false,
+      "properties": {
+        "atom_id": {
+          "pattern": "^a[0-9]{6}$",
+          "title": "Atom Id",
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "actor",
+            "action",
+            "object",
+            "attribute",
+            "location",
+            "time",
+            "quantity",
+            "relation",
+            "cause"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subject"
+        },
+        "predicate": {
+          "minLength": 1,
+          "title": "Predicate",
+          "type": "string"
+        },
+        "object": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Object"
+        },
+        "qualifiers": {
+          "$ref": "#/$defs/Qualifiers"
+        },
+        "spans": {
+          "items": {
+            "$ref": "#/$defs/Span"
+          },
+          "title": "Spans",
+          "type": "array"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        },
+        "check_worthiness": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Check Worthiness",
+          "type": "number"
+        },
+        "parser_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parser Confidence"
+        }
+      },
+      "required": [
+        "atom_id",
+        "statement",
+        "role",
+        "subject",
+        "predicate",
+        "object",
+        "qualifiers",
+        "spans",
+        "depends_on",
+        "check_worthiness",
+        "parser_confidence"
+      ],
+      "title": "Atom",
+      "type": "object"
+    },
+    "AtomicDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "atom_id": {
+          "title": "Atom Id",
+          "type": "string"
+        },
+        "base_label": {
+          "enum": [
+            "Supported",
+            "Contradicted",
+            "InsufficientEvidence"
+          ],
+          "title": "Base Label",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "Supported",
+            "Contradicted",
+            "InsufficientEvidence"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "probabilities": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              "propertyNames": {
+                "enum": [
+                  "Supported",
+                  "Contradicted",
+                  "InsufficientEvidence"
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probabilities"
+        },
+        "confidence_set": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "Supported",
+                  "Contradicted",
+                  "InsufficientEvidence"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Confidence Set"
+        },
+        "abstention_flag": {
+          "title": "Abstention Flag",
+          "type": "boolean"
+        },
+        "abstention_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Abstention Reasons",
+          "type": "array"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "visual_atom_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Visual Atom Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "calibration": {
+          "$ref": "#/$defs/Calibration"
+        }
+      },
+      "required": [
+        "atom_id",
+        "base_label",
+        "status",
+        "probabilities",
+        "confidence_set",
+        "abstention_flag",
+        "abstention_reasons",
+        "evidence_links",
+        "visual_atom_ids",
+        "explanation",
+        "calibration"
+      ],
+      "title": "AtomicDecision",
+      "type": "object"
+    },
+    "Calibration": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "calibrated",
+            "uncalibrated",
+            "demo_only"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "calibration_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Calibration Id"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Method"
+        },
+        "alpha": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Alpha"
+        },
+        "sample_count": {
+          "minimum": 0,
+          "title": "Sample Count",
+          "type": "integer"
+        },
+        "group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Group"
+        },
+        "fallback_used": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fallback Used"
+        },
+        "validity_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validity Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "calibration_id",
+        "method",
+        "alpha",
+        "sample_count",
+        "group",
+        "fallback_used",
+        "validity_notes"
+      ],
+      "title": "Calibration",
+      "type": "object"
+    },
+    "Content": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "excerpt": {
+          "title": "Excerpt",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "full",
+            "excerpt_only",
+            "snippet_only",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "excerpt",
+        "sha256",
+        "status"
+      ],
+      "title": "Content",
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "run": {
+          "$ref": "#/$defs/RunInfo"
+        },
+        "atom_set_id": {
+          "title": "Atom Set Id",
+          "type": "string"
+        },
+        "atomic_verdicts": {
+          "items": {
+            "$ref": "#/$defs/AtomicDecision"
+          },
+          "title": "Atomic Verdicts",
+          "type": "array"
+        },
+        "base_label": {
+          "enum": [
+            "Supported",
+            "Contradicted",
+            "InsufficientEvidence"
+          ],
+          "title": "Base Label",
+          "type": "string"
+        },
+        "final_verdict": {
+          "enum": [
+            "Supported",
+            "Contradicted",
+            "InsufficientEvidence"
+          ],
+          "title": "Final Verdict",
+          "type": "string"
+        },
+        "probabilities": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              "propertyNames": {
+                "enum": [
+                  "Supported",
+                  "Contradicted",
+                  "InsufficientEvidence"
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probabilities"
+        },
+        "confidence_set": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "Supported",
+                  "Contradicted",
+                  "InsufficientEvidence"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Confidence Set"
+        },
+        "abstention_flag": {
+          "title": "Abstention Flag",
+          "type": "boolean"
+        },
+        "abstention_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Abstention Reasons",
+          "type": "array"
+        },
+        "calibration": {
+          "$ref": "#/$defs/Calibration"
+        },
+        "decision_report": {
+          "$ref": "#/$defs/DecisionReport"
+        },
+        "human_review": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HumanReview"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "run",
+        "atom_set_id",
+        "atomic_verdicts",
+        "base_label",
+        "final_verdict",
+        "probabilities",
+        "confidence_set",
+        "abstention_flag",
+        "abstention_reasons",
+        "calibration",
+        "decision_report",
+        "human_review"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "DecisionReport": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "key_findings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Findings",
+          "type": "array"
+        },
+        "unresolved_questions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Questions",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "forensic_signal_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Forensic Signal Ids",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "suggested_next_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Next Steps",
+          "type": "array"
+        },
+        "misinformation_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Misinformation Category"
+        }
+      },
+      "required": [
+        "summary",
+        "key_findings",
+        "unresolved_questions",
+        "evidence_ids",
+        "forensic_signal_ids",
+        "limitations",
+        "suggested_next_steps",
+        "misinformation_category"
+      ],
+      "title": "DecisionReport",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "pattern": "^ev_[0-9a-f]{32}_[0-9]{6}$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "atom_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Atom Ids",
+          "type": "array"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "content": {
+          "$ref": "#/$defs/Content"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "relevance_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Relevance Score"
+        },
+        "credibility_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Credibility Score"
+        },
+        "rerank_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rerank Score"
+        },
+        "score_breakdown": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Score Breakdown",
+          "type": "object"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "atom_ids",
+        "source",
+        "content",
+        "provenance",
+        "relevance_score",
+        "credibility_score",
+        "rerank_score",
+        "score_breakdown"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "EvidenceLink": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "atom_id": {
+          "title": "Atom Id",
+          "type": "string"
+        },
+        "stance": {
+          "enum": [
+            "Supports",
+            "Contradicts",
+            "NotRelevant",
+            "Unclear"
+          ],
+          "title": "Stance",
+          "type": "string"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quote"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "atom_id",
+        "stance",
+        "quote",
+        "rationale"
+      ],
+      "title": "EvidenceLink",
+      "type": "object"
+    },
+    "ForensicSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "signal_id": {
+          "pattern": "^fs_[0-9a-f]{32}_[0-9]{6}$",
+          "title": "Signal Id",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "modality": {
+          "enum": [
+            "image",
+            "text"
+          ],
+          "title": "Modality",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Model Version"
+        },
+        "task": {
+          "const": "ai_generation_detection",
+          "title": "Task",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "inconclusive",
+            "unsupported",
+            "unavailable",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "raw_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Score"
+        },
+        "raw_scale": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RawScale"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ai_generated_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ai Generated Score"
+        },
+        "raw_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Label"
+        },
+        "assessment": {
+          "enum": [
+            "likely_ai_generated",
+            "likely_human_or_camera",
+            "uncertain",
+            "not_assessed"
+          ],
+          "title": "Assessment",
+          "type": "string"
+        },
+        "calibration_status": {
+          "enum": [
+            "unknown",
+            "provider_claimed",
+            "locally_validated",
+            "not_applicable"
+          ],
+          "title": "Calibration Status",
+          "type": "string"
+        },
+        "applicable_language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applicable Language"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "analyzed_at": {
+          "format": "date-time",
+          "title": "Analyzed At",
+          "type": "string"
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error Code"
+        }
+      },
+      "required": [
+        "signal_id",
+        "target",
+        "modality",
+        "provider",
+        "model_version",
+        "task",
+        "status",
+        "raw_score",
+        "raw_scale",
+        "ai_generated_score",
+        "raw_label",
+        "assessment",
+        "calibration_status",
+        "applicable_language",
+        "limitations",
+        "analyzed_at",
+        "error_code"
+      ],
+      "title": "ForensicSignal",
+      "type": "object"
+    },
+    "HumanReview": {
+      "additionalProperties": false,
+      "properties": {
+        "reviewer": {
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "Supported",
+            "Contradicted",
+            "InsufficientEvidence"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reviewer",
+        "reviewed_at",
+        "verdict",
+        "reason"
+      ],
+      "title": "HumanReview",
+      "type": "object"
+    },
+    "ImageMatch": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "matched_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Matched Url"
+        },
+        "match_type": {
+          "enum": [
+            "exact",
+            "near_duplicate",
+            "semantic"
+          ],
+          "title": "Match Type",
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        }
+      },
+      "required": [
+        "asset_id",
+        "matched_url",
+        "match_type",
+        "score"
+      ],
+      "title": "ImageMatch",
+      "type": "object"
+    },
+    "Input": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_text": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Claim Text",
+          "type": "string"
+        },
+        "language": {
+          "pattern": "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$",
+          "title": "Language",
+          "type": "string"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MediaRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "as_of": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "As Of"
+        }
+      },
+      "required": [
+        "claim_text",
+        "language",
+        "image",
+        "as_of"
+      ],
+      "title": "Input",
+      "type": "object"
+    },
+    "MediaRef": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "width": {
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id",
+        "sha256",
+        "media_type",
+        "width",
+        "height",
+        "uri"
+      ],
+      "title": "MediaRef",
+      "type": "object"
+    },
+    "OCRItem": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "bbox": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Confidence"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Language"
+        }
+      },
+      "required": [
+        "text",
+        "bbox",
+        "confidence",
+        "language"
+      ],
+      "title": "OCRItem",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "original_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Original Url"
+        },
+        "archive_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Archive Url"
+        },
+        "first_seen_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "First Seen At"
+        },
+        "captured_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Captured At"
+        },
+        "date_basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Date Basis"
+        },
+        "discovery_method": {
+          "title": "Discovery Method",
+          "type": "string"
+        },
+        "duplicate_cluster_id": {
+          "minLength": 1,
+          "title": "Duplicate Cluster Id",
+          "type": "string"
+        },
+        "independence_group_id": {
+          "minLength": 1,
+          "title": "Independence Group Id",
+          "type": "string"
+        },
+        "temporal_eligible": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Temporal Eligible"
+        },
+        "usage_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Usage Note"
+        },
+        "image_matches": {
+          "items": {
+            "$ref": "#/$defs/ImageMatch"
+          },
+          "title": "Image Matches",
+          "type": "array"
+        }
+      },
+      "required": [
+        "original_url",
+        "archive_url",
+        "first_seen_at",
+        "captured_at",
+        "date_basis",
+        "discovery_method",
+        "duplicate_cluster_id",
+        "independence_group_id",
+        "temporal_eligible",
+        "usage_note",
+        "image_matches"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "ProviderStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "capability": {
+          "title": "Capability",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "disabled",
+            "unconfigured",
+            "rate_limited",
+            "failed",
+            "unsupported"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Message"
+        }
+      },
+      "required": [
+        "provider",
+        "capability",
+        "status",
+        "message"
+      ],
+      "title": "ProviderStatus",
+      "type": "object"
+    },
+    "Qualifiers": {
+      "additionalProperties": false,
+      "properties": {
+        "negated": {
+          "title": "Negated",
+          "type": "boolean"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quantity"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Time"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Location"
+        }
+      },
+      "required": [
+        "negated",
+        "quantity",
+        "time",
+        "location"
+      ],
+      "title": "Qualifiers",
+      "type": "object"
+    },
+    "QueryLog": {
+      "additionalProperties": false,
+      "properties": {
+        "query_id": {
+          "title": "Query Id",
+          "type": "string"
+        },
+        "atom_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Atom Ids",
+          "type": "array"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "duration_ms": {
+          "minimum": 0,
+          "title": "Duration Ms",
+          "type": "number"
+        },
+        "result_count": {
+          "minimum": 0,
+          "title": "Result Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "query_id",
+        "atom_ids",
+        "provider",
+        "query",
+        "duration_ms",
+        "result_count"
+      ],
+      "title": "QueryLog",
+      "type": "object"
+    },
+    "RawScale": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "title": "Min",
+          "type": "number"
+        },
+        "max": {
+          "title": "Max",
+          "type": "number"
+        },
+        "higher_means_ai": {
+          "title": "Higher Means Ai",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "min",
+        "max",
+        "higher_means_ai"
+      ],
+      "title": "RawScale",
+      "type": "object"
+    },
+    "Region": {
+      "additionalProperties": false,
+      "properties": {
+        "region_id": {
+          "pattern": "^rg_[0-9a-f]{32}_[0-9]{6}$",
+          "title": "Region Id",
+          "type": "string"
+        },
+        "asset_id": {
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "bbox": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox",
+          "type": "array"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "region_id",
+        "asset_id",
+        "bbox",
+        "score",
+        "description"
+      ],
+      "title": "Region",
+      "type": "object"
+    },
+    "Retrieval": {
+      "additionalProperties": false,
+      "properties": {
+        "run": {
+          "$ref": "#/$defs/RunInfo"
+        },
+        "atom_set_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Atom Set Id"
+        },
+        "evidence_list": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence List",
+          "type": "array"
+        },
+        "forensic_signals": {
+          "items": {
+            "$ref": "#/$defs/ForensicSignal"
+          },
+          "title": "Forensic Signals",
+          "type": "array"
+        },
+        "query_log": {
+          "items": {
+            "$ref": "#/$defs/QueryLog"
+          },
+          "title": "Query Log",
+          "type": "array"
+        },
+        "provider_status": {
+          "items": {
+            "$ref": "#/$defs/ProviderStatus"
+          },
+          "title": "Provider Status",
+          "type": "array"
+        }
+      },
+      "required": [
+        "run",
+        "atom_set_id",
+        "evidence_list",
+        "forensic_signals",
+        "query_log",
+        "provider_status"
+      ],
+      "title": "Retrieval",
+      "type": "object"
+    },
+    "RunInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "demo",
+            "live"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "finished_at": {
+          "format": "date-time",
+          "title": "Finished At",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "partial",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Versions",
+          "type": "object"
+        },
+        "warnings": {
+          "items": {
+            "$ref": "#/$defs/Warning"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "run_id",
+        "mode",
+        "started_at",
+        "finished_at",
+        "status",
+        "versions",
+        "warnings"
+      ],
+      "title": "RunInfo",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "fact_check",
+            "news",
+            "official",
+            "web",
+            "image_provenance",
+            "local_corpus",
+            "user_supplied"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Url"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Language"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Published At"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "kind",
+        "url",
+        "title",
+        "publisher",
+        "language",
+        "published_at",
+        "retrieved_at"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "Span": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "Span",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "claim_text",
+            "image",
+            "ocr_text"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Asset Id"
+        },
+        "text_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Text Sha256"
+        }
+      },
+      "required": [
+        "kind",
+        "asset_id",
+        "text_sha256"
+      ],
+      "title": "Target",
+      "type": "object"
+    },
+    "VisualAssessment": {
+      "additionalProperties": false,
+      "properties": {
+        "atom_id": {
+          "title": "Atom Id",
+          "type": "string"
+        },
+        "visual_status": {
+          "enum": [
+            "Supported",
+            "Contradicted",
+            "Unobservable"
+          ],
+          "title": "Visual Status",
+          "type": "string"
+        },
+        "probabilities": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              "propertyNames": {
+                "enum": [
+                  "Supported",
+                  "Contradicted",
+                  "Unobservable"
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probabilities"
+        },
+        "unmatched_mass": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Unmatched Mass"
+        },
+        "observability_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Observability Score"
+        },
+        "supporting_regions": {
+          "items": {
+            "$ref": "#/$defs/Region"
+          },
+          "title": "Supporting Regions",
+          "type": "array"
+        },
+        "contradicting_regions": {
+          "items": {
+            "$ref": "#/$defs/Region"
+          },
+          "title": "Contradicting Regions",
+          "type": "array"
+        },
+        "counter_evidence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Counter Evidence"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "inference_kind": {
+          "enum": [
+            "trained",
+            "heuristic",
+            "fixture",
+            "unavailable"
+          ],
+          "title": "Inference Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "atom_id",
+        "visual_status",
+        "probabilities",
+        "unmatched_mass",
+        "observability_score",
+        "supporting_regions",
+        "contradicting_regions",
+        "counter_evidence",
+        "rationale",
+        "inference_kind"
+      ],
+      "title": "VisualAssessment",
+      "type": "object"
+    },
+    "Warning": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "component": {
+          "title": "Component",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "component"
+      ],
+      "title": "Warning",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "claim_revision": {
+      "minimum": 1,
+      "title": "Claim Revision",
+      "type": "integer"
+    },
+    "mode": {
+      "enum": [
+        "demo",
+        "live"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "input": {
+      "$ref": "#/$defs/Input"
+    },
+    "analysis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Analysis"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "retrieval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Retrieval"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Decision"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/Warning"
+      },
+      "title": "Warnings",
+      "type": "array"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "title": "Extensions",
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "case_id",
+    "claim_revision",
+    "mode",
+    "created_at",
+    "input",
+    "analysis",
+    "retrieval",
+    "decision",
+    "warnings",
+    "extensions"
+  ],
+  "title": "AuroraBundle",
+  "type": "object"
+}

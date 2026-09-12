@@ -1,0 +1,15 @@
+npm exec --prefix frontend -- playwright install chromium --only-shell
+uv run python scripts/browser_smoke.py
+
+> aurora-visual-ui@1.0.0 test:e2e
+> playwright test
+
+
+Running 2 tests using 1 worker
+
+(node:71572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 ../tests/e2e/flow.spec.ts:3:5 › demo contradiction, atom correction, reanalysis and history (3.6s)
+  ✓  2 ../tests/e2e/flow.spec.ts:59:5 › mobile empty state and unobservable event claims (1.6s)
+
+  2 passed (6.8s)

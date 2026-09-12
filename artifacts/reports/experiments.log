@@ -1,0 +1,2 @@
+uv run aurora experiments --smoke --epochs 2 --output artifacts/reports/ablations-smoke.json
+/Users/ardan/Developer/aurora-visual/artifacts/reports/ablations-smoke.json

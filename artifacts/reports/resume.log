@@ -1,0 +1,18 @@
+{
+  "checkpoint": "artifacts/checkpoints/resumed.pt",
+  "trained_steps": 25,
+  "data_kind": "fixture",
+  "last_epoch": {
+    "epoch": 5,
+    "train_loss": 0.6087661981582642,
+    "validation_ce": 0.4805634915828705,
+    "loss_terms": {
+      "ce": 0.5772339701652527,
+      "contrastive": 0.27943893074989323,
+      "margin": 0.047812688350677486,
+      "consistency": 3.209466086673274e-07,
+      "entropy": -1.1929927349090577
+    },
+    "nonconverged_batches": 0
+  }
+}

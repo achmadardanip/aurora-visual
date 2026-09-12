@@ -1,0 +1,2684 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AURORA Visual",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Ready",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/mafindo/latest": {
+      "get": {
+        "summary": "Mafindo Latest",
+        "description": "Opt-in diagnostic bridge only; it does not attach provider data to a case.",
+        "operationId": "mafindo_latest_api_v1_providers_mafindo_latest_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media": {
+      "post": {
+        "summary": "Upload",
+        "operationId": "upload_api_v1_media_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_api_v1_media_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/{asset_id}": {
+      "get": {
+        "summary": "Get Media",
+        "operationId": "get_media_api_v1_media__asset_id__get",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            }
+          },
+          {
+            "name": "preview",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Preview"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyze": {
+      "post": {
+        "summary": "Submit",
+        "operationId": "submit_api_v1_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuroraBundle"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "summary": "Get Job",
+        "operationId": "get_job_api_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/cancel": {
+      "post": {
+        "summary": "Cancel",
+        "operationId": "cancel_api_v1_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/bundle": {
+      "get": {
+        "summary": "Job Bundle",
+        "operationId": "job_bundle_api_v1_jobs__job_id__bundle_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases": {
+      "get": {
+        "summary": "List Cases",
+        "operationId": "list_cases_api_v1_cases_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{case_id}": {
+      "get": {
+        "summary": "Get Case",
+        "operationId": "get_case_api_v1_cases__case_id__get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuroraBundle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{case_id}/history": {
+      "get": {
+        "summary": "History",
+        "operationId": "history_api_v1_cases__case_id__history_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{case_id}/atoms": {
+      "patch": {
+        "summary": "Correct",
+        "operationId": "correct_api_v1_cases__case_id__atoms_patch",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuroraBundle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{case_id}/export": {
+      "get": {
+        "summary": "Export",
+        "operationId": "export_api_v1_cases__case_id__export_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "json",
+              "title": "Format"
+            }
+          },
+          {
+            "name": "atom_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Atom Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import": {
+      "post": {
+        "summary": "Import Bundle",
+        "operationId": "import_bundle_api_v1_import_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_bundle_api_v1_import_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Import Bundle Api V1 Import Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demo/{fixture}": {
+      "post": {
+        "summary": "Demo",
+        "operationId": "demo_api_v1_demo__fixture__post",
+        "parameters": [
+          {
+            "name": "fixture",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fixture"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuroraBundle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schema": {
+      "get": {
+        "summary": "Schema",
+        "operationId": "schema_api_v1_schema_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Analysis": {
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/RunInfo"
+          },
+          "atom_set_id": {
+            "type": "string",
+            "title": "Atom Set Id"
+          },
+          "atomic_claims": {
+            "items": {
+              "$ref": "#/components/schemas/Atom"
+            },
+            "type": "array",
+            "title": "Atomic Claims"
+          },
+          "visual_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/VisualAssessment"
+            },
+            "type": "array",
+            "title": "Visual Assessments"
+          },
+          "ocr": {
+            "items": {
+              "$ref": "#/components/schemas/OCRItem"
+            },
+            "type": "array",
+            "title": "Ocr"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run",
+          "atom_set_id",
+          "atomic_claims",
+          "visual_assessments",
+          "ocr"
+        ],
+        "title": "Analysis"
+      },
+      "Atom": {
+        "properties": {
+          "atom_id": {
+            "type": "string",
+            "pattern": "^a[0-9]{6}$",
+            "title": "Atom Id"
+          },
+          "statement": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Statement"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "actor",
+              "action",
+              "object",
+              "attribute",
+              "location",
+              "time",
+              "quantity",
+              "relation",
+              "cause"
+            ],
+            "title": "Role"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "predicate": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Predicate"
+          },
+          "object": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object"
+          },
+          "qualifiers": {
+            "$ref": "#/components/schemas/Qualifiers"
+          },
+          "spans": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "title": "Spans"
+          },
+          "depends_on": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Depends On"
+          },
+          "check_worthiness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Check Worthiness"
+          },
+          "parser_confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parser Confidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "atom_id",
+          "statement",
+          "role",
+          "subject",
+          "predicate",
+          "object",
+          "qualifiers",
+          "spans",
+          "depends_on",
+          "check_worthiness",
+          "parser_confidence"
+        ],
+        "title": "Atom"
+      },
+      "AtomicDecision": {
+        "properties": {
+          "atom_id": {
+            "type": "string",
+            "title": "Atom Id"
+          },
+          "base_label": {
+            "type": "string",
+            "enum": [
+              "Supported",
+              "Contradicted",
+              "InsufficientEvidence"
+            ],
+            "title": "Base Label"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Supported",
+              "Contradicted",
+              "InsufficientEvidence"
+            ],
+            "title": "Status"
+          },
+          "probabilities": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                "propertyNames": {
+                  "enum": [
+                    "Supported",
+                    "Contradicted",
+                    "InsufficientEvidence"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probabilities"
+          },
+          "confidence_set": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "Supported",
+                    "Contradicted",
+                    "InsufficientEvidence"
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Set"
+          },
+          "abstention_flag": {
+            "type": "boolean",
+            "title": "Abstention Flag"
+          },
+          "abstention_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Abstention Reasons"
+          },
+          "evidence_links": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceLink"
+            },
+            "type": "array",
+            "title": "Evidence Links"
+          },
+          "visual_atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Visual Atom Ids"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "calibration": {
+            "$ref": "#/components/schemas/Calibration"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "atom_id",
+          "base_label",
+          "status",
+          "probabilities",
+          "confidence_set",
+          "abstention_flag",
+          "abstention_reasons",
+          "evidence_links",
+          "visual_atom_ids",
+          "explanation",
+          "calibration"
+        ],
+        "title": "AtomicDecision"
+      },
+      "AuroraBundle": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0.0",
+            "title": "Schema Version"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "claim_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Claim Revision"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "demo",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "input": {
+            "$ref": "#/components/schemas/Input"
+          },
+          "analysis": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Analysis"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "retrieval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Retrieval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/Warning"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "extensions": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Extensions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "case_id",
+          "claim_revision",
+          "mode",
+          "created_at",
+          "input",
+          "analysis",
+          "retrieval",
+          "decision",
+          "warnings",
+          "extensions"
+        ],
+        "title": "AuroraBundle"
+      },
+      "Body_import_bundle_api_v1_import_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_bundle_api_v1_import_post"
+      },
+      "Body_upload_api_v1_media_post": {
+        "properties": {
+          "image": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image"
+        ],
+        "title": "Body_upload_api_v1_media_post"
+      },
+      "Calibration": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "calibrated",
+              "uncalibrated",
+              "demo_only"
+            ],
+            "title": "Status"
+          },
+          "calibration_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calibration Id"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "alpha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alpha"
+          },
+          "sample_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Sample Count"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "fallback_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Used"
+          },
+          "validity_notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Validity Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "calibration_id",
+          "method",
+          "alpha",
+          "sample_count",
+          "group",
+          "fallback_used",
+          "validity_notes"
+        ],
+        "title": "Calibration"
+      },
+      "Content": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Sha256"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "full",
+              "excerpt_only",
+              "snippet_only",
+              "unavailable"
+            ],
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "excerpt",
+          "sha256",
+          "status"
+        ],
+        "title": "Content"
+      },
+      "Decision": {
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/RunInfo"
+          },
+          "atom_set_id": {
+            "type": "string",
+            "title": "Atom Set Id"
+          },
+          "atomic_verdicts": {
+            "items": {
+              "$ref": "#/components/schemas/AtomicDecision"
+            },
+            "type": "array",
+            "title": "Atomic Verdicts"
+          },
+          "base_label": {
+            "type": "string",
+            "enum": [
+              "Supported",
+              "Contradicted",
+              "InsufficientEvidence"
+            ],
+            "title": "Base Label"
+          },
+          "final_verdict": {
+            "type": "string",
+            "enum": [
+              "Supported",
+              "Contradicted",
+              "InsufficientEvidence"
+            ],
+            "title": "Final Verdict"
+          },
+          "probabilities": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                "propertyNames": {
+                  "enum": [
+                    "Supported",
+                    "Contradicted",
+                    "InsufficientEvidence"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probabilities"
+          },
+          "confidence_set": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "Supported",
+                    "Contradicted",
+                    "InsufficientEvidence"
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Set"
+          },
+          "abstention_flag": {
+            "type": "boolean",
+            "title": "Abstention Flag"
+          },
+          "abstention_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Abstention Reasons"
+          },
+          "calibration": {
+            "$ref": "#/components/schemas/Calibration"
+          },
+          "decision_report": {
+            "$ref": "#/components/schemas/DecisionReport"
+          },
+          "human_review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HumanReview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run",
+          "atom_set_id",
+          "atomic_verdicts",
+          "base_label",
+          "final_verdict",
+          "probabilities",
+          "confidence_set",
+          "abstention_flag",
+          "abstention_reasons",
+          "calibration",
+          "decision_report",
+          "human_review"
+        ],
+        "title": "Decision"
+      },
+      "DecisionReport": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "key_findings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Findings"
+          },
+          "unresolved_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unresolved Questions"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Ids"
+          },
+          "forensic_signal_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Forensic Signal Ids"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "suggested_next_steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggested Next Steps"
+          },
+          "misinformation_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Misinformation Category"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "summary",
+          "key_findings",
+          "unresolved_questions",
+          "evidence_ids",
+          "forensic_signal_ids",
+          "limitations",
+          "suggested_next_steps",
+          "misinformation_category"
+        ],
+        "title": "DecisionReport"
+      },
+      "Evidence": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^ev_[0-9a-f]{32}_[0-9]{6}$",
+            "title": "Evidence Id"
+          },
+          "atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Atom Ids"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "content": {
+            "$ref": "#/components/schemas/Content"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "relevance_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relevance Score"
+          },
+          "credibility_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credibility Score"
+          },
+          "rerank_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rerank Score"
+          },
+          "score_breakdown": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Score Breakdown"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evidence_id",
+          "atom_ids",
+          "source",
+          "content",
+          "provenance",
+          "relevance_score",
+          "credibility_score",
+          "rerank_score",
+          "score_breakdown"
+        ],
+        "title": "Evidence"
+      },
+      "EvidenceLink": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "title": "Evidence Id"
+          },
+          "atom_id": {
+            "type": "string",
+            "title": "Atom Id"
+          },
+          "stance": {
+            "type": "string",
+            "enum": [
+              "Supports",
+              "Contradicts",
+              "NotRelevant",
+              "Unclear"
+            ],
+            "title": "Stance"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evidence_id",
+          "atom_id",
+          "stance",
+          "quote",
+          "rationale"
+        ],
+        "title": "EvidenceLink"
+      },
+      "ForensicSignal": {
+        "properties": {
+          "signal_id": {
+            "type": "string",
+            "pattern": "^fs_[0-9a-f]{32}_[0-9]{6}$",
+            "title": "Signal Id"
+          },
+          "target": {
+            "$ref": "#/components/schemas/Target"
+          },
+          "modality": {
+            "type": "string",
+            "enum": [
+              "image",
+              "text"
+            ],
+            "title": "Modality"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "task": {
+            "type": "string",
+            "const": "ai_generation_detection",
+            "title": "Task"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "inconclusive",
+              "unsupported",
+              "unavailable",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "raw_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Score"
+          },
+          "raw_scale": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RawScale"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ai_generated_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Generated Score"
+          },
+          "raw_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Label"
+          },
+          "assessment": {
+            "type": "string",
+            "enum": [
+              "likely_ai_generated",
+              "likely_human_or_camera",
+              "uncertain",
+              "not_assessed"
+            ],
+            "title": "Assessment"
+          },
+          "calibration_status": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "provider_claimed",
+              "locally_validated",
+              "not_applicable"
+            ],
+            "title": "Calibration Status"
+          },
+          "applicable_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Language"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "analyzed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Analyzed At"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "signal_id",
+          "target",
+          "modality",
+          "provider",
+          "model_version",
+          "task",
+          "status",
+          "raw_score",
+          "raw_scale",
+          "ai_generated_score",
+          "raw_label",
+          "assessment",
+          "calibration_status",
+          "applicable_language",
+          "limitations",
+          "analyzed_at",
+          "error_code"
+        ],
+        "title": "ForensicSignal"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HumanReview": {
+        "properties": {
+          "reviewer": {
+            "type": "string",
+            "title": "Reviewer"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Reviewed At"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "Supported",
+              "Contradicted",
+              "InsufficientEvidence"
+            ],
+            "title": "Verdict"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reviewer",
+          "reviewed_at",
+          "verdict",
+          "reason"
+        ],
+        "title": "HumanReview"
+      },
+      "ImageMatch": {
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "matched_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Url"
+          },
+          "match_type": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "near_duplicate",
+              "semantic"
+            ],
+            "title": "Match Type"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_id",
+          "matched_url",
+          "match_type",
+          "score"
+        ],
+        "title": "ImageMatch"
+      },
+      "Input": {
+        "properties": {
+          "claim_text": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Claim Text"
+          },
+          "language": {
+            "type": "string",
+            "pattern": "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$",
+            "title": "Language"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MediaRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "claim_text",
+          "language",
+          "image",
+          "as_of"
+        ],
+        "title": "Input"
+      },
+      "MediaRef": {
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Sha256"
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Media Type"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Height"
+          },
+          "uri": {
+            "type": "string",
+            "title": "Uri"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_id",
+          "sha256",
+          "media_type",
+          "width",
+          "height",
+          "uri"
+        ],
+        "title": "MediaRef"
+      },
+      "OCRItem": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "bbox": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Bbox"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "bbox",
+          "confidence",
+          "language"
+        ],
+        "title": "OCRItem"
+      },
+      "Provenance": {
+        "properties": {
+          "original_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Url"
+          },
+          "archive_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archive Url"
+          },
+          "first_seen_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Seen At"
+          },
+          "captured_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captured At"
+          },
+          "date_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Basis"
+          },
+          "discovery_method": {
+            "type": "string",
+            "title": "Discovery Method"
+          },
+          "duplicate_cluster_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Duplicate Cluster Id"
+          },
+          "independence_group_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Independence Group Id"
+          },
+          "temporal_eligible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temporal Eligible"
+          },
+          "usage_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Note"
+          },
+          "image_matches": {
+            "items": {
+              "$ref": "#/components/schemas/ImageMatch"
+            },
+            "type": "array",
+            "title": "Image Matches"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "original_url",
+          "archive_url",
+          "first_seen_at",
+          "captured_at",
+          "date_basis",
+          "discovery_method",
+          "duplicate_cluster_id",
+          "independence_group_id",
+          "temporal_eligible",
+          "usage_note",
+          "image_matches"
+        ],
+        "title": "Provenance"
+      },
+      "ProviderStatus": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "capability": {
+            "type": "string",
+            "title": "Capability"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "disabled",
+              "unconfigured",
+              "rate_limited",
+              "failed",
+              "unsupported"
+            ],
+            "title": "Status"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider",
+          "capability",
+          "status",
+          "message"
+        ],
+        "title": "ProviderStatus"
+      },
+      "Qualifiers": {
+        "properties": {
+          "negated": {
+            "type": "boolean",
+            "title": "Negated"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "negated",
+          "quantity",
+          "time",
+          "location"
+        ],
+        "title": "Qualifiers"
+      },
+      "QueryLog": {
+        "properties": {
+          "query_id": {
+            "type": "string",
+            "title": "Query Id"
+          },
+          "atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Atom Ids"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Duration Ms"
+          },
+          "result_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Result Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query_id",
+          "atom_ids",
+          "provider",
+          "query",
+          "duration_ms",
+          "result_count"
+        ],
+        "title": "QueryLog"
+      },
+      "RawScale": {
+        "properties": {
+          "min": {
+            "type": "number",
+            "title": "Min"
+          },
+          "max": {
+            "type": "number",
+            "title": "Max"
+          },
+          "higher_means_ai": {
+            "type": "boolean",
+            "title": "Higher Means Ai"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "min",
+          "max",
+          "higher_means_ai"
+        ],
+        "title": "RawScale"
+      },
+      "Region": {
+        "properties": {
+          "region_id": {
+            "type": "string",
+            "pattern": "^rg_[0-9a-f]{32}_[0-9]{6}$",
+            "title": "Region Id"
+          },
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "bbox": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Bbox"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "region_id",
+          "asset_id",
+          "bbox",
+          "score",
+          "description"
+        ],
+        "title": "Region"
+      },
+      "Retrieval": {
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/RunInfo"
+          },
+          "atom_set_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atom Set Id"
+          },
+          "evidence_list": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "type": "array",
+            "title": "Evidence List"
+          },
+          "forensic_signals": {
+            "items": {
+              "$ref": "#/components/schemas/ForensicSignal"
+            },
+            "type": "array",
+            "title": "Forensic Signals"
+          },
+          "query_log": {
+            "items": {
+              "$ref": "#/components/schemas/QueryLog"
+            },
+            "type": "array",
+            "title": "Query Log"
+          },
+          "provider_status": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderStatus"
+            },
+            "type": "array",
+            "title": "Provider Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run",
+          "atom_set_id",
+          "evidence_list",
+          "forensic_signals",
+          "query_log",
+          "provider_status"
+        ],
+        "title": "Retrieval"
+      },
+      "RunInfo": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "demo",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Finished At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "partial",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Versions"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/Warning"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "mode",
+          "started_at",
+          "finished_at",
+          "status",
+          "versions",
+          "warnings"
+        ],
+        "title": "RunInfo"
+      },
+      "Source": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fact_check",
+              "news",
+              "official",
+              "web",
+              "image_provenance",
+              "local_corpus",
+              "user_supplied"
+            ],
+            "title": "Kind"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Retrieved At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider",
+          "kind",
+          "url",
+          "title",
+          "publisher",
+          "language",
+          "published_at",
+          "retrieved_at"
+        ],
+        "title": "Source"
+      },
+      "Span": {
+        "properties": {
+          "start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "End"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "Span"
+      },
+      "Target": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "claim_text",
+              "image",
+              "ocr_text"
+            ],
+            "title": "Kind"
+          },
+          "asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Id"
+          },
+          "text_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "asset_id",
+          "text_sha256"
+        ],
+        "title": "Target"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VisualAssessment": {
+        "properties": {
+          "atom_id": {
+            "type": "string",
+            "title": "Atom Id"
+          },
+          "visual_status": {
+            "type": "string",
+            "enum": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "title": "Visual Status"
+          },
+          "probabilities": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                "propertyNames": {
+                  "enum": [
+                    "Supported",
+                    "Contradicted",
+                    "Unobservable"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probabilities"
+          },
+          "unmatched_mass": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unmatched Mass"
+          },
+          "observability_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observability Score"
+          },
+          "supporting_regions": {
+            "items": {
+              "$ref": "#/components/schemas/Region"
+            },
+            "type": "array",
+            "title": "Supporting Regions"
+          },
+          "contradicting_regions": {
+            "items": {
+              "$ref": "#/components/schemas/Region"
+            },
+            "type": "array",
+            "title": "Contradicting Regions"
+          },
+          "counter_evidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counter Evidence"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "inference_kind": {
+            "type": "string",
+            "enum": [
+              "trained",
+              "heuristic",
+              "fixture",
+              "unavailable"
+            ],
+            "title": "Inference Kind"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "atom_id",
+          "visual_status",
+          "probabilities",
+          "unmatched_mass",
+          "observability_score",
+          "supporting_regions",
+          "contradicting_regions",
+          "counter_evidence",
+          "rationale",
+          "inference_kind"
+        ],
+        "title": "VisualAssessment"
+      },
+      "Warning": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "component": {
+            "type": "string",
+            "title": "Component"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "component"
+        ],
+        "title": "Warning"
+      }
+    }
+  }
+}

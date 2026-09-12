@@ -1,0 +1,38 @@
+uv run ruff check backend tests scripts
+All checks passed!
+uv run ruff format --check backend tests scripts
+unformatted: File would be reformatted
+   --> backend/aurora_visual/training/engine.py:196:12
+    |
+195 |         model, meta, state = load_checkpoint(resume)
+    -         if meta["backbone_version"] != backbone or meta["data_hash"] != d_hash or any(
+    -             meta["config"][k] != config[k]
+    -             for k in (
+    -                 "hidden",
+    -                 "use_unmatched",
+    -                 "cosine_only",
+    -                 "method",
+    -                 "hard_positives",
+    -                 "loss_weights",
+    -                 "seed",
+    -                 "learning_rate",
+196 +         if (
+197 +             meta["backbone_version"] != backbone
+198 +             or meta["data_hash"] != d_hash
+199 +             or any(
+200 +                 meta["config"][k] != config[k]
+201 +                 for k in (
+202 +                     "hidden",
+203 +                     "use_unmatched",
+204 +                     "cosine_only",
+205 +                     "method",
+206 +                     "hard_positives",
+207 +                     "loss_weights",
+208 +                     "seed",
+209 +                     "learning_rate",
+210 +                 )
+211 |             )
+    |
+
+1 file would be reformatted, 50 files already formatted
+make: *** [lint] Error 1

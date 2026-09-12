@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "00000000-0000-4000-8000-000000000001",
+  "claim_revision": 1,
+  "mode": "demo",
+  "created_at": "2026-09-12T01:00:00Z",
+  "input": {
+    "claim_text": "Festival Contoh berlangsung di Kota Contoh pada 8 September 2026.",
+    "language": "id",
+    "image": null,
+    "as_of": null
+  },
+  "analysis": null,
+  "retrieval": null,
+  "decision": null,
+  "warnings": [
+    {
+      "code": "SYNTHETIC_INPUT",
+      "message": "Masukan sintetis untuk pengujian perangkat lunak; bukan hasil penelitian.",
+      "component": "fixture"
+    }
+  ],
+  "extensions": {
+    "aurora_examples": {
+      "kind": "synthetic_input",
+      "version": "1.0.0"
+    }
+  }
+}

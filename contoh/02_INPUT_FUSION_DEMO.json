@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "00000000-0000-4000-8000-000000000001",
+  "claim_revision": 1,
+  "mode": "demo",
+  "created_at": "2026-09-12T01:00:00Z",
+  "input": {
+    "claim_text": "Festival Contoh berlangsung di Kota Contoh pada 8 September 2026.",
+    "language": "id",
+    "image": null,
+    "as_of": null
+  },
+  "analysis": {
+    "run": {
+      "run_id": "00000000-0000-4000-8000-000000000002",
+      "mode": "demo",
+      "started_at": "2026-09-12T01:00:00Z",
+      "finished_at": "2026-09-12T01:00:00Z",
+      "status": "completed",
+      "versions": {
+        "annotation_importer": "synthetic-fixture-1.0.0"
+      },
+      "warnings": []
+    },
+    "atom_set_id": "aset_a06369452d6eb465c3f25d54dc59062f59c81b11bb47a16f6eab4108de53c878",
+    "atomic_claims": [
+      {
+        "atom_id": "a000001",
+        "statement": "Festival Contoh berlangsung pada 8 September 2026.",
+        "role": "time",
+        "subject": "Festival Contoh",
+        "predicate": "berlangsung",
+        "object": null,
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": "2026-09-08",
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 27
+          },
+          {
+            "start": 48,
+            "end": 64
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 1,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000002",
+        "statement": "Festival Contoh berlangsung di Kota Contoh.",
+        "role": "location",
+        "subject": "Festival Contoh",
+        "predicate": "berlangsung",
+        "object": null,
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": null,
+          "location": "Kota Contoh"
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 42
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 1,
+        "parser_confidence": null
+      }
+    ],
+    "visual_assessments": [],
+    "ocr": []
+  },
+  "retrieval": {
+    "run": {
+      "run_id": "00000000-0000-4000-8000-000000000003",
+      "mode": "demo",
+      "started_at": "2026-09-12T01:00:00Z",
+      "finished_at": "2026-09-12T01:00:00Z",
+      "status": "completed",
+      "versions": {
+        "fixture_loader": "synthetic-fixture-1.0.0"
+      },
+      "warnings": []
+    },
+    "atom_set_id": "aset_a06369452d6eb465c3f25d54dc59062f59c81b11bb47a16f6eab4108de53c878",
+    "evidence_list": [
+      {
+        "evidence_id": "ev_00000000000040008000000000000003_000001",
+        "atom_ids": [
+          "a000002"
+        ],
+        "source": {
+          "provider": "synthetic_local_corpus",
+          "kind": "local_corpus",
+          "url": null,
+          "title": "Dokumen lokasi sintetis",
+          "publisher": "Corpus Sintetis AURORA",
+          "language": "id",
+          "published_at": null,
+          "retrieved_at": "2026-09-12T01:00:00Z"
+        },
+        "content": {
+          "text": "Festival Contoh berlangsung di Kota Contoh.",
+          "excerpt": "Festival Contoh berlangsung di Kota Contoh.",
+          "sha256": "0920876abb5dc57a30a4563d872b4d9845c3cf4ff783848ef0060d4c747ef46c",
+          "status": "full"
+        },
+        "provenance": {
+          "original_url": null,
+          "archive_url": null,
+          "first_seen_at": null,
+          "captured_at": null,
+          "date_basis": null,
+          "discovery_method": "synthetic_fixture",
+          "duplicate_cluster_id": "dup_location",
+          "independence_group_id": "src_location",
+          "temporal_eligible": null,
+          "usage_note": "Dokumen sintetis untuk menguji wiring dan validasi; bukan bukti dunia nyata.",
+          "image_matches": []
+        },
+        "relevance_score": null,
+        "credibility_score": null,
+        "rerank_score": null,
+        "score_breakdown": {}
+      },
+      {
+        "evidence_id": "ev_00000000000040008000000000000003_000002",
+        "atom_ids": [
+          "a000002"
+        ],
+        "source": {
+          "provider": "synthetic_local_corpus",
+          "kind": "local_corpus",
+          "url": null,
+          "title": "Salinan dokumen lokasi sintetis",
+          "publisher": "Corpus Sintetis AURORA",
+          "language": "id",
+          "published_at": null,
+          "retrieved_at": "2026-09-12T01:00:00Z"
+        },
+        "content": {
+          "text": "Festival Contoh berlangsung di Kota Contoh.",
+          "excerpt": "Festival Contoh berlangsung di Kota Contoh.",
+          "sha256": "0920876abb5dc57a30a4563d872b4d9845c3cf4ff783848ef0060d4c747ef46c",
+          "status": "full"
+        },
+        "provenance": {
+          "original_url": null,
+          "archive_url": null,
+          "first_seen_at": null,
+          "captured_at": null,
+          "date_basis": null,
+          "discovery_method": "synthetic_fixture",
+          "duplicate_cluster_id": "dup_location",
+          "independence_group_id": "src_location",
+          "temporal_eligible": null,
+          "usage_note": "Dokumen sintetis untuk menguji wiring dan validasi; bukan bukti dunia nyata.",
+          "image_matches": []
+        },
+        "relevance_score": null,
+        "credibility_score": null,
+        "rerank_score": null,
+        "score_breakdown": {}
+      },
+      {
+        "evidence_id": "ev_00000000000040008000000000000003_000003",
+        "atom_ids": [
+          "a000001"
+        ],
+        "source": {
+          "provider": "synthetic_local_corpus",
+          "kind": "local_corpus",
+          "url": null,
+          "title": "Dokumen jadwal sintetis",
+          "publisher": "Corpus Sintetis AURORA",
+          "language": "id",
+          "published_at": null,
+          "retrieved_at": "2026-09-12T01:00:00Z"
+        },
+        "content": {
+          "text": "Festival Contoh berlangsung pada 8 September 2026.",
+          "excerpt": "Festival Contoh berlangsung pada 8 September 2026.",
+          "sha256": "befc27549ef06611e9c8cbfe7b4085bf19efdbbe5f35570bbed4850ca41d4e8b",
+          "status": "full"
+        },
+        "provenance": {
+          "original_url": null,
+          "archive_url": null,
+          "first_seen_at": null,
+          "captured_at": null,
+          "date_basis": null,
+          "discovery_method": "synthetic_fixture",
+          "duplicate_cluster_id": "dup_schedule",
+          "independence_group_id": "src_schedule",
+          "temporal_eligible": null,
+          "usage_note": "Dokumen sintetis untuk menguji wiring dan validasi; bukan bukti dunia nyata.",
+          "image_matches": []
+        },
+        "relevance_score": null,
+        "credibility_score": null,
+        "rerank_score": null,
+        "score_breakdown": {}
+      }
+    ],
+    "forensic_signals": [
+      {
+        "signal_id": "fs_00000000000040008000000000000003_000001",
+        "target": {
+          "kind": "claim_text",
+          "asset_id": null,
+          "text_sha256": "b6c096b437f3a2689b53f504c12e4acfaf0fc6ee2b563b000c0c1659af2459f9"
+        },
+        "modality": "text",
+        "provider": "synthetic_detector",
+        "model_version": "fixture-1.0.0",
+        "task": "ai_generation_detection",
+        "status": "unsupported",
+        "raw_score": null,
+        "raw_scale": null,
+        "ai_generated_score": null,
+        "raw_label": null,
+        "assessment": "not_assessed",
+        "calibration_status": "not_applicable",
+        "applicable_language": null,
+        "limitations": [
+          "Contoh status untuk caption pendek; tidak ada layanan detector nyata yang dipanggil."
+        ],
+        "analyzed_at": "2026-09-12T01:00:00Z",
+        "error_code": "INPUT_TOO_SHORT"
+      }
+    ],
+    "query_log": [],
+    "provider_status": [
+      {
+        "provider": "synthetic_local_corpus",
+        "capability": "local_corpus",
+        "status": "ok",
+        "message": "Fixture sintetis, bukan hasil pencarian nyata."
+      },
+      {
+        "provider": "synthetic_detector",
+        "capability": "text_ai_detection",
+        "status": "unsupported",
+        "message": "Contoh input terlalu pendek."
+      }
+    ]
+  },
+  "decision": null,
+  "warnings": [
+    {
+      "code": "SYNTHETIC_INPUT",
+      "message": "Masukan sintetis untuk pengujian perangkat lunak; bukan hasil penelitian.",
+      "component": "fixture"
+    },
+    {
+      "code": "VISUAL_NOT_AVAILABLE",
+      "message": "Contoh ini berisi anotasi atom eksplisit tanpa gambar atau prediksi visual.",
+      "component": "analysis"
+    }
+  ],
+  "extensions": {
+    "aurora_examples": {
+      "kind": "synthetic_input",
+      "version": "1.0.0",
+      "analysis_origin": "explicit_synthetic_annotation",
+      "independent_source_groups": 2
+    }
+  }
+}

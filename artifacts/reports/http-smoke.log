@@ -1,0 +1,44 @@
+uv run python scripts/smoke.py
+{
+  "clean_temporary_database": true,
+  "http": true,
+  "isolated_worker": true,
+  "results": [
+    {
+      "fixture": "supported",
+      "case_id": "51d7a705-3ff3-45b1-8c88-f1c1d9dfe3ff",
+      "job_id": "59931a04-2d14-4f7b-8dfe-8e48eddbd536",
+      "status": "succeeded",
+      "labels": [
+        "Supported"
+      ]
+    },
+    {
+      "fixture": "contradicted",
+      "case_id": "04881a71-148f-4384-9c42-d756d20df0f5",
+      "job_id": "2c34c1ad-f858-40c9-b715-ea18241a1bcc",
+      "status": "succeeded",
+      "labels": [
+        "Contradicted"
+      ]
+    },
+    {
+      "fixture": "unobservable",
+      "case_id": "a1a0186e-9c3b-4b55-b8cd-1ab7b0471bfe",
+      "job_id": "bb3457fa-48c4-47b2-b291-29a7efcbf365",
+      "status": "succeeded",
+      "labels": [
+        "Unobservable",
+        "Unobservable",
+        "Unobservable",
+        "Unobservable"
+      ]
+    },
+    {
+      "live_local": "verified",
+      "restart_persistence": "verified",
+      "idempotency_after_restart": "verified"
+    }
+  ],
+  "research_evaluated": false
+}

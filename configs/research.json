@@ -1,0 +1,15 @@
+{
+  "seeds": [17, 29, 43, 71, 101],
+  "backbone": "openclip",
+  "frozen_backbone": true,
+  "top_k": 16,
+  "split_unit": ["image_sha256", "event_id", "source_group", "parent_id"],
+  "partitions": ["train", "validation", "calibration", "test"],
+  "alignment": ["global", "max-region", "mean-region", "attention", "balanced-ot", "uot"],
+  "ablations": ["cosine-only", "without-unmatched", "without-hard-positives", "text-only", "image-only", "rules-vs-optional-parser"],
+  "robustness": ["blur", "crop", "ocr-overlay"],
+  "bootstrap_unit": "event",
+  "target_gpu_gb": [16, 24],
+  "target_profile_verified": false,
+  "confirmatory_requires": "Human atom/region gold, licensed media, disjoint groups and non-fixture checkpoint"
+}

@@ -1,0 +1,426 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "7bcb7da5-31b2-48e3-9cb5-f8e91afcb544",
+  "claim_revision": 1,
+  "mode": "demo",
+  "created_at": "2026-09-12T20:15:43.092665Z",
+  "input": {
+    "claim_text": "Bidang ini berwarna merah",
+    "language": "id",
+    "image": {
+      "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+      "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+      "media_type": "image/png",
+      "width": 800,
+      "height": 600,
+      "uri": "api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+    },
+    "as_of": null
+  },
+  "analysis": {
+    "run": {
+      "run_id": "29631d8d-7927-4484-a389-e2c84c1a11b6",
+      "mode": "demo",
+      "started_at": "2026-09-12T20:15:43.965077Z",
+      "finished_at": "2026-09-12T20:15:44.081455Z",
+      "status": "completed",
+      "versions": {
+        "service": "1.0.0",
+        "parser": "id-en-rules-1.0.0",
+        "backbone": "local-color-v1",
+        "alignment": "uot",
+        "torch": "2.14.0",
+        "head": "conservative-v1"
+      },
+      "warnings": [
+        {
+          "code": "ORIGIN_SCREEN_INCONCLUSIVE",
+          "message": "Screening asal media tidak konklusif dan tidak mengubah penilaian visual.",
+          "component": "origin_screen"
+        },
+        {
+          "code": "OCR_OBSERVATION_ONLY",
+          "message": "OCR merekam tulisan, bukan waktu pengambilan foto atau kebenaran isi tulisan.",
+          "component": "ocr"
+        },
+        {
+          "code": "LIMITED_COLOR_BASELINE",
+          "message": "Baseline lokal hanya mengukur warna bidang. Tidak mengenali objek, aksi, identitas atau lokasi.",
+          "component": "vision"
+        }
+      ]
+    },
+    "atom_set_id": "aset_315e45f8face19fed0a3dd9200160c0c1a08c3fa9538e7c02d1345d289153cbe",
+    "atomic_claims": [
+      {
+        "atom_id": "a000001",
+        "statement": "Bidang ini berwarna merah",
+        "role": "attribute",
+        "subject": "Bidang ini",
+        "predicate": "berwarna",
+        "object": "merah",
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 25
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      }
+    ],
+    "visual_assessments": [
+      {
+        "atom_id": "a000001",
+        "visual_status": "Contradicted",
+        "probabilities": null,
+        "unmatched_mass": 0.44856828451156616,
+        "observability_score": 1.0,
+        "supporting_regions": [],
+        "contradicting_regions": [
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000001",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.0,
+              0.0,
+              0.25,
+              0.25
+            ],
+            "score": null,
+            "description": "Grid 1,1; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000002",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.25,
+              0.0,
+              0.5,
+              0.25
+            ],
+            "score": null,
+            "description": "Grid 1,2; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000003",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.5,
+              0.0,
+              0.75,
+              0.25
+            ],
+            "score": null,
+            "description": "Grid 1,3; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000004",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.75,
+              0.0,
+              1.0,
+              0.25
+            ],
+            "score": null,
+            "description": "Grid 1,4; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000005",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.0,
+              0.25,
+              0.25,
+              0.5
+            ],
+            "score": null,
+            "description": "Grid 2,1; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000006",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.25,
+              0.25,
+              0.5,
+              0.5
+            ],
+            "score": null,
+            "description": "Grid 2,2; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000007",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.5,
+              0.25,
+              0.75,
+              0.5
+            ],
+            "score": null,
+            "description": "Grid 2,3; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000008",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.75,
+              0.25,
+              1.0,
+              0.5
+            ],
+            "score": null,
+            "description": "Grid 2,4; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000009",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.0,
+              0.5,
+              0.25,
+              0.75
+            ],
+            "score": null,
+            "description": "Grid 3,1; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000010",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.25,
+              0.5,
+              0.5,
+              0.75
+            ],
+            "score": null,
+            "description": "Grid 3,2; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000011",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.5,
+              0.5,
+              0.75,
+              0.75
+            ],
+            "score": null,
+            "description": "Grid 3,3; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000012",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.75,
+              0.5,
+              1.0,
+              0.75
+            ],
+            "score": null,
+            "description": "Grid 3,4; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000013",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.0,
+              0.75,
+              0.25,
+              1.0
+            ],
+            "score": null,
+            "description": "Grid 4,1; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000014",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.25,
+              0.75,
+              0.5,
+              1.0
+            ],
+            "score": null,
+            "description": "Grid 4,2; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000015",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.5,
+              0.75,
+              0.75,
+              1.0
+            ],
+            "score": null,
+            "description": "Grid 4,3; bukan segmentasi objek"
+          },
+          {
+            "region_id": "rg_29631d8d79274484a389e2c84c1a11b6_000016",
+            "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+            "bbox": [
+              0.75,
+              0.75,
+              1.0,
+              1.0
+            ],
+            "score": null,
+            "description": "Grid 4,4; bukan segmentasi objek"
+          }
+        ],
+        "counter_evidence": "Bidang yang diamati berwarna biru; klaim menyebut merah.",
+        "rationale": "Fixture demonstrasi: Bantahan memakai warna alternatif yang terukur pada seluruh bidang.",
+        "inference_kind": "fixture"
+      }
+    ],
+    "ocr": []
+  },
+  "retrieval": null,
+  "decision": null,
+  "warnings": [
+    {
+      "code": "SYNTHETIC_FIXTURE",
+      "message": "Gambar dan label demonstrasi sintetis, bukan foto peristiwa atau bukti penelitian.",
+      "component": "demo"
+    }
+  ],
+  "extensions": {
+    "aurora_visual": {
+      "fixture": "contradicted",
+      "parser": {
+        "name": "id-en-rules-1.0.0",
+        "language": "id",
+        "confidence": "unavailable; not calibrated",
+        "unicode_offsets": "code_points"
+      },
+      "transform": {
+        "exif_orientation": 1,
+        "original_size": [
+          800,
+          600
+        ],
+        "normalized_size": [
+          800,
+          600
+        ],
+        "operation": "EXIF transpose to RGB; bbox normalized after transpose"
+      },
+      "screening": {
+        "version": "origin-screen-v1",
+        "target": {
+          "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+          "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+        },
+        "decision": {
+          "label": "inconclusive",
+          "rationale": "Fixture demo tidak diperlakukan sebagai hasil detektor asal media.",
+          "does_not_affect_visual_assessment": true,
+          "does_not_decide_claim_truth": true
+        },
+        "metadata": {
+          "status": "observed",
+          "field_names": [],
+          "info_field_names": [],
+          "camera_metadata_present": false,
+          "capture_time_present": false,
+          "software_classification": "not_present"
+        },
+        "provenance": {
+          "c2pa": {
+            "status": "not_detected",
+            "verification": "not_verified",
+            "message": "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+          },
+          "watermark": {
+            "status": "unavailable",
+            "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi."
+          }
+        },
+        "detectors": [
+          {
+            "task": "ai_generation_detection",
+            "provider": "unconfigured",
+            "status": "unavailable",
+            "assessment": "not_assessed",
+            "message": "Tidak ada model deteksi gambar AI tervalidasi yang dikonfigurasi."
+          },
+          {
+            "task": "deepfake_detection",
+            "provider": "unconfigured",
+            "status": "unavailable",
+            "assessment": "not_assessed",
+            "message": "Tidak ada detektor manipulasi wajah/deepfake yang dikonfigurasi."
+          }
+        ],
+        "limitations": [
+          "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
+          "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+          "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
+          "Hasil screening tidak mengubah status visual atau verdict faktual."
+        ],
+        "analyzed_at": "2026-09-12T20:15:43.969294+00:00"
+      },
+      "method": {
+        "backbone": "local-color-v1",
+        "alignment": "uot",
+        "checkpoint": null,
+        "mode": "fixture",
+        "region_method": "grid",
+        "calibration": "unavailable"
+      },
+      "diagnostics": {
+        "algorithm": "uot",
+        "converged": true,
+        "iterations": 71,
+        "fixed_point_error": 9.5367431640625e-7,
+        "transported_mass": 0.5514317154884338,
+        "row_l1": 0.44856828451156616,
+        "column_l1": 0.44856828451156616,
+        "objective": 0.7535955309867859,
+        "epsilon": 0.08,
+        "tau_t": 0.8,
+        "tau_v": 0.8
+      },
+      "cache": {
+        "key": "42a2b8e50501fdefa42378b12b6288c2440197a3013d8cd6f93c2bea23e664be",
+        "hit": false
+      },
+      "timing": {
+        "parse_ms": 4.716124996775761,
+        "total_ms": 116.36891699163243,
+        "peak_rss_platform_units": 247414784,
+        "peak_rss_note": "bytes on macOS, KiB on Linux; entire job process",
+        "cuda_peak_bytes": null
+      },
+      "config_sha256": "27acb3fd95f622fbc899db76da896029c46238cc9d6d4c36ce0a9c948bdd3ffc",
+      "artifacts": [
+        {
+          "path": "artifacts/29631d8d-7927-4484-a389-e2c84c1a11b6/transport.json",
+          "sha256": "3110c0d6155b0c6d6568e5a8a28c01d13b5ed803f7eda1e2066888b1f94d104f"
+        },
+        {
+          "path": "artifacts/29631d8d-7927-4484-a389-e2c84c1a11b6/features.npz",
+          "sha256": "5d54821ea9ef6d00886fbaf1edb7ae3df7575710dca4fe346fd49a3c8424d5c7"
+        }
+      ]
+    },
+    "aurora_contract": {
+      "run_inputs": {
+        "29631d8d-7927-4484-a389-e2c84c1a11b6": {
+          "snapshot_sha256": "85572c926e89c0cd109d45b2033944128c2ebb1b99cb2f3a88eb7c66631084b7",
+          "parent_run_ids": {}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "samples": 8,
+  "backbone": "local-color-v1",
+  "data_kind": "fixture",
+  "cache_directory": "artifacts/cache"
+}

@@ -1,0 +1,157 @@
+{
+  "config": {
+    "epochs": 2,
+    "learning_rate": 0.003,
+    "seed": 17,
+    "hidden": 32,
+    "method": "uot",
+    "use_unmatched": true,
+    "cosine_only": false,
+    "hard_positives": true,
+    "loss_weights": {
+      "ce": 1.0,
+      "contrastive": 0.1,
+      "margin": 0.1,
+      "consistency": 0.2,
+      "entropy": 0.001
+    }
+  },
+  "seed": 17,
+  "backbone_version": "local-color-v1",
+  "feature_config": {
+    "backbone": "synthetic-feature-fixture-v1",
+    "embedding_dim": 12
+  },
+  "label_map": [
+    "Supported",
+    "Contradicted",
+    "Unobservable"
+  ],
+  "data_hash": "49a8a86311b351c0424ef01a539ee5f7d756f54b14d076a979abf81425a4684d",
+  "split_hash": "cc44d81b56453b38e9718ba08e26421ea96c9b9ebd494326104855d766b7b421",
+  "split_ids": {
+    "train": [
+      "fixture-0",
+      "fixture-1",
+      "fixture-2",
+      "fixture-3",
+      "fixture-4"
+    ],
+    "validation": [
+      "fixture-5"
+    ],
+    "calibration": [
+      "fixture-6"
+    ],
+    "test": [
+      "fixture-7"
+    ]
+  },
+  "split_groups": {
+    "train": [
+      {
+        "group": "event-0",
+        "source_group": "source-0",
+        "image_sha256": "628edad04fdcb128d68a6e6c57f2b70a195d826cbb4346abd17d98e4093e55d9",
+        "parent_id": "fixture-0"
+      },
+      {
+        "group": "event-1",
+        "source_group": "source-1",
+        "image_sha256": "8a590128183fe69c3c27051b134202b525f580bbbec4a213738f40f5bbb7a466",
+        "parent_id": "fixture-1"
+      },
+      {
+        "group": "event-2",
+        "source_group": "source-2",
+        "image_sha256": "d2c4c2f8c0213e606d440c7ab36ee44ca18829464f1007dadc013aad8ed4af92",
+        "parent_id": "fixture-2"
+      },
+      {
+        "group": "event-3",
+        "source_group": "source-3",
+        "image_sha256": "2073405e788345847c04f8cec0f6e08612600a353633258b01d5fdc326835ae4",
+        "parent_id": "fixture-3"
+      },
+      {
+        "group": "event-4",
+        "source_group": "source-4",
+        "image_sha256": "fb1d6868f965c57e4d59a43d560336f772f4c1d6ca5df58bc95369273ddd6800",
+        "parent_id": "fixture-4"
+      }
+    ],
+    "validation": [
+      {
+        "group": "event-5",
+        "source_group": "source-5",
+        "image_sha256": "03f1b2cf636666e648bf3ed1bf19856d846ec6f3439064a343874e47374c2c4a",
+        "parent_id": "fixture-5"
+      }
+    ],
+    "calibration": [
+      {
+        "group": "event-6",
+        "source_group": "source-6",
+        "image_sha256": "83db1e0b623c9f221c5b5fb0811ddf36208be8310938f8253d7ef62d3cf00801",
+        "parent_id": "fixture-6"
+      }
+    ],
+    "test": [
+      {
+        "group": "event-7",
+        "source_group": "source-7",
+        "image_sha256": "619539c066a2d998cf55c9334f94447d19f0745474c81d073ef0290039181591",
+        "parent_id": "fixture-7"
+      }
+    ]
+  },
+  "data_kind": "fixture",
+  "embedding_dim": 12,
+  "trained_steps": 10,
+  "epoch": 2,
+  "gradient_norms": {
+    "weights": 0.010453269816935062,
+    "text_projector.weight": 0.1099359542131424,
+    "text_projector.bias": 0.05906233191490173,
+    "region_projector.weight": 0,
+    "region_projector.bias": 0.04720914363861084,
+    "role_projector.weight": 0.00957514438778162,
+    "head.0.weight": 0.15340518951416016,
+    "head.0.bias": 0.0326053723692894,
+    "head.2.weight": 0.19800695776939392,
+    "head.2.bias": 0.037708137184381485
+  },
+  "calibration_status": "uncalibrated",
+  "research_evaluated": false,
+  "optimizer": "AdamW",
+  "selection": "loss weights provided externally; tune on validation only; no test tuning",
+  "checkpoint_sha256": "d28ba128621bac3181bfd5c0f84ba5f50259a1f57c58ce8095bf33ae321900a9",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.2346404552459718,
+      "validation_ce": 1.0410113334655762,
+      "loss_terms": {
+        "ce": 1.0779302597045899,
+        "contrastive": 1.3862943649291992,
+        "margin": 0.19467037916183472,
+        "consistency": 1.16457826493388e-08,
+        "entropy": -1.3862943649291992
+      },
+      "nonconverged_batches": 0
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.166090965270996,
+      "validation_ce": 0.9463269710540771,
+      "loss_terms": {
+        "ce": 1.0103450655937194,
+        "contrastive": 1.3862943649291992,
+        "margin": 0.1850272536277771,
+        "consistency": 5.335749531099054e-08,
+        "entropy": -1.3862943649291992
+      },
+      "nonconverged_batches": 0
+    }
+  ]
+}

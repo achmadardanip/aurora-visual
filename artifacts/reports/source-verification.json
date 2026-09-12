@@ -1,0 +1,74 @@
+[
+  {
+    "repo": "g-luo/news_clippings",
+    "url": "https://github.com/g-luo/news_clippings",
+    "license_status": 404,
+    "license": {},
+    "license_url": null
+  },
+  {
+    "repo": "stevejpapad/image-text-verification",
+    "url": "https://github.com/stevejpapad/image-text-verification",
+    "license_status": 200,
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "license_url": "https://github.com/stevejpapad/image-text-verification/blob/master/LICENSE"
+  },
+  {
+    "repo": "shivangi-aneja/COSMOS",
+    "url": "https://github.com/shivangi-aneja/COSMOS",
+    "license_status": 200,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "license_url": "https://github.com/shivangi-aneja/COSMOS/blob/main/LICENSE.md"
+  },
+  {
+    "repo": "liuxuannan/MMFakeBench",
+    "url": "https://github.com/liuxuannan/MMFakeBench",
+    "license_status": 200,
+    "license": {
+      "key": "other",
+      "name": "Other",
+      "spdx_id": "NOASSERTION",
+      "url": null,
+      "node_id": "MDc6TGljZW5zZTA="
+    },
+    "license_url": "https://github.com/liuxuannan/MMFakeBench/blob/main/LICENSE"
+  },
+  {
+    "repo": "mlfoundations/open_clip",
+    "url": "https://github.com/mlfoundations/open_clip",
+    "license_status": 200,
+    "license": {
+      "key": "other",
+      "name": "Other",
+      "spdx_id": "NOASSERTION",
+      "url": null,
+      "node_id": "MDc6TGljZW5zZTA="
+    },
+    "license_url": "https://github.com/mlfoundations/open_clip/blob/main/LICENSE"
+  },
+  {
+    "repo": "tesseract-ocr/tessdata",
+    "url": "https://github.com/tesseract-ocr/tessdata",
+    "license_status": 200,
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "license_url": "https://github.com/tesseract-ocr/tessdata/blob/main/LICENSE"
+  }
+]

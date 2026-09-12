@@ -1,0 +1,25 @@
+services:
+  api:
+    build: .
+    ports: ["127.0.0.1:${AURORA_PORT:-8101}:8101"]
+    environment:
+      AURORA_DATA_DIR: /data
+      AURORA_PUBLIC: ${AURORA_PUBLIC:-false}
+      AURORA_API_TOKEN: ${AURORA_API_TOKEN:-}
+      AURORA_CORS: ${AURORA_CORS:-http://localhost:5171,http://127.0.0.1:5171}
+      AURORA_MAX_UPLOAD_MB: ${AURORA_MAX_UPLOAD_MB:-10}
+      AURORA_MAX_PENDING: ${AURORA_MAX_PENDING:-20}
+      AURORA_JOB_TIMEOUT: ${AURORA_JOB_TIMEOUT:-180}
+    volumes: ["aurora-data:/data"]
+    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports: ["127.0.0.1:${AURORA_FRONTEND_PORT:-5171}:5171"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  aurora-data:

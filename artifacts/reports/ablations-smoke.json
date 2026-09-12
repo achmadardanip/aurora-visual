@@ -1,0 +1,2386 @@
+{
+  "seed": 17,
+  "experiments": [
+    {
+      "name": "global",
+      "checkpoint": "artifacts/reports/checkpoints/global-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ]
+        ],
+        "macro_f1": 0.16666666666666666,
+        "per_label_f1": {
+          "Supported": 0.0,
+          "Contradicted": 0.5,
+          "Unobservable": 0.0
+        },
+        "contradiction_f1": 0.5,
+        "false_contradiction_rate": 1.0,
+        "accuracy": 0.3333333333333333,
+        "split": "test",
+        "method": "global",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.2222222222222222,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.6666666666666666,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 0.6666666666666666,
+            "false_contradiction_rate": 1.0,
+            "accuracy": 0.5
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ],
+            "macro_f1": 0.0,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 1.0,
+            "accuracy": 0.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 0.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ],
+            "macro_f1": 0.16666666666666666,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.5,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 0.5,
+            "false_contradiction_rate": 1.0,
+            "accuracy": 0.3333333333333333
+          }
+        },
+        "inference_ms_mean": 0.11937500676140189,
+        "peak_rss_platform_units": 342507520,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.2566412448883058,
+          "validation_ce": 1.0991027355194092,
+          "loss_terms": {
+            "ce": 1.0993981122970582,
+            "contrastive": 1.3862943649291992,
+            "margin": 0.20000001192092892,
+            "consistency": 0.0,
+            "entropy": -1.3862943649291992
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.2561364889144897,
+          "validation_ce": 1.098827838897705,
+          "loss_terms": {
+            "ce": 1.0988933563232421,
+            "contrastive": 1.3862943649291992,
+            "margin": 0.19999999999999998,
+            "consistency": 0.0,
+            "entropy": -1.3862943649291992
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "max-region",
+      "checkpoint": "artifacts/reports/checkpoints/max-region-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "max-region",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.11587499466259032,
+        "peak_rss_platform_units": 343146496,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1686389923095704,
+          "validation_ce": 1.048317551612854,
+          "loss_terms": {
+            "ce": 1.0790595054626466,
+            "contrastive": 0.7671662688255311,
+            "margin": 0.12862817049026487,
+            "consistency": 1.0834947561377818e-08,
+            "entropy": 0.0
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.079968237876892,
+          "validation_ce": 0.9757206439971924,
+          "loss_terms": {
+            "ce": 1.0183993577957153,
+            "contrastive": 0.5348866164684296,
+            "margin": 0.08080220222473145,
+            "consistency": 3.240352066669061e-08,
+            "entropy": 0.0
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "mean-region",
+      "checkpoint": "artifacts/reports/checkpoints/mean-region-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "mean-region",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.08170799992512912,
+        "peak_rss_platform_units": 343162880,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.164329171180725,
+          "validation_ce": 1.0425150394439697,
+          "loss_terms": {
+            "ce": 1.0762499570846558,
+            "contrastive": 0.7658759117126465,
+            "margin": 0.12877905368804932,
+            "consistency": 1.0578106035552537e-08,
+            "entropy": -1.3862943649291992
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0743208646774292,
+          "validation_ce": 0.9602069854736328,
+          "loss_terms": {
+            "ce": 1.0146236062049865,
+            "contrastive": 0.5304302215576172,
+            "margin": 0.08040467500686646,
+            "consistency": 3.7899380345152164e-08,
+            "entropy": -1.3862943649291992
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "attention",
+      "checkpoint": "artifacts/reports/checkpoints/attention-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "attention",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.08349999552592635,
+        "peak_rss_platform_units": 343474176,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1645922899246215,
+          "validation_ce": 1.040662169456482,
+          "loss_terms": {
+            "ce": 1.0764680147171022,
+            "contrastive": 0.7654885053634644,
+            "margin": 0.12842001914978027,
+            "consistency": 4.857669892999184e-08,
+            "entropy": -1.266553735733032
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0723037719726562,
+          "validation_ce": 0.9572092890739441,
+          "loss_terms": {
+            "ce": 1.0123859286308288,
+            "contrastive": 0.530794882774353,
+            "margin": 0.08033065795898436,
+            "consistency": 7.378701951665788e-08,
+            "entropy": -1.1946739196777343
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "balanced-ot",
+      "checkpoint": "artifacts/reports/checkpoints/balanced-ot-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "balanced-ot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.25029199605342,
+        "peak_rss_platform_units": 344424448,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1652650117874146,
+          "validation_ce": 1.0432158708572388,
+          "loss_terms": {
+            "ce": 1.0772893905639649,
+            "contrastive": 0.7644072651863099,
+            "margin": 0.12834529876708983,
+            "consistency": 3.5427775202379057e-08,
+            "entropy": -1.2996414184570313
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0752995967864991,
+          "validation_ce": 0.9630523324012756,
+          "loss_terms": {
+            "ce": 1.0153843998908998,
+            "contrastive": 0.5315590798854828,
+            "margin": 0.08039625883102418,
+            "consistency": 6.254606361721926e-08,
+            "entropy": -1.2803426504135131
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "uot",
+      "checkpoint": "artifacts/reports/checkpoints/uot-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "uot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.9001250000437722,
+        "peak_rss_platform_units": 346292224,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.16469349861145,
+          "validation_ce": 1.0411921739578247,
+          "loss_terms": {
+            "ce": 1.0768028020858764,
+            "contrastive": 0.7640467643737794,
+            "margin": 0.12784509658813475,
+            "consistency": 2.3587269026847935e-08,
+            "entropy": -1.2984603166580202
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0729692697525024,
+          "validation_ce": 0.9580159187316895,
+          "loss_terms": {
+            "ce": 1.0129611134529113,
+            "contrastive": 0.532281619310379,
+            "margin": 0.08056458234786988,
+            "consistency": 4.9569836235718874e-08,
+            "entropy": -1.2764731168746948
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "cosine-only",
+      "checkpoint": "artifacts/reports/checkpoints/cosine-only-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "uot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.9142909984802827,
+        "peak_rss_platform_units": 346341376,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.3046625852584839,
+          "validation_ce": 1.0450642108917236,
+          "loss_terms": {
+            "ce": 1.0774813413619995,
+            "contrastive": 2.0860706329345704,
+            "margin": 0.19815118312835694,
+            "consistency": 5.9330441004590284e-08,
+            "entropy": -1.2409503221511842
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.133239245414734,
+          "validation_ce": 0.9726629257202148,
+          "loss_terms": {
+            "ce": 1.0194283604621888,
+            "contrastive": 1.0118733763694763,
+            "margin": 0.1390580177307129,
+            "consistency": 5.6215169053075444e-08,
+            "entropy": -1.282219696044922
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "without-unmatched",
+      "checkpoint": "artifacts/reports/checkpoints/without-unmatched-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "uot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.8864580013323575,
+        "peak_rss_platform_units": 346341376,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1652631998062133,
+          "validation_ce": 1.0430105924606323,
+          "loss_terms": {
+            "ce": 1.0772304773330688,
+            "contrastive": 0.7648207426071167,
+            "margin": 0.1284986615180969,
+            "consistency": 2.356369712686046e-08,
+            "entropy": -1.2991920471191407
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0751193761825562,
+          "validation_ce": 0.9625704884529114,
+          "loss_terms": {
+            "ce": 1.0151577115058898,
+            "contrastive": 0.5318553984165192,
+            "margin": 0.0805458664894104,
+            "consistency": 4.977720493570815e-08,
+            "entropy": -1.2784895181655882
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "without-hard-positives",
+      "checkpoint": "artifacts/reports/checkpoints/without-hard-positives-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "uot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.9060830052476376,
+        "peak_rss_platform_units": 346357760,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.16469349861145,
+          "validation_ce": 1.0411922931671143,
+          "loss_terms": {
+            "ce": 1.0768028020858764,
+            "contrastive": 0.7640468716621399,
+            "margin": 0.12784510850906372,
+            "consistency": 0.0,
+            "entropy": -1.2984603166580202
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0729693174362183,
+          "validation_ce": 0.9580159187316895,
+          "loss_terms": {
+            "ce": 1.0129611611366272,
+            "contrastive": 0.5322815597057342,
+            "margin": 0.08056457042694092,
+            "consistency": 0.0,
+            "entropy": -1.2764731884002685
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "text-only",
+      "checkpoint": "artifacts/reports/checkpoints/text-only-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 1.0,
+        "per_label_f1": {
+          "Supported": 1.0,
+          "Contradicted": 1.0,
+          "Unobservable": 1.0
+        },
+        "contradiction_f1": 1.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 1.0,
+        "split": "test",
+        "method": "uot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.6666666666666666,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 1.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 1.0,
+            "per_label_f1": {
+              "Supported": 1.0,
+              "Contradicted": 1.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 1.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "inference_ms_mean": 0.8932079945225269,
+        "peak_rss_platform_units": 346603520,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 0,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 1,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.2346404552459718,
+          "validation_ce": 1.0410113334655762,
+          "loss_terms": {
+            "ce": 1.0779302597045899,
+            "contrastive": 1.3862943649291992,
+            "margin": 0.19467037916183472,
+            "consistency": 1.16457826493388e-08,
+            "entropy": -1.3862943649291992
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.166090965270996,
+          "validation_ce": 0.9463269710540771,
+          "loss_terms": {
+            "ce": 1.0103450655937194,
+            "contrastive": 1.3862943649291992,
+            "margin": 0.1850272536277771,
+            "consistency": 5.335749531099054e-08,
+            "entropy": -1.3862943649291992
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    },
+    {
+      "name": "image-only",
+      "checkpoint": "artifacts/reports/checkpoints/image-only-17.pt",
+      "metrics": {
+        "n": 3,
+        "labels": [
+          "Supported",
+          "Contradicted",
+          "Unobservable"
+        ],
+        "confusion": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "macro_f1": 0.16666666666666666,
+        "per_label_f1": {
+          "Supported": 0.0,
+          "Contradicted": 0.0,
+          "Unobservable": 0.5
+        },
+        "contradiction_f1": 0.0,
+        "false_contradiction_rate": 0.0,
+        "accuracy": 0.3333333333333333,
+        "split": "test",
+        "method": "uot",
+        "data_kind": "fixture",
+        "research_evaluated": false,
+        "per_role": {
+          "attribute": {
+            "n": 2,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "macro_f1": 0.0,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 0.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 0.0
+          },
+          "time": {
+            "n": 1,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.3333333333333333,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 1.0
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 1.0
+          }
+        },
+        "event_bootstrap_ci": {
+          "low": null,
+          "high": null,
+          "units": 1,
+          "reason": "At least two independent event/image groups required"
+        },
+        "role_swap_accuracy": null,
+        "hard_positive_consistency": 1.0,
+        "group_accuracy": 0.0,
+        "grounding": null,
+        "faithfulness": [],
+        "per_dataset": {
+          "synthetic-smoke": {
+            "n": 3,
+            "labels": [
+              "Supported",
+              "Contradicted",
+              "Unobservable"
+            ],
+            "confusion": [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            "macro_f1": 0.16666666666666666,
+            "per_label_f1": {
+              "Supported": 0.0,
+              "Contradicted": 0.0,
+              "Unobservable": 0.5
+            },
+            "contradiction_f1": 0.0,
+            "false_contradiction_rate": 0.0,
+            "accuracy": 0.3333333333333333
+          }
+        },
+        "inference_ms_mean": 0.9133330022450536,
+        "peak_rss_platform_units": 346685440,
+        "peak_rss_note": "process peak: bytes on macOS; KiB on Linux",
+        "rows": [
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 0,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "attribute",
+            "truth": 1,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          },
+          {
+            "sample_id": "fixture-7",
+            "group": "event-7",
+            "role": "time",
+            "truth": 2,
+            "prediction": 2,
+            "pair_kind": "hard_positive"
+          }
+        ]
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1863004922866822,
+          "validation_ce": 1.0992356538772583,
+          "loss_terms": {
+            "ce": 1.0995365619659423,
+            "contrastive": 0.6814574122428894,
+            "margin": 0.19999998807907104,
+            "consistency": 0.0,
+            "entropy": -1.3818151712417601
+          },
+          "nonconverged_batches": 0
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.1695874214172364,
+          "validation_ce": 1.0986179113388062,
+          "loss_terms": {
+            "ce": 1.0990938186645507,
+            "contrastive": 0.5187378287315368,
+            "margin": 0.20000000596046447,
+            "consistency": 0.0,
+            "entropy": -1.3801689386367797
+          },
+          "nonconverged_batches": 0
+        }
+      ]
+    }
+  ],
+  "optional_parser_comparison": {
+    "status": "unconfigured",
+    "reason": "Run optional parser on reviewed gold manifest after provider setup"
+  },
+  "note": "Smoke fixtures verify code only; no scientific claims"
+}

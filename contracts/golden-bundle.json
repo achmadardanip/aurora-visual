@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "00000000-0000-0000-0000-000000000001",
+  "claim_revision": 1,
+  "mode": "demo",
+  "created_at": "2026-09-12T00:00:00Z",
+  "input": {
+    "claim_text": "📷 Dua mahasiswa tidak membawa 2,5 kg barang di Monas pada September 2026",
+    "language": "id",
+    "image": null,
+    "as_of": null
+  },
+  "analysis": {
+    "run": {
+      "run_id": "00000000-0000-0000-0000-000000000002",
+      "mode": "demo",
+      "started_at": "2026-09-12T00:00:00Z",
+      "finished_at": "2026-09-12T00:00:00Z",
+      "status": "partial",
+      "versions": {
+        "importer": "golden-fixture-v1"
+      },
+      "warnings": []
+    },
+    "atom_set_id": "aset_dc2bfe7c3b24be320b88bf42f7758efc9b9ceaf42ed49c37b4917e500720b054",
+    "atomic_claims": [
+      {
+        "atom_id": "a000001",
+        "statement": "Pelaku berstatus mahasiswa",
+        "role": "actor",
+        "subject": "Pelaku",
+        "predicate": "berstatus",
+        "object": "mahasiswa",
+        "qualifiers": {
+          "negated": true,
+          "quantity": null,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 15
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000002",
+        "statement": "📷 Dua mahasiswa tidak membawa 2,5 kg barang",
+        "role": "action",
+        "subject": "📷 Dua mahasiswa",
+        "predicate": "membawa",
+        "object": "2,5 kg barang",
+        "qualifiers": {
+          "negated": true,
+          "quantity": null,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 43
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000003",
+        "statement": "📷 Dua mahasiswa tidak membawa 2,5 kg barang",
+        "role": "quantity",
+        "subject": "📷 Dua mahasiswa",
+        "predicate": "membawa",
+        "object": "2,5 kg barang",
+        "qualifiers": {
+          "negated": true,
+          "quantity": 2.0,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 43
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000004",
+        "statement": "📷 Dua mahasiswa tidak membawa 2,5 kg barang",
+        "role": "quantity",
+        "subject": "📷 Dua mahasiswa",
+        "predicate": "membawa",
+        "object": "2,5 kg barang",
+        "qualifiers": {
+          "negated": true,
+          "quantity": 2.5,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 43
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000005",
+        "statement": "📷 Dua mahasiswa di Monas",
+        "role": "location",
+        "subject": "📷 Dua mahasiswa",
+        "predicate": "di",
+        "object": "Monas",
+        "qualifiers": {
+          "negated": true,
+          "quantity": null,
+          "time": null,
+          "location": "Monas"
+        },
+        "spans": [
+          {
+            "start": 44,
+            "end": 52
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000006",
+        "statement": "Peristiwa berlangsung pada September 2026",
+        "role": "time",
+        "subject": "Peristiwa",
+        "predicate": "berlangsung pada",
+        "object": "September 2026",
+        "qualifiers": {
+          "negated": true,
+          "quantity": null,
+          "time": "September 2026",
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 53,
+            "end": 72
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      }
+    ],
+    "visual_assessments": [],
+    "ocr": []
+  },
+  "retrieval": null,
+  "decision": null,
+  "warnings": [],
+  "extensions": {
+    "golden": {
+      "fraction": 0.125,
+      "non_ascii": "é漢📷",
+      "unknown": null
+    }
+  }
+}

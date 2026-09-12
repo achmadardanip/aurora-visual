@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "0d080c95-fa43-4c0a-be19-0f9d5f54f611",
+  "claim_revision": 1,
+  "mode": "demo",
+  "created_at": "2026-09-12T20:15:44.108615Z",
+  "input": {
+    "claim_text": "Mahasiswa melakukan aksi di Monas pada September 2026",
+    "language": "id",
+    "image": {
+      "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+      "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+      "media_type": "image/png",
+      "width": 800,
+      "height": 600,
+      "uri": "api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+    },
+    "as_of": null
+  },
+  "analysis": {
+    "run": {
+      "run_id": "369d1891-14af-4436-b51b-4fbe9df48da5",
+      "mode": "demo",
+      "started_at": "2026-09-12T20:15:45.010439Z",
+      "finished_at": "2026-09-12T20:15:45.124921Z",
+      "status": "completed",
+      "versions": {
+        "service": "1.0.0",
+        "parser": "id-en-rules-1.0.0",
+        "backbone": "local-color-v1",
+        "alignment": "uot",
+        "torch": "2.14.0",
+        "head": "conservative-v1"
+      },
+      "warnings": [
+        {
+          "code": "ORIGIN_SCREEN_INCONCLUSIVE",
+          "message": "Screening asal media tidak konklusif dan tidak mengubah penilaian visual.",
+          "component": "origin_screen"
+        },
+        {
+          "code": "OCR_OBSERVATION_ONLY",
+          "message": "OCR merekam tulisan, bukan waktu pengambilan foto atau kebenaran isi tulisan.",
+          "component": "ocr"
+        },
+        {
+          "code": "LIMITED_COLOR_BASELINE",
+          "message": "Baseline lokal hanya mengukur warna bidang. Tidak mengenali objek, aksi, identitas atau lokasi.",
+          "component": "vision"
+        }
+      ]
+    },
+    "atom_set_id": "aset_6fb33ee7b65c7d2238f95c64793c79d0d4ef4adf94ae083da636651cc7e32dc4",
+    "atomic_claims": [
+      {
+        "atom_id": "a000001",
+        "statement": "Pelaku berstatus Mahasiswa",
+        "role": "actor",
+        "subject": "Pelaku",
+        "predicate": "berstatus",
+        "object": "Mahasiswa",
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 9
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000002",
+        "statement": "Mahasiswa melakukan aksi",
+        "role": "action",
+        "subject": "Mahasiswa",
+        "predicate": "melakukan",
+        "object": "aksi",
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 24
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000003",
+        "statement": "Mahasiswa di Monas",
+        "role": "location",
+        "subject": "Mahasiswa",
+        "predicate": "di",
+        "object": "Monas",
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": null,
+          "location": "Monas"
+        },
+        "spans": [
+          {
+            "start": 25,
+            "end": 33
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000004",
+        "statement": "Peristiwa berlangsung pada September 2026",
+        "role": "time",
+        "subject": "Peristiwa",
+        "predicate": "berlangsung pada",
+        "object": "September 2026",
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": "September 2026",
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 34,
+            "end": 53
+          }
+        ],
+        "depends_on": [
+          "a000002"
+        ],
+        "check_worthiness": 1.0,
+        "parser_confidence": null
+      }
+    ],
+    "visual_assessments": [
+      {
+        "atom_id": "a000001",
+        "visual_status": "Unobservable",
+        "probabilities": null,
+        "unmatched_mass": 0.44856852293014526,
+        "observability_score": null,
+        "supporting_regions": [],
+        "contradicting_regions": [],
+        "counter_evidence": null,
+        "rationale": "Fixture demonstrasi: Wajah atau kerumunan tidak membuktikan nama maupun afiliasi.",
+        "inference_kind": "fixture"
+      },
+      {
+        "atom_id": "a000002",
+        "visual_status": "Unobservable",
+        "probabilities": null,
+        "unmatched_mass": 0.44856852293014526,
+        "observability_score": null,
+        "supporting_regions": [],
+        "contradicting_regions": [],
+        "counter_evidence": null,
+        "rationale": "Fixture demonstrasi: Bukti visual eksplisit belum cukup untuk menilai proposisi ini.",
+        "inference_kind": "fixture"
+      },
+      {
+        "atom_id": "a000003",
+        "visual_status": "Unobservable",
+        "probabilities": null,
+        "unmatched_mass": 0.44856852293014526,
+        "observability_score": null,
+        "supporting_regions": [],
+        "contradicting_regions": [],
+        "counter_evidence": null,
+        "rationale": "Fixture demonstrasi: Lokasi memerlukan cue spesifik; pemandangan generik tidak cukup.",
+        "inference_kind": "fixture"
+      },
+      {
+        "atom_id": "a000004",
+        "visual_status": "Unobservable",
+        "probabilities": null,
+        "unmatched_mass": 0.44856852293014526,
+        "observability_score": null,
+        "supporting_regions": [],
+        "contradicting_regions": [],
+        "counter_evidence": null,
+        "rationale": "Fixture demonstrasi: Tanggal tulisan/OCR bukan bukti tanggal pengambilan foto.",
+        "inference_kind": "fixture"
+      }
+    ],
+    "ocr": []
+  },
+  "retrieval": null,
+  "decision": null,
+  "warnings": [
+    {
+      "code": "SYNTHETIC_FIXTURE",
+      "message": "Gambar dan label demonstrasi sintetis, bukan foto peristiwa atau bukti penelitian.",
+      "component": "demo"
+    }
+  ],
+  "extensions": {
+    "aurora_visual": {
+      "fixture": "unobservable",
+      "parser": {
+        "name": "id-en-rules-1.0.0",
+        "language": "id",
+        "confidence": "unavailable; not calibrated",
+        "unicode_offsets": "code_points"
+      },
+      "transform": {
+        "exif_orientation": 1,
+        "original_size": [
+          800,
+          600
+        ],
+        "normalized_size": [
+          800,
+          600
+        ],
+        "operation": "EXIF transpose to RGB; bbox normalized after transpose"
+      },
+      "screening": {
+        "version": "origin-screen-v1",
+        "target": {
+          "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+          "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+        },
+        "decision": {
+          "label": "inconclusive",
+          "rationale": "Fixture demo tidak diperlakukan sebagai hasil detektor asal media.",
+          "does_not_affect_visual_assessment": true,
+          "does_not_decide_claim_truth": true
+        },
+        "metadata": {
+          "status": "observed",
+          "field_names": [],
+          "info_field_names": [],
+          "camera_metadata_present": false,
+          "capture_time_present": false,
+          "software_classification": "not_present"
+        },
+        "provenance": {
+          "c2pa": {
+            "status": "not_detected",
+            "verification": "not_verified",
+            "message": "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+          },
+          "watermark": {
+            "status": "unavailable",
+            "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi."
+          }
+        },
+        "detectors": [
+          {
+            "task": "ai_generation_detection",
+            "provider": "unconfigured",
+            "status": "unavailable",
+            "assessment": "not_assessed",
+            "message": "Tidak ada model deteksi gambar AI tervalidasi yang dikonfigurasi."
+          },
+          {
+            "task": "deepfake_detection",
+            "provider": "unconfigured",
+            "status": "unavailable",
+            "assessment": "not_assessed",
+            "message": "Tidak ada detektor manipulasi wajah/deepfake yang dikonfigurasi."
+          }
+        ],
+        "limitations": [
+          "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
+          "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+          "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
+          "Hasil screening tidak mengubah status visual atau verdict faktual."
+        ],
+        "analyzed_at": "2026-09-12T20:15:45.014768+00:00"
+      },
+      "method": {
+        "backbone": "local-color-v1",
+        "alignment": "uot",
+        "checkpoint": null,
+        "mode": "fixture",
+        "region_method": "grid",
+        "calibration": "unavailable"
+      },
+      "diagnostics": {
+        "algorithm": "uot",
+        "converged": true,
+        "iterations": 76,
+        "fixed_point_error": 9.5367431640625e-7,
+        "transported_mass": 0.5514314770698547,
+        "row_l1": 0.44856852293014526,
+        "column_l1": 0.44856852293014526,
+        "objective": 0.7535954117774963,
+        "epsilon": 0.08,
+        "tau_t": 0.8,
+        "tau_v": 0.8
+      },
+      "cache": {
+        "key": "8d0045a43fa464460b782e6715242118d9bb87896a79bcf143781d3f97d28e75",
+        "hit": false
+      },
+      "timing": {
+        "parse_ms": 4.9914169940166175,
+        "total_ms": 114.47233399667311,
+        "peak_rss_platform_units": 247398400,
+        "peak_rss_note": "bytes on macOS, KiB on Linux; entire job process",
+        "cuda_peak_bytes": null
+      },
+      "config_sha256": "27acb3fd95f622fbc899db76da896029c46238cc9d6d4c36ce0a9c948bdd3ffc",
+      "artifacts": [
+        {
+          "path": "artifacts/369d1891-14af-4436-b51b-4fbe9df48da5/transport.json",
+          "sha256": "480d9de0c4f68da21a6b437639d9499e397d148e18b1310a6c1c5aadf3bd1172"
+        },
+        {
+          "path": "artifacts/369d1891-14af-4436-b51b-4fbe9df48da5/features.npz",
+          "sha256": "b296338ab5e85e0cc3170b5f1c04e11ec12523505a9260283b9be0d83305da0e"
+        }
+      ]
+    },
+    "aurora_contract": {
+      "run_inputs": {
+        "369d1891-14af-4436-b51b-4fbe9df48da5": {
+          "snapshot_sha256": "eae10a164ba6a8422398bd3550e1fc63a5350a11f64ce999d06a2767fcedf7cd",
+          "parent_run_ids": {}
+        }
+      }
+    }
+  }
+}
