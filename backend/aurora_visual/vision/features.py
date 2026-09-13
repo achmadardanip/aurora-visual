@@ -51,7 +51,7 @@ def text_descriptor(text):
     return result
 
 
-def grid_regions(image, asset_id, run_id, top_k=16):
+def grid_regions(image, asset_id, run_id, top_k=16, start=0):
     if not 1 <= top_k <= 32:
         raise ValueError("top_k must be between 1 and 32")
     top_k = min(top_k, image.width * image.height)
@@ -67,7 +67,7 @@ def grid_regions(image, asset_id, run_id, top_k=16):
             box = (x / count, y / rows, (x + 1) / count, (y + 1) / rows)
             result.append(
                 Region(
-                    region_id=f"rg_{run_id.replace('-', '')}_{len(result) + 1:06d}",
+                    region_id=f"rg_{run_id.replace('-', '')}_{start + len(result) + 1:06d}",
                     asset_id=asset_id,
                     bbox=box,
                     score=None,
@@ -82,14 +82,20 @@ def grid_regions(image, asset_id, run_id, top_k=16):
     return result, crops
 
 
+def openclip_config(model=None, pretrained=None):
+    """Resolve OpenCLIP config from explicit runtime settings, falling back to env."""
+    model = model if model is not None else os.getenv("AURORA_OPENCLIP_MODEL", "ViT-B-32")
+    pretrained = pretrained if pretrained is not None else os.getenv("AURORA_OPENCLIP_PRETRAINED", "")
+    return model, pretrained
+
+
 class OpenCLIPBackbone:
-    def __init__(self):
+    def __init__(self, model_name=None, pretrained=None):
         import open_clip
 
-        pretrained = os.environ.get("AURORA_OPENCLIP_PRETRAINED", "")
+        self.model_name, pretrained = openclip_config(model_name, pretrained)
         if not pretrained:
             raise ValueError("OPENCLIP_UNCONFIGURED: checkpoint belum dikonfigurasi")
-        self.model_name = os.environ.get("AURORA_OPENCLIP_MODEL", "ViT-B-32")
         self.device = device()
         self.model, _, self.preprocess = open_clip.create_model_and_transforms(
             self.model_name, pretrained=pretrained, device=self.device
@@ -118,6 +124,8 @@ def extract(
     top_k=16,
     language="id",
     caption=None,
+    openclip_model=None,
+    openclip_pretrained=None,
 ):
     regions, crops = grid_regions(image, media.asset_id, run_id, top_k)
     descriptions = [a.statement for a in atoms] + [
@@ -130,12 +138,13 @@ def extract(
         "language": language,
         "library_version": version("open-clip-torch") if backbone == "openclip" else "local-color-v1",
     }
-    configured = os.getenv("AURORA_OPENCLIP_PRETRAINED", "") if backbone == "openclip" else ""
+    model_name, configured = ("", "")
     if backbone == "openclip":
-        config.update(model=os.getenv("AURORA_OPENCLIP_MODEL", "ViT-B-32"), pretrained=configured)
+        model_name, configured = openclip_config(openclip_model, openclip_pretrained)
+        config.update(model=model_name, pretrained=configured)
     if configured and Path(configured).is_file():
         config["checkpoint_sha256"] = sha(Path(configured).read_bytes())
-    key = sha(canonical({"image": media.sha256, "texts": descriptions, "config": config}))
+    key = sha(canonical({"images": [media.sha256], "texts": descriptions, "config": config}))
     cache_dir.mkdir(parents=True, exist_ok=True)
     path = cache_dir / f"{key}.npz"
     if path.is_file():
@@ -144,7 +153,7 @@ def extract(
         cache_hit = True
     else:
         if backbone == "openclip":
-            encoder = OpenCLIPBackbone()
+            encoder = OpenCLIPBackbone(model_name, configured)
             visual, text = encoder.encode([image, *crops], descriptions, language)
         elif backbone == "local-color-v1":
             visual = torch.from_numpy(np.stack([color_descriptor(crop) for crop in [image, *crops]]))
@@ -164,6 +173,92 @@ def extract(
         "global_text": text[-1],
         "global": visual[0],
         "color": np.stack([color_descriptor(c) for c in crops]),
+        "cache_key": key,
+        "cache_hit": cache_hit,
+        "config": config,
+    }
+
+
+def extract_multi(
+    images,
+    medias,
+    atoms,
+    run_id,
+    cache_dir: Path,
+    backbone="local-color-v1",
+    top_k=16,
+    language="id",
+    caption=None,
+    openclip_model=None,
+    openclip_pretrained=None,
+):
+    """Extract merged features for several images: regions and crops from every asset.
+
+    Region numbering is continuous across assets so region_id stays unique per run.
+    Cached ``visual`` rows are grouped per image as [global, *crops]; the merged
+    global feature is the mean over per-image global descriptors.
+    """
+    all_regions, groups = [], []
+    for image, media in zip(images, medias):
+        regions, crops = grid_regions(image, media.asset_id, run_id, top_k, start=len(all_regions))
+        all_regions.extend(regions)
+        groups.append((image, crops))
+    descriptions = [a.statement for a in atoms] + [
+        caption if caption is not None else " ".join(a.statement for a in atoms)
+    ]
+    config = {
+        "backbone": backbone,
+        "preprocessing": "exif-rgb-covering-grid-global-caption-v3",
+        "top_k": top_k,
+        "language": language,
+        "library_version": version("open-clip-torch") if backbone == "openclip" else "local-color-v1",
+    }
+    model_name, configured = ("", "")
+    if backbone == "openclip":
+        model_name, configured = openclip_config(openclip_model, openclip_pretrained)
+        config.update(model=model_name, pretrained=configured)
+    if configured and Path(configured).is_file():
+        config["checkpoint_sha256"] = sha(Path(configured).read_bytes())
+    key = sha(
+        canonical({"images": sorted(m.sha256 for m in medias), "texts": descriptions, "config": config})
+    )
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    path = cache_dir / f"{key}.npz"
+    if path.is_file():
+        data = np.load(path, allow_pickle=False)
+        visual, text = torch.from_numpy(data["visual"].copy()), torch.from_numpy(data["text"].copy())
+        cache_hit = True
+    else:
+        if backbone == "openclip":
+            encoder = OpenCLIPBackbone(model_name, configured)
+            flat = [item for image, crops in groups for item in [image, *crops]]
+            visual, text = encoder.encode(flat, descriptions, language)
+        elif backbone == "local-color-v1":
+            rows = [color_descriptor(item) for image, crops in groups for item in [image, *crops]]
+            visual = torch.from_numpy(np.stack(rows))
+            text = torch.from_numpy(np.stack([text_descriptor(t) for t in descriptions]))
+        else:
+            raise ValueError("Unknown backbone")
+        tmp = path.with_suffix(".tmp.npz")
+        np.savez_compressed(tmp, visual=visual.numpy(), text=text.numpy())
+        tmp.replace(path)
+        cache_hit = False
+    if not torch.isfinite(visual).all() or not torch.isfinite(text).all():
+        raise ValueError("Non-finite embedding")
+    region_rows, global_rows, offset = [], [], 0
+    for image, crops in groups:
+        size = 1 + len(crops)
+        global_rows.append(visual[offset])
+        region_rows.append(visual[offset + 1 : offset + size])
+        offset += size
+    regional = torch.cat(region_rows, dim=0)
+    return {
+        "regions": all_regions,
+        "visual": regional,
+        "text": text[:-1],
+        "global_text": text[-1],
+        "global": torch.stack(global_rows).mean(0),
+        "color": regional.numpy(),
         "cache_key": key,
         "cache_hit": cache_hit,
         "config": config,

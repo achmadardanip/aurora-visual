@@ -1,28 +1,30 @@
 {
   "schema_version": "1.0.0",
-  "case_id": "f53dc332-5173-463e-88d5-55cf2bd23cd5",
+  "case_id": "b8761099-1c2e-4256-8b8e-b47d281e9545",
   "claim_revision": 1,
   "mode": "demo",
-  "created_at": "2026-09-13T06:17:30.148551Z",
+  "created_at": "2026-09-13T07:54:21.794914Z",
   "input": {
     "claim_text": "Bidang ini berwarna merah",
     "language": "id",
-    "image": {
-      "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
-      "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
-      "media_type": "image/png",
-      "width": 800,
-      "height": 600,
-      "uri": "api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
-    },
+    "images": [
+      {
+        "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+        "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+        "media_type": "image/png",
+        "width": 800,
+        "height": 600,
+        "uri": "api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+      }
+    ],
     "as_of": null
   },
   "analysis": {
     "run": {
-      "run_id": "b86975b6-9643-46ff-b9b0-25cd26e75df5",
+      "run_id": "5c402511-9f9c-4427-a58e-b900880c2aa0",
       "mode": "demo",
-      "started_at": "2026-09-13T06:17:30.992464Z",
-      "finished_at": "2026-09-13T06:17:31.114990Z",
+      "started_at": "2026-09-13T07:54:22.638079Z",
+      "finished_at": "2026-09-13T07:54:22.758060Z",
       "status": "completed",
       "versions": {
         "service": "1.0.0",
@@ -50,7 +52,7 @@
         }
       ]
     },
-    "atom_set_id": "aset_152dd5c68e920a2dd2d8aed90d53692b78a2e35d882699bf10057945c9de890d",
+    "atom_set_id": "aset_4e8c8a027dedf2aa5d656b6b73b4e9beb7a13631a6bf20c6244a5b33df8d04ff",
     "atomic_claims": [
       {
         "atom_id": "a000001",
@@ -86,7 +88,7 @@
         "supporting_regions": [],
         "contradicting_regions": [
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000001",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000001",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.0,
@@ -98,7 +100,7 @@
             "description": "Grid 1,1; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000002",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000002",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.25,
@@ -110,7 +112,7 @@
             "description": "Grid 1,2; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000003",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000003",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.5,
@@ -122,7 +124,7 @@
             "description": "Grid 1,3; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000004",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000004",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.75,
@@ -134,7 +136,7 @@
             "description": "Grid 1,4; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000005",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000005",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.0,
@@ -146,7 +148,7 @@
             "description": "Grid 2,1; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000006",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000006",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.25,
@@ -158,7 +160,7 @@
             "description": "Grid 2,2; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000007",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000007",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.5,
@@ -170,7 +172,7 @@
             "description": "Grid 2,3; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000008",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000008",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.75,
@@ -182,7 +184,7 @@
             "description": "Grid 2,4; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000009",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000009",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.0,
@@ -194,7 +196,7 @@
             "description": "Grid 3,1; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000010",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000010",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.25,
@@ -206,7 +208,7 @@
             "description": "Grid 3,2; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000011",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000011",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.5,
@@ -218,7 +220,7 @@
             "description": "Grid 3,3; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000012",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000012",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.75,
@@ -230,7 +232,7 @@
             "description": "Grid 3,4; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000013",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000013",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.0,
@@ -242,7 +244,7 @@
             "description": "Grid 4,1; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000014",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000014",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.25,
@@ -254,7 +256,7 @@
             "description": "Grid 4,2; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000015",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000015",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.5,
@@ -266,7 +268,7 @@
             "description": "Grid 4,3; bukan segmentasi objek"
           },
           {
-            "region_id": "rg_b86975b6964346ffb9b025cd26e75df5_000016",
+            "region_id": "rg_5c4025119f9c4427a58eb900880c2aa0_000016",
             "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
             "bbox": [
               0.75,
@@ -368,8 +370,81 @@
           "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
           "Hasil screening tidak mengubah status visual atau verdict faktual."
         ],
-        "analyzed_at": "2026-09-13T06:17:30.996885+00:00"
+        "analyzed_at": "2026-09-13T07:54:22.642471+00:00"
       },
+      "images": [
+        {
+          "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+          "transform": {
+            "exif_orientation": 1,
+            "original_size": [
+              800,
+              600
+            ],
+            "normalized_size": [
+              800,
+              600
+            ],
+            "operation": "EXIF transpose to RGB; bbox normalized after transpose"
+          },
+          "screening": {
+            "version": "origin-screen-v1",
+            "target": {
+              "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+              "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+            },
+            "decision": {
+              "label": "inconclusive",
+              "rationale": "Fixture demo tidak diperlakukan sebagai hasil detektor asal media.",
+              "does_not_affect_visual_assessment": true,
+              "does_not_decide_claim_truth": true
+            },
+            "metadata": {
+              "status": "observed",
+              "field_names": [],
+              "info_field_names": [],
+              "camera_metadata_present": false,
+              "capture_time_present": false,
+              "software_classification": "not_present"
+            },
+            "provenance": {
+              "c2pa": {
+                "status": "not_detected",
+                "verification": "not_verified",
+                "message": "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+              },
+              "watermark": {
+                "status": "unavailable",
+                "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi."
+              }
+            },
+            "detectors": [
+              {
+                "task": "ai_generation_detection",
+                "provider": "unconfigured",
+                "status": "unavailable",
+                "assessment": "not_assessed",
+                "message": "Tidak ada model deteksi gambar AI tervalidasi yang dikonfigurasi."
+              },
+              {
+                "task": "deepfake_detection",
+                "provider": "unconfigured",
+                "status": "unavailable",
+                "assessment": "not_assessed",
+                "message": "Tidak ada detektor manipulasi wajah/deepfake yang dikonfigurasi."
+              }
+            ],
+            "limitations": [
+              "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
+              "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+              "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
+              "Hasil screening tidak mengubah status visual atau verdict faktual."
+            ],
+            "analyzed_at": "2026-09-13T07:54:22.642471+00:00"
+          },
+          "stage1": null
+        }
+      ],
       "hive": null,
       "method": {
         "backbone": "local-color-v1",
@@ -393,32 +468,32 @@
         "tau_v": 0.8
       },
       "cache": {
-        "key": "42a2b8e50501fdefa42378b12b6288c2440197a3013d8cd6f93c2bea23e664be",
+        "key": "5ac2f1b0e4845417f84a5d90d1bbf7100eaca220b68ec8549f6e10ad617dfac0",
         "hit": false
       },
       "timing": {
-        "parse_ms": 4.941166000207886,
-        "total_ms": 122.5139160087565,
-        "peak_rss_platform_units": 247250944,
+        "parse_ms": 5.187500006286427,
+        "total_ms": 119.97041699942201,
+        "peak_rss_platform_units": 247775232,
         "peak_rss_note": "bytes on macOS, KiB on Linux; entire job process",
         "cuda_peak_bytes": null
       },
       "config_sha256": "27acb3fd95f622fbc899db76da896029c46238cc9d6d4c36ce0a9c948bdd3ffc",
       "artifacts": [
         {
-          "path": "artifacts/b86975b6-9643-46ff-b9b0-25cd26e75df5/transport.json",
-          "sha256": "e1bedcd03d1aeb96d37cab5515adbd7b2021c4419005560f6874019a122ebab0"
+          "path": "artifacts/5c402511-9f9c-4427-a58e-b900880c2aa0/transport.json",
+          "sha256": "b93b0629140bd1df7c99550ca3744648edf563a0fdaa46a1b99eb99d2bae640d"
         },
         {
-          "path": "artifacts/b86975b6-9643-46ff-b9b0-25cd26e75df5/features.npz",
+          "path": "artifacts/5c402511-9f9c-4427-a58e-b900880c2aa0/features.npz",
           "sha256": "5d54821ea9ef6d00886fbaf1edb7ae3df7575710dca4fe346fd49a3c8424d5c7"
         }
       ]
     },
     "aurora_contract": {
       "run_inputs": {
-        "b86975b6-9643-46ff-b9b0-25cd26e75df5": {
-          "snapshot_sha256": "16d8d2690fe813ce13494b4156a2408c1da41a4031ce23d8b686755123d04d54",
+        "5c402511-9f9c-4427-a58e-b900880c2aa0": {
+          "snapshot_sha256": "f655e36cc902e4fff08501f4b02001914abef639aece6730eb1b78c060f6c7fc",
           "parent_run_ids": {}
         }
       }

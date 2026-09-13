@@ -1,4 +1,26 @@
-import { expect, test } from "../../frontend/node_modules/@playwright/test";
+import {
+  expect,
+  test,
+  type Page,
+} from "../../frontend/node_modules/@playwright/test";
+
+async function solidPng(page: Page, hex: string, size = 128): Promise<Buffer> {
+  // Generate a solid-color PNG inside the browser via canvas; Playwright
+  // returns it as base64 which we decode into a Node buffer for setInputFiles.
+  const dataUrl = await page.evaluate(
+    ([color, px]) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = px;
+      canvas.height = px;
+      const ctx = canvas.getContext("2d")!;
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, px, px);
+      return canvas.toDataURL("image/png");
+    },
+    [hex, size] as [string, number],
+  );
+  return Buffer.from(dataUrl.split(",")[1], "base64");
+}
 
 test("demo contradiction, atom correction, reanalysis and history", async ({
   page,
@@ -98,4 +120,78 @@ test("mobile empty state and unobservable event claims", async ({ page }) => {
     path: "../artifacts/reports/browser-mobile.png",
     fullPage: true,
   });
+});
+
+test("multi-image upload: validation, preview, removal and analysis", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Live", exact: true }).click();
+
+  const redA = await solidPng(page, "#e02222");
+  const redB = await solidPng(page, "#d91a1a");
+  const blue = await solidPng(page, "#2255dd");
+
+  // Invalid type is rejected client-side with a clear message.
+  await page
+    .locator('input[type="file"][aria-label="Unggah gambar"]')
+    .setInputFiles([
+      { name: "merah-a.png", mimeType: "image/png", buffer: redA },
+      {
+        name: "catatan.txt",
+        mimeType: "text/plain",
+        buffer: Buffer.from("bukan gambar"),
+      },
+      { name: "merah-b.png", mimeType: "image/png", buffer: redB },
+    ]);
+  await expect(
+    page.getByText(/catatan\.txt: format text\/plain tidak didukung/),
+  ).toBeVisible();
+  await expect(page.locator(".preview-strip .thumb-item")).toHaveCount(2);
+  await expect(
+    page.getByRole("button", { name: "Unggah 2 gambar" }),
+  ).toBeVisible();
+
+  // Unwanted preview can be removed before upload.
+  await page
+    .getByRole("button", { name: "Hapus pratinjau merah-b.png" })
+    .click();
+  await expect(page.locator(".preview-strip .thumb-item")).toHaveCount(1);
+
+  await page
+    .getByRole("button", { name: "Unggah 1 gambar", exact: true })
+    .click();
+  await expect(
+    page.getByText("1 gambar berhasil diunggah dan siap dianalisis."),
+  ).toBeVisible();
+  await expect(page.locator(".thumb-strip .thumb-item")).toHaveCount(1);
+  await expect(page.getByText("1/8 terunggah")).toBeVisible();
+
+  // A second batch can be added up to the limit.
+  await page
+    .locator('input[type="file"][aria-label="Unggah gambar"]')
+    .setInputFiles([{ name: "biru.png", mimeType: "image/png", buffer: blue }]);
+  await page
+    .getByRole("button", { name: "Unggah 1 gambar", exact: true })
+    .click();
+  await expect(page.locator(".thumb-strip .thumb-item")).toHaveCount(2);
+  await expect(page.getByText("2/8 terunggah")).toBeVisible();
+
+  // Uploaded image can be dropped from the selection.
+  await page.locator(".thumb-strip .thumb-remove").nth(1).click();
+  await expect(page.locator(".thumb-strip .thumb-item")).toHaveCount(1);
+  await expect(page.getByText("1/8 terunggah")).toBeVisible();
+
+  // Red field claim on the remaining red image is supported end to end.
+  await page.locator("#caption").fill("Bidang ini berwarna merah");
+  await page
+    .getByRole("button", { name: "Jalankan analisis", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: /Bidang ini berwarna merah Didukung visual/,
+    }),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(page.locator(".evidence-card .image-frame img")).toHaveCount(1);
+  await expect(page.locator(".region.support")).toHaveCount(16);
 });

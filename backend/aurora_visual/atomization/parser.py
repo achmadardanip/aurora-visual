@@ -310,12 +310,26 @@ def validate_structured_atoms(raw, caption: str) -> list[Atom]:
 class StructuredLLMAtomizer:
     """Optional server-configured Ollama adapter. Never follows user-supplied URLs."""
 
+    def __init__(self, url=None, model=None, allowed_origins=None):
+        self.url = url if url is not None else os.environ.get("AURORA_LLM_URL", "")
+        self.model = model if model is not None else os.environ.get("AURORA_LLM_MODEL", "")
+        self.allowed = (
+            [item.strip() for item in allowed_origins.split(",") if item.strip()]
+            if isinstance(allowed_origins, str)
+            else list(allowed_origins)
+            if allowed_origins is not None
+            else [
+                item.strip()
+                for item in os.environ.get("AURORA_LLM_ALLOWED_ORIGINS", "http://127.0.0.1:11434").split(",")
+                if item.strip()
+            ]
+        )
+
     def parse(self, caption: str, language: str = "id") -> ParseResult:
-        url = os.environ.get("AURORA_LLM_URL", "")
-        allowed = os.environ.get("AURORA_LLM_ALLOWED_ORIGINS", "http://127.0.0.1:11434").split(",")
+        url = self.url
         parsed = urlsplit(url)
         origin = f"{parsed.scheme}://{parsed.netloc}"
-        if origin not in allowed or parsed.username or parsed.scheme not in ("http", "https"):
+        if origin not in self.allowed or parsed.username or parsed.scheme not in ("http", "https"):
             raise ValueError("LLM origin not configured/allowlisted")
         atom_schema = Atom.model_json_schema()
         definitions = atom_schema.pop("$defs", {})
@@ -330,7 +344,7 @@ class StructuredLLMAtomizer:
             response = client.post(
                 url.rstrip("/") + "/api/chat",
                 json={
-                    "model": os.environ.get("AURORA_LLM_MODEL", ""),
+                    "model": self.model,
                     "stream": False,
                     "format": schema,
                     "messages": [
@@ -365,7 +379,7 @@ class StructuredLLMAtomizer:
             ],
             {
                 "name": "ollama-structured-v1",
-                "model": os.environ.get("AURORA_LLM_MODEL"),
+                "model": self.model,
                 "language": language,
             },
         )

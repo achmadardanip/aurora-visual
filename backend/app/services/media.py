@@ -15,6 +15,26 @@ class MediaService:
     def __init__(self, settings, session):
         self.settings, self.session = settings, session
 
+    def upload_many(self, contents, owner="local", claimed_types=None):
+        if len(contents) > self.settings.max_images:
+            raise ServiceError(
+                "UPLOAD_COUNT", f"Maksimal {self.settings.max_images} gambar per unggahan.", 413
+            )
+        refs = [
+            self.upload(content, owner, claimed_types[i] if claimed_types else None)
+            for i, content in enumerate(contents)
+        ]
+        return refs
+
+    def thumbnail(self, ref, owner="local", size=320):
+        _, stored, _ = self.resolve(ref, owner, preview=True)
+        path = self.settings.data_dir / "derived" / f"{stored.asset_id}_thumb.png"
+        if not path.is_file():
+            image = Image.open(self.settings.data_dir / "derived" / f"{stored.asset_id}.png").convert("RGB")
+            image.thumbnail((size, size))
+            image.save(path)
+        return path
+
     def upload(self, content, owner="local", claimed_type=None):
         if not content or len(content) > self.settings.max_upload:
             raise ServiceError("UPLOAD_SIZE", "Gambar kosong atau melebihi batas ukuran.", 413)

@@ -33,7 +33,7 @@ import type {
 } from "../../contracts/aurora";
 import { api, base, download, headers } from "./api";
 
-type Page = "analysis" | "history" | "methods";
+type Page = "analysis" | "history" | "methods" | "settings";
 type Capability = {
   provider: string;
   mode: string;
@@ -122,6 +122,142 @@ type Job = {
   error: { message: string } | null;
   result: AuroraBundle | null;
 };
+type FieldKind = "str" | "bool" | "int" | "float";
+type SettingsData = {
+  values: Record<string, string | number | boolean>;
+  fields: Record<string, { kind: FieldKind; secret: boolean }>;
+  masked: string;
+  env_only: {
+    data_dir: string;
+    public: boolean;
+    allowed_hosts: string[];
+    cors: string[];
+  };
+};
+type FieldSpec = {
+  name: string;
+  label: string;
+  hint?: string;
+  options?: { value: string; label: string }[];
+};
+type SettingsGroup = {
+  title: string;
+  description: string;
+  fields: FieldSpec[];
+};
+const SETTINGS_GROUPS: SettingsGroup[] = [
+  {
+    title: "Pipeline & server",
+    description:
+      "Backbone visual, OCR, dan batas operasional yang berlaku untuk analisis berikutnya.",
+    fields: [
+      {
+        name: "backbone",
+        label: "Metode backbone",
+        options: [
+          {
+            value: "local-color-v1",
+            label: "local-color-v1 (lokal, tanpa model)",
+          },
+          { value: "openclip", label: "openclip (embedding CLIP)" },
+        ],
+      },
+      {
+        name: "ocr_lang",
+        label: "Bahasa OCR",
+        hint: "Kode Tesseract, mis. ind+eng",
+      },
+      {
+        name: "max_upload_mb",
+        label: "Ukuran unggah maksimum (MB)",
+        hint: "1–50",
+      },
+      { name: "max_images", label: "Jumlah gambar maksimum", hint: "1–16" },
+      {
+        name: "job_timeout",
+        label: "Batas waktu pekerjaan (detik)",
+        hint: "30–1800",
+      },
+      {
+        name: "max_pending",
+        label: "Antrean pekerjaan maksimum",
+        hint: "1–100",
+      },
+    ],
+  },
+  {
+    title: "OpenCLIP",
+    description:
+      "Model dan checkpoint OpenCLIP untuk embedding visual. Mengubah nilai ini memengaruhi cache fitur; hasil analisis lama tidak berubah.",
+    fields: [
+      {
+        name: "openclip_model",
+        label: "Nama model",
+        hint: "mis. ViT-B-32, ViT-L-14",
+      },
+      {
+        name: "openclip_pretrained",
+        label: "Tag pretrained / sumber bobot",
+        hint: "mis. openai, laion2b_s34b_b79k, atau path file",
+      },
+    ],
+  },
+  {
+    title: "Ollama (atomizer LLM)",
+    description:
+      "Endpoint LLM structured-output untuk penguraian klaim atomik. Origin server harus masuk allowlist.",
+    fields: [
+      {
+        name: "llm_url",
+        label: "URL server",
+        hint: "mis. http://127.0.0.1:11434",
+      },
+      { name: "llm_model", label: "Nama model" },
+      {
+        name: "llm_allowed_origins",
+        label: "Origin yang diizinkan",
+        hint: "Pisahkan dengan koma; tanpa wildcard",
+      },
+    ],
+  },
+  {
+    title: "Three-state-head",
+    description:
+      "Checkpoint head probabilitas tiga kelas. Checkpoint harus lolos validasi metadata/split sebelum dipakai.",
+    fields: [{ name: "checkpoint", label: "Path checkpoint (.pt)" }],
+  },
+  {
+    title: "Hive",
+    description:
+      "Provider eksternal opsional. Aktifkan hanya bila server boleh mengirim gambar keluar; kebijakan egress diatur admin.",
+    fields: [
+      { name: "hive_enabled", label: "Aktifkan provider Hive" },
+      { name: "hive_timeout", label: "Timeout Hive (detik)", hint: "1–120" },
+      {
+        name: "hive_v3_secret",
+        label: "V3 secret key",
+        hint: "disimpan terenkripsi di server",
+      },
+      { name: "hive_v2_shared_key", label: "V2 project key bersama" },
+      { name: "hive_v2_origin_key", label: "V2 origin key" },
+      { name: "hive_v2_ocr_key", label: "V2 OCR key" },
+      { name: "hive_v2_object_key", label: "V2 object key" },
+      { name: "hive_v2_scene_key", label: "V2 scene key" },
+      { name: "hive_v2_people_key", label: "V2 people key" },
+      { name: "hive_v2_logo_key", label: "V2 logo key" },
+      { name: "hive_v2_celebrity_key", label: "V2 celebrity key" },
+      { name: "hive_v2_translation_key", label: "V2 translation key" },
+    ],
+  },
+  {
+    title: "MAFINDO",
+    description: "Diagnostik kompatibilitas provider (read-only).",
+    fields: [
+      { name: "mafindo_api_key", label: "API key" },
+      { name: "mafindo_timeout", label: "Timeout (detik)", hint: "1–60" },
+    ],
+  },
+];
 const labels = {
   Supported: "Didukung visual",
   Contradicted: "Bertentangan",
@@ -169,6 +305,64 @@ const statusLabel = (status?: string) =>
 const score = (v: number | null | undefined) =>
   v == null ? "Tidak tersedia" : v.toFixed(3);
 
+const MAX_IMAGES = 8;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+type PendingImage = { id: string; file: File; url: string };
+
+function MediaThumb({
+  media,
+  onRemove,
+  disabled,
+}: {
+  media: MediaRef;
+  onRemove: () => void;
+  disabled: boolean;
+}) {
+  const [url, setUrl] = useState("");
+  useEffect(() => {
+    let uri = "",
+      active = true;
+    fetch(`${base}/api/v1/media/${media.asset_id}/thumbnail`, {
+      headers: headers(),
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Thumbnail tidak tersedia");
+        uri = URL.createObjectURL(await response.blob());
+        if (active) setUrl(uri);
+      })
+      .catch(() => {
+        if (active) setUrl("");
+      });
+    return () => {
+      active = false;
+      if (uri) URL.revokeObjectURL(uri);
+    };
+  }, [media.asset_id]);
+  return (
+    <div className="thumb-item">
+      {url ? (
+        <img src={url} alt={`Gambar ${media.asset_id}`} />
+      ) : (
+        <span className="thumb-empty">
+          {media.width} × {media.height}
+        </span>
+      )}
+      <button
+        className="thumb-remove"
+        aria-label={`Hapus gambar ${media.asset_id}`}
+        disabled={disabled}
+        onClick={onRemove}
+      >
+        <X size={13} />
+      </button>
+      <span>
+        {media.width} × {media.height} px
+      </span>
+    </div>
+  );
+}
+
 function MediaImage({
   media,
   assessments,
@@ -208,7 +402,7 @@ function MediaImage({
       ...r,
       kind: "contra",
     })),
-  ];
+  ].filter((r) => r.asset_id === media.asset_id);
   return (
     <div className="image-frame">
       {url ? (
@@ -240,7 +434,8 @@ export default function App() {
   const [mode, setMode] = useState<"demo" | "live">("demo");
   const [caption, setCaption] = useState("");
   const [language, setLanguage] = useState("id");
-  const [media, setMedia] = useState<MediaRef | null>(null);
+  const [mediaList, setMediaList] = useState<MediaRef[]>([]);
+  const [previews, setPreviews] = useState<PendingImage[]>([]);
   const [bundle, setBundle] = useState<AuroraBundle | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [history, setHistory] = useState<CaseItem[]>([]);
@@ -259,6 +454,10 @@ export default function App() {
     { kind: string; reason: string | null; bundle: AuroraBundle }[]
   >([]);
   const [showSnapshots, setShowSnapshots] = useState(false);
+  const [settingsData, setSettingsData] = useState<SettingsData | null>(null);
+  const [settingsDraft, setSettingsDraft] = useState<
+    Record<string, string | boolean>
+  >({});
   const lastRequest = useRef<{ payload: AuroraBundle; key: string } | null>(
     null,
   );
@@ -299,6 +498,12 @@ export default function App() {
     .join(" · ");
 
   const editorOpen = editing !== null;
+  useEffect(
+    () => () => {
+      previews.forEach((p) => URL.revokeObjectURL(p.url));
+    },
+    [],
+  );
   useEffect(() => {
     if (!editorOpen) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -351,9 +556,52 @@ export default function App() {
       setError((e as Error).message);
     }
   }
+  async function loadSettings() {
+    try {
+      const data = await api<SettingsData>("/api/v1/settings");
+      setSettingsData(data);
+      setSettingsDraft({});
+    } catch (e) {
+      setSettingsData(null);
+      setError((e as Error).message);
+    }
+  }
+  async function saveSettings() {
+    if (!settingsData || !Object.keys(settingsDraft).length) return;
+    await guard(async () => {
+      const payload: Record<string, string | number | boolean> = {};
+      for (const [name, value] of Object.entries(settingsDraft)) {
+        const kind = settingsData.fields[name].kind;
+        if (kind === "bool") payload[name] = value;
+        else if (kind === "int" || kind === "float") {
+          if (String(value).trim() === "")
+            throw new Error(`Kolom ${name} tidak boleh kosong.`);
+          payload[name] =
+            kind === "int" ? parseInt(String(value), 10) : Number(value);
+          if (Number.isNaN(payload[name] as number))
+            throw new Error(`Kolom ${name} harus berupa angka.`);
+        } else payload[name] = String(value);
+      }
+      const result = await api<{
+        values: Record<string, string | number | boolean>;
+        applied: boolean;
+      }>("/api/v1/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setSettingsData({ ...settingsData, values: result.values });
+      setSettingsDraft({});
+      setNotice("Konfigurasi tersimpan dan langsung berlaku.");
+      void refresh();
+    });
+  }
   useEffect(() => {
     void refresh();
   }, []);
+  useEffect(() => {
+    if (page === "settings") void loadSettings();
+  }, [page]);
   useEffect(() => {
     const saved = sessionStorage.getItem("aurora-job");
     if (saved) {
@@ -407,7 +655,8 @@ export default function App() {
     setBundle(data);
     setCaption(data.input.claim_text);
     setLanguage(data.input.language);
-    setMedia(data.input.image);
+    setMediaList(data.input.images);
+    setPreviews([]);
     setMode(data.mode);
     const savedOptions = (
       data.extensions.aurora_visual as
@@ -442,7 +691,11 @@ export default function App() {
   function reset() {
     if (running) return;
     setBundle(null);
-    setMedia(null);
+    setMediaList([]);
+    setPreviews((current) => {
+      current.forEach((p) => URL.revokeObjectURL(p.url));
+      return [];
+    });
     setCaption("");
     setJob(null);
     setError("");
@@ -452,16 +705,82 @@ export default function App() {
     location.hash = "";
     lastRequest.current = null;
   }
-  async function upload(file?: File) {
-    if (!file) return;
-    await guard(async () => {
-      if (file.size > 10 * 1024 ** 2)
-        throw new Error("Ukuran maksimum gambar adalah 10 MB.");
-      const form = new FormData();
-      form.append("image", file);
-      setMedia(
-        await api<MediaRef>("/api/v1/media", { method: "POST", body: form }),
+  function selectFiles(list: FileList | File[]) {
+    setError("");
+    setNotice("");
+    const rejected: string[] = [];
+    const accepted: File[] = [];
+    for (const file of Array.from(list)) {
+      const type = file.type.toLowerCase();
+      if (!ALLOWED_TYPES.includes(type)) {
+        rejected.push(
+          `${file.name}: format ${type || "tidak dikenal"} tidak didukung (hanya JPG, PNG, WebP).`,
+        );
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        rejected.push(
+          `${file.name}: ${(file.size / 1024 / 1024).toFixed(1)} MB melebihi batas 5 MB.`,
+        );
+        continue;
+      }
+      accepted.push(file);
+    }
+    const room = MAX_IMAGES - previews.length - mediaList.length;
+    const queued = accepted.slice(0, Math.max(0, room));
+    if (accepted.length > queued.length)
+      rejected.push(
+        `Batas maksimal ${MAX_IMAGES} gambar; ${accepted.length - queued.length} berkas tidak ditambahkan.`,
       );
+    if (rejected.length) setError(rejected.join(" "));
+    if (!queued.length) return;
+    setPreviews((current) => [
+      ...current,
+      ...queued.map((file) => ({
+        id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+        file,
+        url: URL.createObjectURL(file),
+      })),
+    ]);
+  }
+  function removePreview(id: string) {
+    setPreviews((current) => {
+      const target = current.find((p) => p.id === id);
+      if (target) URL.revokeObjectURL(target.url);
+      return current.filter((p) => p.id !== id);
+    });
+  }
+  function removeMedia(assetId: string) {
+    setMediaList((current) => current.filter((m) => m.asset_id !== assetId));
+  }
+  async function uploadPreviews() {
+    if (!previews.length) return;
+    await guard(async () => {
+      const form = new FormData();
+      previews.forEach((p) => form.append("images", p.file, p.file.name));
+      const result = await api<{ images: MediaRef[] }>("/api/v1/media", {
+        method: "POST",
+        body: form,
+      });
+      setMediaList((current) => {
+        const seen = new Set(current.map((m) => m.asset_id));
+        return [
+          ...current,
+          ...result.images.filter((m) => !seen.has(m.asset_id)),
+        ];
+      });
+      previews.forEach((p) => URL.revokeObjectURL(p.url));
+      setPreviews([]);
+      setNotice(
+        `${result.images.length} gambar berhasil diunggah dan siap dianalisis.`,
+      );
+    });
+  }
+  function clearMedia() {
+    setMediaList([]);
+    setPreviews((current) => {
+      current.forEach((p) => URL.revokeObjectURL(p.url));
+      return [];
     });
   }
   async function demo(fixture: string) {
@@ -474,20 +793,30 @@ export default function App() {
   }
   async function submit(retry = false) {
     await guard(async () => {
-      if (!media || !caption.trim())
-        throw new Error("Unggah gambar dan isi caption terlebih dahulu.");
+      if (!mediaList.length || !caption.trim())
+        throw new Error(
+          "Unggah minimal satu gambar dan isi caption terlebih dahulu.",
+        );
+      const signature = mediaList
+        .map((m) => m.sha256)
+        .sort()
+        .join(",");
       let payload: AuroraBundle;
       if (bundle) {
         const changed =
           caption !== bundle.input.claim_text ||
-          media.sha256 !== bundle.input.image?.sha256;
+          signature !==
+            bundle.input.images
+              .map((m) => m.sha256)
+              .sort()
+              .join(",");
         payload = {
           ...bundle,
           claim_revision: bundle.claim_revision + (changed ? 1 : 0),
           input: {
             ...bundle.input,
             claim_text: caption,
-            image: media,
+            images: mediaList,
             language,
           },
           analysis: changed ? null : bundle.analysis,
@@ -501,7 +830,12 @@ export default function App() {
           claim_revision: 1,
           mode,
           created_at: new Date().toISOString(),
-          input: { claim_text: caption, language, image: media, as_of: null },
+          input: {
+            claim_text: caption,
+            language,
+            images: mediaList,
+            as_of: null,
+          },
           analysis: null,
           retrieval: null,
           decision: null,
@@ -553,13 +887,13 @@ export default function App() {
       form.append("file", file);
       const result = await api<{
         bundle: AuroraBundle;
-        asset_available: boolean;
+        assets_available: string[];
       }>("/api/v1/import", { method: "POST", body: form });
       display(result.bundle);
       setNotice(
-        result.asset_available
-          ? "Bundle dan media berhasil diimpor."
-          : "Metadata berhasil diimpor. Media belum tersedia untuk analisis ulang.",
+        result.assets_available.length === result.bundle.input.images.length
+          ? "Bundle dan semua media berhasil diimpor."
+          : `Metadata berhasil diimpor. ${result.assets_available.length}/${result.bundle.input.images.length} media tersedia untuk analisis ulang.`,
       );
       await refresh();
     });
@@ -620,6 +954,7 @@ export default function App() {
               { id: "analysis", label: "Analisis visual", Icon: Focus },
               { id: "history", label: "Riwayat kasus", Icon: History },
               { id: "methods", label: "Metode & kemampuan", Icon: Settings2 },
+              { id: "settings", label: "Pengaturan", Icon: ScanLine },
             ] as const
           ).map(({ id, label, Icon }) => (
             <button
@@ -684,7 +1019,9 @@ export default function App() {
                 ? "Analisis visual"
                 : page === "history"
                   ? "Riwayat kasus"
-                  : "Metode & kemampuan"}
+                  : page === "methods"
+                    ? "Metode & kemampuan"
+                    : "Pengaturan"}
             </strong>
           </div>
           <span
@@ -704,14 +1041,18 @@ export default function App() {
                   ? "Periksa klaim, satu per satu."
                   : page === "history"
                     ? "Jejak setiap pemeriksaan."
-                    : "Metode yang transparan."}
+                    : page === "methods"
+                      ? "Metode yang transparan."
+                      : "Konfigurasi tanpa restart."}
               </h1>
               <p>
                 {page === "analysis"
                   ? "Hubungkan klaim atomik dengan bukti yang benar-benar terlihat."
                   : page === "history"
                     ? "Kasus, revisi, dan hasil analisis tersimpan di workspace Anda."
-                    : "Ketahui apa yang dijalankan, apa yang tersedia, dan batas hasilnya."}
+                    : page === "methods"
+                      ? "Ketahui apa yang dijalankan, apa yang tersedia, dan batas hasilnya."
+                      : "Atur OpenCLIP, Ollama, Hive, dan metode lain langsung dari UI. Perubahan berlaku untuk analisis berikutnya."}
               </p>
             </div>
             <button
@@ -743,7 +1084,7 @@ export default function App() {
                 className="workflow-strip"
                 aria-label="Tahapan analisis AURORA"
               >
-                <span className={media ? "current" : ""}>
+                <span className={mediaList.length ? "current" : ""}>
                   <span>0</span> Masukan
                 </span>
                 <i />
@@ -817,33 +1158,90 @@ export default function App() {
                 <div className="input-grid">
                   <div>
                     <label className="field-label">
-                      GAMBAR SUMBER <span>PNG, JPG, WebP · maks. 10 MB</span>
+                      GAMBAR SUMBER{" "}
+                      <span>
+                        JPG, PNG, WebP · maks. 5 MB per gambar · hingga{" "}
+                        {MAX_IMAGES} gambar
+                      </span>
                     </label>
                     <input
                       ref={inputFile}
                       type="file"
                       accept="image/png,image/jpeg,image/webp"
+                      multiple
                       className="sr-only"
                       aria-label="Unggah gambar"
-                      onChange={(e) => void upload(e.target.files?.[0])}
+                      onChange={(e) => {
+                        if (e.target.files) selectFiles(e.target.files);
+                        e.target.value = "";
+                      }}
                     />
-                    {media ? (
-                      <div className="input-image">
-                        <MediaImage
-                          media={media}
-                          assessments={[]}
-                          selected={null}
-                        />
-                        <button
-                          className="image-replace"
-                          disabled={busy || !!running}
-                          onClick={() => inputFile.current?.click()}
-                        >
-                          <Upload size={14} /> Ganti gambar
-                        </button>
-                        <span>
-                          {media.width} × {media.height} px
-                        </span>
+                    {mediaList.length + previews.length > 0 ? (
+                      <div className="input-images">
+                        {!!previews.length && (
+                          <div className="preview-strip">
+                            {previews.map((p) => (
+                              <div className="thumb-item" key={p.id}>
+                                <img
+                                  src={p.url}
+                                  alt={`Pratinjau ${p.file.name}`}
+                                />
+                                <button
+                                  className="thumb-remove"
+                                  aria-label={`Hapus pratinjau ${p.file.name}`}
+                                  disabled={busy || !!running}
+                                  onClick={() => removePreview(p.id)}
+                                >
+                                  <X size={13} />
+                                </button>
+                                <span>{p.file.name}</span>
+                              </div>
+                            ))}
+                            <button
+                              className="button primary upload-button"
+                              disabled={busy || !!running}
+                              onClick={() => void uploadPreviews()}
+                            >
+                              {busy ? (
+                                <LoaderCircle className="spin" size={15} />
+                              ) : (
+                                <Upload size={15} />
+                              )}{" "}
+                              Unggah {previews.length} gambar
+                            </button>
+                          </div>
+                        )}
+                        {!!mediaList.length && (
+                          <div className="thumb-strip">
+                            {mediaList.map((m) => (
+                              <MediaThumb
+                                key={m.asset_id}
+                                media={m}
+                                disabled={busy || !!running}
+                                onRemove={() => removeMedia(m.asset_id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        <div className="input-images-actions">
+                          <button
+                            className="text-button"
+                            disabled={busy || !!running}
+                            onClick={() => inputFile.current?.click()}
+                          >
+                            <Plus size={14} /> Tambah gambar
+                          </button>
+                          <button
+                            className="text-button"
+                            disabled={busy || !!running}
+                            onClick={clearMedia}
+                          >
+                            <X size={14} /> Hapus semua
+                          </button>
+                          <span>
+                            {mediaList.length}/{MAX_IMAGES} terunggah
+                          </span>
+                        </div>
                       </div>
                     ) : (
                       <button
@@ -853,13 +1251,13 @@ export default function App() {
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => {
                           e.preventDefault();
-                          void upload(e.dataTransfer.files[0]);
+                          selectFiles(e.dataTransfer.files);
                         }}
                       >
                         <span className="upload-icon">
                           <ImagePlus size={30} />
                         </span>
-                        <strong>Pilih atau letakkan gambar</strong>
+                        <strong>Pilih atau letakkan beberapa gambar</strong>
                         <span>
                           {mode === "live" && provider === "hive"
                             ? "Unggahan disimpan di AURORA; analisis Hive hanya setelah persetujuan"
@@ -992,7 +1390,9 @@ export default function App() {
                   <button
                     className="button primary"
                     onClick={() => void submit()}
-                    disabled={busy || !!running || !media || !caption.trim()}
+                    disabled={
+                      busy || !!running || !mediaList.length || !caption.trim()
+                    }
                   >
                     {busy || running ? (
                       <LoaderCircle className="spin" size={17} />
@@ -1253,15 +1653,18 @@ export default function App() {
                           <Focus size={17} />
                           <h3>Bukti pada gambar</h3>
                         </div>
-                        <span className="tiny-tag">GRID REGIONS</span>
+                        <span className="tiny-tag">
+                          {bundle!.input.images.length} GAMBAR · GRID REGIONS
+                        </span>
                       </div>
-                      {bundle!.input.image && (
+                      {bundle!.input.images.map((m) => (
                         <MediaImage
-                          media={bundle!.input.image}
+                          key={m.asset_id}
+                          media={m}
                           assessments={visual}
                           selected={selected}
                         />
-                      )}
+                      ))}
                       <div className="evidence-hint">
                         <Focus size={15} />
                         {assessment?.supporting_regions.length ||
@@ -1656,6 +2059,162 @@ export default function App() {
                   Periksa koneksi
                 </button>
               </div>
+            </>
+          )}
+          {page === "settings" && !settingsData && (
+            <section className="card settings-groups">
+              <p>
+                Pengaturan server tidak tersedia. Pada instance publik (public
+                mode), konfigurasi hanya dapat diubah lewat variabel lingkungan
+                di sisi server.
+              </p>
+            </section>
+          )}
+          {page === "settings" && settingsData && (
+            <>
+              <div className="settings-actions">
+                <button
+                  className="button secondary"
+                  disabled={busy || !Object.keys(settingsDraft).length}
+                  onClick={() => setSettingsDraft({})}
+                >
+                  Buang perubahan
+                </button>
+                <button
+                  className="button primary"
+                  disabled={busy || !Object.keys(settingsDraft).length}
+                  onClick={() => void saveSettings()}
+                >
+                  {busy ? (
+                    <LoaderCircle className="spin" size={16} />
+                  ) : (
+                    <Check size={16} />
+                  )}{" "}
+                  Simpan konfigurasi
+                  {Object.keys(settingsDraft).length
+                    ? ` (${Object.keys(settingsDraft).length} kolom)`
+                    : ""}
+                </button>
+              </div>
+              <div className="settings-groups">
+                {SETTINGS_GROUPS.map((group) => (
+                  <section className="card settings-card" key={group.title}>
+                    <h3>{group.title}</h3>
+                    <p>{group.description}</p>
+                    {group.fields.map((field) => {
+                      const spec = settingsData.fields[field.name];
+                      if (!spec) return null;
+                      const current = settingsData.values[field.name];
+                      const draft = settingsDraft[field.name];
+                      const dirty = draft !== undefined;
+                      if (spec.kind === "bool")
+                        return (
+                          <label className="checkbox-label" key={field.name}>
+                            <input
+                              type="checkbox"
+                              checked={
+                                (dirty
+                                  ? draft
+                                  : (current as boolean)) as boolean
+                              }
+                              disabled={busy}
+                              onChange={(e) =>
+                                setSettingsDraft((prev) => ({
+                                  ...prev,
+                                  [field.name]: e.target.checked,
+                                }))
+                              }
+                            />
+                            {field.label}
+                          </label>
+                        );
+                      const isSecret =
+                        spec.secret && current === settingsData.masked;
+                      return (
+                        <label key={field.name}>
+                          {field.label}{" "}
+                          {field.hint && <span>· {field.hint}</span>}
+                          {field.options ? (
+                            <select
+                              value={String(dirty ? draft : current)}
+                              disabled={busy}
+                              onChange={(e) =>
+                                setSettingsDraft((prev) => ({
+                                  ...prev,
+                                  [field.name]: e.target.value,
+                                }))
+                              }
+                            >
+                              {field.options.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type={spec.secret ? "password" : "text"}
+                              autoComplete="off"
+                              spellCheck={false}
+                              placeholder={
+                                isSecret
+                                  ? "Tersimpan di server — isi untuk mengganti"
+                                  : spec.kind === "int" || spec.kind === "float"
+                                    ? String(current)
+                                    : ""
+                              }
+                              value={
+                                dirty
+                                  ? String(draft)
+                                  : isSecret
+                                    ? ""
+                                    : String(current)
+                              }
+                              disabled={busy}
+                              onChange={(e) =>
+                                setSettingsDraft((prev) => ({
+                                  ...prev,
+                                  [field.name]: e.target.value,
+                                }))
+                              }
+                            />
+                          )}
+                        </label>
+                      );
+                    })}
+                  </section>
+                ))}
+              </div>
+              <section className="card settings-card env-only">
+                <h3>Hanya via environment</h3>
+                <p>
+                  Kolom di bawah ini memengaruhi keamanan dan transport server,
+                  sehingga hanya dapat diubah lewat variabel lingkungan
+                  (AURORA_*) sebelum server dinyalakan.
+                </p>
+                <div className="env-grid">
+                  <div>
+                    <span>Data directory</span>
+                    <code>{settingsData.env_only.data_dir}</code>
+                  </div>
+                  <div>
+                    <span>Mode publik</span>
+                    <code>
+                      {settingsData.env_only.public ? "true" : "false"}
+                    </code>
+                  </div>
+                  <div>
+                    <span>Allowed hosts</span>
+                    <code>
+                      {settingsData.env_only.allowed_hosts.join(", ")}
+                    </code>
+                  </div>
+                  <div>
+                    <span>Asal CORS</span>
+                    <code>{settingsData.env_only.cors.join(", ")}</code>
+                  </div>
+                </div>
+              </section>
             </>
           )}
           <footer className="page-footer">

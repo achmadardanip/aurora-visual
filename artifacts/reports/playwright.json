@@ -86,12 +86,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5777,
+                  "duration": 4790,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-13T06:17:12.561Z",
+                  "startTime": "2026-09-13T07:54:33.008Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -101,7 +101,7 @@
           ],
           "id": "f353db48c569834dc22b-6cdc311e7f7b211bfa62",
           "file": "flow.spec.ts",
-          "line": 3,
+          "line": 25,
           "column": 5
         },
         {
@@ -120,12 +120,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1651,
+                  "duration": 1624,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-13T06:17:18.529Z",
+                  "startTime": "2026-09-13T07:54:37.977Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -135,7 +135,41 @@
           ],
           "id": "f353db48c569834dc22b-4091a4930ca8df4f502c",
           "file": "flow.spec.ts",
-          "line": 66,
+          "line": 88,
+          "column": 5
+        },
+        {
+          "title": "multi-image upload: validation, preview, removal and analysis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1829,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T07:54:39.605Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f353db48c569834dc22b-d116d17023373a9acb5e",
+          "file": "flow.spec.ts",
+          "line": 125,
           "column": 5
         }
       ]
@@ -143,9 +177,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-13T06:17:12.303Z",
-    "duration": 7907.808,
-    "expected": 2,
+    "startTime": "2026-09-13T07:54:32.765Z",
+    "duration": 8700.757,
+    "expected": 3,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

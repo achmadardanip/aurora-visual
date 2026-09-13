@@ -141,7 +141,7 @@ export interface AuroraBundle {
   schema_version: "1.0.0"; case_id: string; claim_revision: number;
   mode: Mode; created_at: ISODateTime;
   input: {
-    claim_text: string; language: string; image: MediaRef | null;
+    claim_text: string; language: string; images: MediaRef[];
     as_of: ISODateTime | null;
   };
   analysis: Analysis | null; retrieval: Retrieval | null;

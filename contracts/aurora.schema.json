@@ -993,15 +993,12 @@
           "title": "Language",
           "type": "string"
         },
-        "image": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/MediaRef"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "images": {
+          "items": {
+            "$ref": "#/$defs/MediaRef"
+          },
+          "title": "Images",
+          "type": "array"
         },
         "as_of": {
           "anyOf": [
@@ -1019,7 +1016,7 @@
       "required": [
         "claim_text",
         "language",
-        "image",
+        "images",
         "as_of"
       ],
       "title": "Input",

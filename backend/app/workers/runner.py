@@ -209,6 +209,11 @@ class Worker:
 if __name__ == "__main__":
     settings = Settings()
     settings.prepare()
+    # Subprocess workers rebuild Settings from env; re-apply the UI overlay
+    # so jobs run with the same configuration as the API process.
+    from app.services.settings_store import SettingsStore
+
+    SettingsStore(settings, settings.data_dir / "settings.json").load()
     engine, session = database(settings.data_dir)
     Base.metadata.create_all(engine)
     if "--execute" in sys.argv:

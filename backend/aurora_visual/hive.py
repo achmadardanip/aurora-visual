@@ -912,12 +912,13 @@ def fuse_observations(
     atoms: list[Atom],
     media,
     run_id: str,
+    start: int = PROVIDER_REGION_START + 200_000,
 ):
     """Fuse only explicit visible evidence; disagreement remains Unobservable."""
     lookup = {item["atom_id"]: item for item in observations}
     atom_lookup = {atom.atom_id: atom for atom in atoms}
     eligible_roles = {"action", "object", "attribute"}
-    next_region = PROVIDER_REGION_START + 200_000
+    next_region = start
     for assessment in assessments:
         item = lookup.get(assessment.atom_id)
         atom = atom_lookup.get(assessment.atom_id)

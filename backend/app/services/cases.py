@@ -56,9 +56,14 @@ class CaseService:
                     )
                 return existing
         bundle = AuroraBundle.model_validate(raw)
-        if not bundle.input.image:
+        if not bundle.input.images:
             raise ServiceError("IMAGE_REQUIRED", "Analisis visual memerlukan gambar.")
-        self.media.resolve(bundle.input.image, owner)
+        if len(bundle.input.images) > self.settings.max_images:
+            raise ServiceError(
+                "IMAGE_COUNT", f"Maksimal {self.settings.max_images} gambar per analisis.", 413
+            )
+        for image in bundle.input.images:
+            self.media.resolve(image, owner)
         options = bundle.extensions.get("aurora_visual", {}).get("options", {})
         if not isinstance(options, dict) or set(options) - {
             "alignment",
@@ -127,7 +132,7 @@ class CaseService:
                     previous = AuroraBundle.model_validate(current.bundle)
 
                     def identity(b):
-                        return (b.input.claim_text, b.input.image.sha256 if b.input.image else None)
+                        return (b.input.claim_text, tuple(sorted(m.sha256 for m in b.input.images)))
 
                     changed = identity(previous) != identity(bundle)
                     if bundle.mode != previous.mode:

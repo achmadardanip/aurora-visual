@@ -1,28 +1,30 @@
 {
   "schema_version": "1.0.0",
-  "case_id": "977fc685-6498-4e8e-8fa8-24a1221e2275",
+  "case_id": "7659f10e-7c3f-4c6e-b962-4d5d94fabb75",
   "claim_revision": 1,
   "mode": "demo",
-  "created_at": "2026-09-13T06:17:31.212738Z",
+  "created_at": "2026-09-13T07:54:22.786184Z",
   "input": {
     "claim_text": "Mahasiswa melakukan aksi di Monas pada September 2026",
     "language": "id",
-    "image": {
-      "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
-      "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
-      "media_type": "image/png",
-      "width": 800,
-      "height": 600,
-      "uri": "api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
-    },
+    "images": [
+      {
+        "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+        "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+        "media_type": "image/png",
+        "width": 800,
+        "height": 600,
+        "uri": "api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+      }
+    ],
     "as_of": null
   },
   "analysis": {
     "run": {
-      "run_id": "a14daa00-4e29-4ea1-b19c-3286e7ecedb4",
+      "run_id": "aa05f76e-d165-41bf-8207-9d16ba7e52b3",
       "mode": "demo",
-      "started_at": "2026-09-13T06:17:32.009694Z",
-      "finished_at": "2026-09-13T06:17:32.131350Z",
+      "started_at": "2026-09-13T07:54:23.665604Z",
+      "finished_at": "2026-09-13T07:54:23.787290Z",
       "status": "completed",
       "versions": {
         "service": "1.0.0",
@@ -50,7 +52,7 @@
         }
       ]
     },
-    "atom_set_id": "aset_24856a38b10a0bdbaff5df92abfa4084fdc4667c459d6993c2da78feba30e7bf",
+    "atom_set_id": "aset_e36388e036a8aa9fd62d3ff3362a43723228ec8aba7febd6167f3178fcfee847",
     "atomic_claims": [
       {
         "atom_id": "a000001",
@@ -286,8 +288,81 @@
           "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
           "Hasil screening tidak mengubah status visual atau verdict faktual."
         ],
-        "analyzed_at": "2026-09-13T06:17:32.014054+00:00"
+        "analyzed_at": "2026-09-13T07:54:23.670102+00:00"
       },
+      "images": [
+        {
+          "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+          "transform": {
+            "exif_orientation": 1,
+            "original_size": [
+              800,
+              600
+            ],
+            "normalized_size": [
+              800,
+              600
+            ],
+            "operation": "EXIF transpose to RGB; bbox normalized after transpose"
+          },
+          "screening": {
+            "version": "origin-screen-v1",
+            "target": {
+              "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
+              "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
+            },
+            "decision": {
+              "label": "inconclusive",
+              "rationale": "Fixture demo tidak diperlakukan sebagai hasil detektor asal media.",
+              "does_not_affect_visual_assessment": true,
+              "does_not_decide_claim_truth": true
+            },
+            "metadata": {
+              "status": "observed",
+              "field_names": [],
+              "info_field_names": [],
+              "camera_metadata_present": false,
+              "capture_time_present": false,
+              "software_classification": "not_present"
+            },
+            "provenance": {
+              "c2pa": {
+                "status": "not_detected",
+                "verification": "not_verified",
+                "message": "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+              },
+              "watermark": {
+                "status": "unavailable",
+                "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi."
+              }
+            },
+            "detectors": [
+              {
+                "task": "ai_generation_detection",
+                "provider": "unconfigured",
+                "status": "unavailable",
+                "assessment": "not_assessed",
+                "message": "Tidak ada model deteksi gambar AI tervalidasi yang dikonfigurasi."
+              },
+              {
+                "task": "deepfake_detection",
+                "provider": "unconfigured",
+                "status": "unavailable",
+                "assessment": "not_assessed",
+                "message": "Tidak ada detektor manipulasi wajah/deepfake yang dikonfigurasi."
+              }
+            ],
+            "limitations": [
+              "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
+              "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+              "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
+              "Hasil screening tidak mengubah status visual atau verdict faktual."
+            ],
+            "analyzed_at": "2026-09-13T07:54:23.670102+00:00"
+          },
+          "stage1": null
+        }
+      ],
       "hive": null,
       "method": {
         "backbone": "local-color-v1",
@@ -311,32 +386,32 @@
         "tau_v": 0.8
       },
       "cache": {
-        "key": "8d0045a43fa464460b782e6715242118d9bb87896a79bcf143781d3f97d28e75",
+        "key": "6aa72e3a68d5657e2f318df1eba005942208e8be444a2b6148d97c124e9b85f0",
         "hit": false
       },
       "timing": {
-        "parse_ms": 5.065125005785376,
-        "total_ms": 121.64300000586081,
-        "peak_rss_platform_units": 247660544,
+        "parse_ms": 5.196625003009103,
+        "total_ms": 121.67370801034849,
+        "peak_rss_platform_units": 247939072,
         "peak_rss_note": "bytes on macOS, KiB on Linux; entire job process",
         "cuda_peak_bytes": null
       },
       "config_sha256": "27acb3fd95f622fbc899db76da896029c46238cc9d6d4c36ce0a9c948bdd3ffc",
       "artifacts": [
         {
-          "path": "artifacts/a14daa00-4e29-4ea1-b19c-3286e7ecedb4/transport.json",
-          "sha256": "8139faae6e5ccd8ac69a2547cae00c5ee798a2828ff41972f1e3ef77563c1740"
+          "path": "artifacts/aa05f76e-d165-41bf-8207-9d16ba7e52b3/transport.json",
+          "sha256": "e787ebcfc29a2bb071123a6493d9cb2f1e9a2d9ed68237265c3203b8267dcbfb"
         },
         {
-          "path": "artifacts/a14daa00-4e29-4ea1-b19c-3286e7ecedb4/features.npz",
+          "path": "artifacts/aa05f76e-d165-41bf-8207-9d16ba7e52b3/features.npz",
           "sha256": "b296338ab5e85e0cc3170b5f1c04e11ec12523505a9260283b9be0d83305da0e"
         }
       ]
     },
     "aurora_contract": {
       "run_inputs": {
-        "a14daa00-4e29-4ea1-b19c-3286e7ecedb4": {
-          "snapshot_sha256": "de6aa1c2ba67fa954c0791e1b944966ccfc54d12faf873e8a0f9b7f931e288ef",
+        "aa05f76e-d165-41bf-8207-9d16ba7e52b3": {
+          "snapshot_sha256": "1960dc8201a3f2c76c11b23b9a4437ed260c5c0e853d2a3ac1cd9d2815f482fc",
           "parent_run_ids": {}
         }
       }

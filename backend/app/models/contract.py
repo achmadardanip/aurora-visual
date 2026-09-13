@@ -437,13 +437,17 @@ class Decision(Model):
 class Input(Model):
     claim_text: Annotated[str, Field(min_length=1, max_length=10000)]
     language: Annotated[str, Field(pattern=r"^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$")]
-    image: MediaRef | None
+    images: list[MediaRef]
     as_of: Time | None
 
     @model_validator(mode="after")
     def nonempty(self):
         if not self.claim_text.strip():
             raise ValueError("Caption is empty")
+        if len(self.images) > 16:
+            raise ValueError("At most 16 images per bundle")
+        if len({m.asset_id for m in self.images}) != len(self.images):
+            raise ValueError("Duplicate image assets")
         return self
 
 
@@ -458,7 +462,7 @@ def atom_set_id(bundle, atoms):
                 case_id=bundle.case_id,
                 claim_revision=bundle.claim_revision,
                 claim_text_sha256=sha(bundle.input.claim_text),
-                image_sha256=bundle.input.image.sha256 if bundle.input.image else None,
+                image_sha256_list=sorted(m.sha256 for m in bundle.input.images),
                 atomic_claims=sorted(items, key=lambda a: a["atom_id"]),
             )
         )
@@ -505,6 +509,7 @@ class AuroraBundle(Model):
 
         finite(self.extensions)
         canonical(self.extensions)
+        asset_ids = {m.asset_id for m in self.input.images}
         atom_ids = []
         aset = None
         for module in (self.analysis, self.retrieval, self.decision):
@@ -548,7 +553,7 @@ class AuroraBundle(Model):
                 if self.mode == "live" and assessment.inference_kind == "fixture":
                     raise ValueError("Fixture in live analysis")
                 for region in assessment.supporting_regions + assessment.contradicting_regions:
-                    if not self.input.image or region.asset_id != self.input.image.asset_id:
+                    if region.asset_id not in asset_ids:
                         raise ValueError("Region asset mismatch")
                     if region.region_id in regions and regions[region.region_id] != region:
                         raise ValueError("Conflicting region definitions")
@@ -570,7 +575,7 @@ class AuroraBundle(Model):
                     raise ValueError("Evidence identity mismatch")
                 evidence[e.evidence_id] = e
                 for match in e.provenance.image_matches:
-                    if not self.input.image or match.asset_id != self.input.image.asset_id:
+                    if match.asset_id not in asset_ids:
                         raise ValueError("Image match asset mismatch")
             for q in self.retrieval.query_log:
                 references(q.atom_ids, atom_ids)
@@ -580,9 +585,7 @@ class AuroraBundle(Model):
                 ):
                     raise ValueError("Forensic identity mismatch")
                 signals[s.signal_id] = s
-                if s.target.kind == "image" and (
-                    not self.input.image or s.target.asset_id != self.input.image.asset_id
-                ):
+                if s.target.kind == "image" and s.target.asset_id not in asset_ids:
                     raise ValueError("Missing forensic image")
                 if s.target.kind == "claim_text" and s.target.text_sha256 != sha(self.input.claim_text):
                     raise ValueError("Forensic text mismatch")

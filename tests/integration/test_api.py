@@ -16,16 +16,16 @@ from PIL import Image
 
 def test_upload_real_type_size_and_exif(client):
     for payload, ctype in [(b"not an image", "image/png"), (png(), "image/jpeg")]:
-        r = client.post("/api/v1/media", files={"image": ("bad.png", payload, ctype)})
+        r = client.post("/api/v1/media", files={"images": ("bad.png", payload, ctype)})
         assert r.status_code == 422
     image = Image.new("RGB", (24, 12), "red")
     exif = Image.Exif()
     exif[274] = 6
     stream = io.BytesIO()
     image.save(stream, "JPEG", exif=exif)
-    response = client.post("/api/v1/media", files={"image": ("photo.jpg", stream.getvalue(), "image/jpeg")})
+    response = client.post("/api/v1/media", files={"images": ("photo.jpg", stream.getvalue(), "image/jpeg")})
     assert response.status_code == 200, response.text
-    ref = response.json()
+    ref = response.json()["images"][0]
     assert (ref["width"], ref["height"]) == (12, 24)
     from app.models.contract import sha
 
@@ -35,7 +35,33 @@ def test_upload_real_type_size_and_exif(client):
 
 def test_upload_large(client, app):
     app.state.settings.max_upload = 20
-    assert client.post("/api/v1/media", files={"image": ("large.png", png(), "image/png")}).status_code == 413
+    assert (
+        client.post("/api/v1/media", files={"images": ("large.png", png(), "image/png")}).status_code == 413
+    )
+
+
+def test_multi_upload_batch_and_thumbnail(client):
+    files = [
+        ("images", ("one.png", png("red"), "image/png")),
+        ("images", ("two.png", png("green", (80, 40)), "image/png")),
+        ("images", ("three.png", png("blue"), "image/png")),
+    ]
+    response = client.post("/api/v1/media", files=files)
+    assert response.status_code == 200, response.text
+    refs = response.json()["images"]
+    assert len(refs) == 3
+    assert len({r["asset_id"] for r in refs}) == 3
+    for ref in refs:
+        thumb = client.get(f"/api/v1/media/{ref['asset_id']}/thumbnail")
+        assert thumb.status_code == 200 and thumb.headers["content-type"] == "image/png"
+        with Image.open(io.BytesIO(thumb.content)) as thumbnail:
+            assert max(thumbnail.size) <= 320
+
+
+def test_multi_upload_count_limit(client, app):
+    app.state.settings.max_images = 3
+    files = [("images", (f"{i}.png", png(), "image/png")) for i in range(4)]
+    assert client.post("/api/v1/media", files=files).status_code == 413
 
 
 @pytest.mark.parametrize(
@@ -56,7 +82,7 @@ def test_origin_screen_stays_module_local_and_preserves_visual_semantics(client,
     result, _ = run(client, app, demo)
     screening = result["extensions"]["aurora_visual"]["screening"]
     assert screening["version"] == "origin-screen-v1"
-    assert screening["target"]["asset_id"] == result["input"]["image"]["asset_id"]
+    assert screening["target"]["asset_id"] == result["input"]["images"][0]["asset_id"]
     assert screening["decision"]["does_not_affect_visual_assessment"] is True
     assert screening["decision"]["does_not_decide_claim_truth"] is True
     assert all(detector["status"] == "unavailable" for detector in screening["detectors"])
@@ -93,7 +119,7 @@ def test_idempotency_jcs_conflict_and_restart(client, app, demo):
     reordered = {k: data[k] for k in reversed(data)}
     r2 = client.post("/api/v1/analyze", json=reordered, headers={"Idempotency-Key": "same"})
     assert r.json()["job_id"] == r2.json()["job_id"]
-    data["input"]["image"]["uri"] = "media/other.png"
+    data["input"]["images"][0]["uri"] = "media/other.png"
     assert client.post("/api/v1/analyze", json=data, headers={"Idempotency-Key": "same"}).status_code == 409
     restarted = create_app(app.state.settings, embedded_worker=False)
     with TestClient(restarted) as c:
@@ -168,10 +194,10 @@ def test_export_import_portable(client, app, demo, tmp_path):
         imported = other.post("/api/v1/import", files={"file": ("case.zip", data, "application/zip")})
         assert imported.status_code == 200, imported.text
         b = imported.json()["bundle"]
-        assert imported.json()["asset_available"]
+        assert len(imported.json()["assets_available"]) == len(b["input"]["images"])
         assert b["analysis"]["atom_set_id"] == result["analysis"]["atom_set_id"]
         r, _ = run(other, receiver, b, "imported-analysis")
-        assert r["input"]["image"]["sha256"] == demo["input"]["image"]["sha256"]
+        assert [m["sha256"] for m in r["input"]["images"]] == [m["sha256"] for m in demo["input"]["images"]]
 
 
 @pytest.mark.parametrize("attack", ["traversal", "absolute", "symlink", "duplicate", "bomb", "hash"])
@@ -192,7 +218,7 @@ def test_unsafe_import(client, demo, attack):
         if attack == "bomb":
             z.writestr("media/bomb", "0" * 2_000_000)
         if attack == "hash":
-            z.writestr(demo["input"]["image"]["uri"], b"wrong")
+            z.writestr(demo["input"]["images"][0]["uri"], b"wrong")
     assert (
         client.post(
             "/api/v1/import", files={"file": ("bad.zip", stream.getvalue(), "application/zip")}
@@ -203,12 +229,12 @@ def test_unsafe_import(client, demo, attack):
 
 def test_json_import_without_media(client, demo):
     demo["case_id"] = str(uuid4())
-    demo["input"]["image"]["sha256"] = "f" * 64
-    demo["input"]["image"]["asset_id"] = "asset_" + "f" * 64
+    demo["input"]["images"][0]["sha256"] = "f" * 64
+    demo["input"]["images"][0]["asset_id"] = "asset_" + "f" * 64
     response = client.post(
         "/api/v1/import", files={"file": ("bundle.json", json.dumps(demo).encode(), "application/json")}
     )
-    assert response.status_code == 200 and response.json()["asset_available"] is False
+    assert response.status_code == 200 and response.json()["assets_available"] == []
     assert (
         client.post("/api/v1/analyze", json=demo, headers={"Idempotency-Key": "missing"}).status_code == 422
     )
@@ -326,7 +352,7 @@ def test_preflight_for_authenticated_frontend(tmp_path, monkeypatch):
 
 def test_idempotency_survives_asset_unavailability(client, app, demo):
     response = client.post("/api/v1/analyze", json=demo, headers={"Idempotency-Key": "media-removed"})
-    path, _, _ = app.state.media.resolve(demo["input"]["image"]["asset_id"])
+    path, _, _ = app.state.media.resolve(demo["input"]["images"][0]["asset_id"])
     path.unlink()
     replay = client.post("/api/v1/analyze", json=demo, headers={"Idempotency-Key": "media-removed"})
     assert replay.status_code == 202 and replay.json()["job_id"] == response.json()["job_id"]

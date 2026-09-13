@@ -7,7 +7,7 @@
   "input": {
     "claim_text": "Festival Contoh berlangsung di Kota Contoh pada 8 September 2026.",
     "language": "id",
-    "image": null,
+    "images": [],
     "as_of": null
   },
   "analysis": {
@@ -22,7 +22,7 @@
       },
       "warnings": []
     },
-    "atom_set_id": "aset_a06369452d6eb465c3f25d54dc59062f59c81b11bb47a16f6eab4108de53c878",
+    "atom_set_id": "aset_b014cbdd3db588ac1de4685124c72accf2d2bdaeda5067c877bdbd80ef72df57",
     "atomic_claims": [
       {
         "atom_id": "a000001",
@@ -90,7 +90,7 @@
       },
       "warnings": []
     },
-    "atom_set_id": "aset_a06369452d6eb465c3f25d54dc59062f59c81b11bb47a16f6eab4108de53c878",
+    "atom_set_id": "aset_b014cbdd3db588ac1de4685124c72accf2d2bdaeda5067c877bdbd80ef72df57",
     "evidence_list": [
       {
         "evidence_id": "ev_00000000000040008000000000000003_000001",

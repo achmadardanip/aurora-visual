@@ -6,15 +6,15 @@ from starlette.responses import JSONResponse
 class RequestSizeLimit:
     """Bound chunked bodies before multipart/JSON parsing, including missing length headers."""
 
-    def __init__(self, app, max_upload):
-        self.app, self.max_upload = app, max_upload
+    def __init__(self, app, max_upload, max_images=1):
+        self.app, self.max_upload, self.max_images = app, max_upload, max_images
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http" or scope["method"] in ("GET", "HEAD", "OPTIONS"):
             return await self.app(scope, receive, send)
         path = scope["path"]
         limit = (
-            self.max_upload + 65536
+            self.max_upload * self.max_images + 65536
             if path == "/api/v1/media"
             else self.max_upload * 4 + 65536
             if path == "/api/v1/import"

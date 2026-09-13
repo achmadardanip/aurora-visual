@@ -17,19 +17,23 @@ from sqlalchemy import select, text
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.limits import RequestSizeLimit
-from app.config import ServiceError, Settings
+from app.config import UI_FIELDS, ServiceError, Settings
 from app.models.contract import AuroraBundle, sha, strict_json
 from app.models.db import Base, Case, Job, Snapshot, WorkerState, database
 from app.services.cases import CaseService
 from app.services.media import MediaService
 from app.services.pipeline import now
 from app.services.portable import csv_atoms, export_zip, import_data, overlay
+from app.services.settings_store import MASKED, SettingsStore
 from app.workers.runner import Worker
 
 
 def create_app(settings=None, embedded_worker=True):
     settings = settings or Settings()
     settings.prepare()
+    # UI-saved configuration overlays env values and survives restarts.
+    store = SettingsStore(settings, settings.data_dir / "settings.json")
+    store.load()
     engine, session = database(settings.data_dir)
     Base.metadata.create_all(engine)
     media = MediaService(settings, session)
@@ -46,7 +50,7 @@ def create_app(settings=None, embedded_worker=True):
 
     app = FastAPI(title="AURORA Visual", version="1.0.0", lifespan=lifespan)
     app.state.settings, app.state.session, app.state.worker = settings, session, worker
-    app.state.media, app.state.cases = media, cases
+    app.state.media, app.state.cases, app.state.store = media, cases, store
     origins = [
         origin.strip()
         for origin in os.getenv("AURORA_CORS", "http://localhost:5171,http://127.0.0.1:5171").split(",")
@@ -58,7 +62,7 @@ def create_app(settings=None, embedded_worker=True):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
-        allow_methods=["GET", "POST", "PATCH"],
+        allow_methods=["GET", "POST", "PUT", "PATCH"],
         allow_headers=["Content-Type", "Authorization", "Idempotency-Key"],
     )
 
@@ -68,7 +72,7 @@ def create_app(settings=None, embedded_worker=True):
             status_code=status,
         )
 
-    app.add_middleware(RequestSizeLimit, max_upload=settings.max_upload)
+    app.add_middleware(RequestSizeLimit, max_upload=settings.max_upload, max_images=settings.max_images)
 
     @app.middleware("http")
     async def security(request, call_next):
@@ -162,7 +166,7 @@ def create_app(settings=None, embedded_worker=True):
                 "provider": "openclip",
                 "mode": "live",
                 "capability": "embeddings",
-                "status": "ok" if os.getenv("AURORA_OPENCLIP_PRETRAINED") else "unconfigured",
+                "status": "ok" if settings.openclip_pretrained else "unconfigured",
                 "message": "Memerlukan checkpoint; bahasa Indonesia belum tervalidasi",
             },
             {
@@ -197,14 +201,14 @@ def create_app(settings=None, embedded_worker=True):
                 "provider": "three-state-head",
                 "mode": "live",
                 "capability": "trained",
-                "status": "ok" if os.getenv("AURORA_CHECKPOINT") else "unconfigured",
+                "status": "ok" if settings.checkpoint else "unconfigured",
                 "message": "Checkpoint harus lolos metadata/split; smoke tidak boleh untuk live",
             },
             {
                 "provider": "ollama",
                 "mode": "live",
                 "capability": "atomizer",
-                "status": "ok" if os.getenv("AURORA_LLM_URL") else "unconfigured",
+                "status": "ok" if settings.llm_url else "unconfigured",
                 "message": "Parser structured output opsional",
             },
         ]
@@ -258,6 +262,44 @@ def create_app(settings=None, embedded_worker=True):
             status_code=503 if status == "not_ready" else 200,
         )
 
+    @app.get("/api/v1/settings")
+    def get_settings():
+        """Server-side provider configuration for the settings UI; secrets masked."""
+        if settings.public:
+            raise ServiceError(
+                "SETTINGS_DISABLED",
+                "Pengubahan konfigurasi hanya tersedia pada instance lokal tepercaya.",
+                404,
+            )
+        return {
+            "values": store.read(),
+            "fields": {name: {"kind": kind, "secret": secret} for name, (kind, secret) in UI_FIELDS.items()},
+            "masked": MASKED,
+            "env_only": {
+                "data_dir": str(settings.data_dir),
+                "public": settings.public,
+                "allowed_hosts": settings.allowed_hosts,
+                "cors": origins,
+            },
+        }
+
+    @app.put("/api/v1/settings")
+    async def put_settings(request: Request):
+        if settings.public:
+            raise ServiceError(
+                "SETTINGS_DISABLED",
+                "Pengubahan konfigurasi hanya tersedia pada instance lokal tepercaya.",
+                404,
+            )
+        data = strict_json(await request.body())
+        merged = store.update(data)
+        return {
+            "values": {
+                name: (MASKED if UI_FIELDS[name][1] and value else value) for name, value in merged.items()
+            },
+            "applied": True,
+        }
+
     @app.get("/api/v1/providers/mafindo/latest")
     def mafindo_latest(request: Request, limit: int = 1):
         """Opt-in diagnostic bridge only; never expose it from the public service."""
@@ -271,14 +313,23 @@ def create_app(settings=None, embedded_worker=True):
         return client.latest(limit)
 
     @app.post("/api/v1/media")
-    async def upload(request: Request, image: UploadFile = File(...)):
-        content = await image.read(settings.max_upload + 1)
-        return media.upload(content, request.state.owner, image.content_type)
+    async def upload(request: Request, images: list[UploadFile] = File(...)):
+        if len(images) > settings.max_images:
+            raise ServiceError("UPLOAD_COUNT", f"Maksimal {settings.max_images} gambar per unggahan.", 413)
+        contents = [await f.read(settings.max_upload + 1) for f in images]
+        types = [f.content_type for f in images]
+        refs = media.upload_many(contents, request.state.owner, types)
+        return {"images": [r.model_dump(mode="json") for r in refs]}
 
     @app.get("/api/v1/media/{asset_id}")
     def get_media(asset_id: str, request: Request, preview: bool = False):
         path, ref, _ = media.resolve(asset_id, request.state.owner, preview)
         return FileResponse(path, media_type="image/png" if preview else ref.media_type)
+
+    @app.get("/api/v1/media/{asset_id}/thumbnail")
+    def get_thumbnail(asset_id: str, request: Request):
+        path = media.thumbnail(asset_id, request.state.owner)
+        return FileResponse(path, media_type="image/png")
 
     @app.post("/api/v1/analyze", status_code=202)
     async def submit(bundle: AuroraBundle, request: Request):
@@ -383,7 +434,13 @@ def create_app(settings=None, embedded_worker=True):
         )
 
     @app.get("/api/v1/cases/{case_id}/export")
-    def export(case_id: str, request: Request, format: str = "json", atom_id: str | None = None):
+    def export(
+        case_id: str,
+        request: Request,
+        format: str = "json",
+        atom_id: str | None = None,
+        asset_id: str | None = None,
+    ):
         bundle = cases.get(case_id, request.state.owner)
         if format == "json":
             content, mime, ext = bundle.model_dump_json(indent=2).encode(), "application/json", "json"
@@ -392,7 +449,11 @@ def create_app(settings=None, embedded_worker=True):
         elif format == "csv":
             content, mime, ext = csv_atoms(bundle), "text/csv", "csv"
         elif format == "overlay":
-            content, mime, ext = overlay(bundle, media, request.state.owner, atom_id), "image/png", "png"
+            content, mime, ext = (
+                overlay(bundle, media, request.state.owner, atom_id, asset_id),
+                "image/png",
+                "png",
+            )
         else:
             raise ServiceError("INVALID_FORMAT", "Format ekspor tidak dikenal.")
         return Response(
@@ -406,14 +467,17 @@ def create_app(settings=None, embedded_worker=True):
         content = await file.read(settings.max_upload * 4 + 1)
         bundle = import_data(content, file.filename or "", media, request.state.owner)
         result = cases.import_bundle(bundle, request.state.owner)
-        available = False
-        if bundle.input.image:
+        available = []
+        for image in bundle.input.images:
             try:
-                media.resolve(bundle.input.image, request.state.owner)
-                available = True
+                media.resolve(image, request.state.owner)
+                available.append(image.asset_id)
             except ServiceError:
                 pass
-        return {"bundle": result.model_dump(mode="json"), "asset_available": available}
+        return {
+            "bundle": result.model_dump(mode="json"),
+            "assets_available": available,
+        }
 
     @app.post("/api/v1/demo/{fixture}", response_model=AuroraBundle)
     def demo(fixture: str, request: Request):
@@ -434,7 +498,7 @@ def create_app(settings=None, embedded_worker=True):
             claim_revision=1,
             mode="demo",
             created_at=now(),
-            input={"claim_text": caption, "language": "id", "image": ref, "as_of": None},
+            input={"claim_text": caption, "language": "id", "images": [ref], "as_of": None},
             analysis=None,
             retrieval=None,
             decision=None,

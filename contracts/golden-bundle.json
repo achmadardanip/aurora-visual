@@ -7,7 +7,7 @@
   "input": {
     "claim_text": "📷 Dua mahasiswa tidak membawa 2,5 kg barang di Monas pada September 2026",
     "language": "id",
-    "image": null,
+    "images": [],
     "as_of": null
   },
   "analysis": {
@@ -22,7 +22,7 @@
       },
       "warnings": []
     },
-    "atom_set_id": "aset_dc2bfe7c3b24be320b88bf42f7758efc9b9ceaf42ed49c37b4917e500720b054",
+    "atom_set_id": "aset_e63655e925e77bf080b487c4957b38b7117fafdf114b64e2cf56d1fbded7d64b",
     "atomic_claims": [
       {
         "atom_id": "a000001",

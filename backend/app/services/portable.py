@@ -31,11 +31,11 @@ def export_zip(bundle, media_service, owner):
     bundle = bundle.model_copy(deep=True)
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        if bundle.input.image:
-            path, ref, _ = media_service.resolve(bundle.input.image, owner)
+        for image_ref in bundle.input.images:
+            path, ref, _ = media_service.resolve(image_ref, owner)
             ext = next(v[1] for v in TYPES.values() if v[0] == ref.media_type)
             name = f"media/{ref.asset_id}.{ext}"
-            bundle.input.image.uri = name
+            image_ref.uri = name
             archive.write(path, name)
         for entry in bundle.extensions.get("aurora_visual", {}).get("artifacts", []):
             name = entry["path"]
@@ -89,14 +89,15 @@ def import_data(content, filename, media_service, owner):
         raise ServiceError("SCHEMA_VERSION_UNSUPPORTED", "Versi kontrak tidak didukung.")
     bundle = AuroraBundle.model_validate(raw)
     expected_files = {"bundle.json"}
-    image = bundle.input.image
-    if entries and image:
-        safe_path(image.uri)
-        if not image.uri.startswith("media/") or image.uri not in entries:
-            raise ServiceError("ASSET_UNAVAILABLE", "ZIP tidak memuat media yang direferensikan.")
-        if sha(entries[image.uri]) != image.sha256:
-            raise ServiceError("ASSET_HASH_MISMATCH", "Hash media tidak cocok.")
-        expected_files.add(image.uri)
+    images = bundle.input.images
+    if entries and images:
+        for image in images:
+            safe_path(image.uri)
+            if not image.uri.startswith("media/") or image.uri not in entries:
+                raise ServiceError("ASSET_UNAVAILABLE", "ZIP tidak memuat media yang direferensikan.")
+            if sha(entries[image.uri]) != image.sha256:
+                raise ServiceError("ASSET_HASH_MISMATCH", "Hash media tidak cocok.")
+            expected_files.add(image.uri)
     artifacts = bundle.extensions.get("aurora_visual", {}).get("artifacts", [])
     for entry in artifacts:
         safe_path(entry["path"])
@@ -108,11 +109,12 @@ def import_data(content, filename, media_service, owner):
     if entries and set(entries) != expected_files:
         raise ServiceError("UNSAFE_ARCHIVE", "Arsip mengandung berkas tanpa referensi.")
     # All archive validation completes before writes; no extractall or URL fetching.
-    if entries and image:
-        actual = media_service.upload(entries[image.uri], owner, image.media_type)
-        if (actual.width, actual.height) != (image.width, image.height):
-            raise ServiceError("ASSET_METADATA_MISMATCH", "Dimensi gambar tidak sesuai.")
-        bundle.input.image.uri = actual.uri
+    if entries and images:
+        for image in images:
+            actual = media_service.upload(entries[image.uri], owner, image.media_type)
+            if (actual.width, actual.height) != (image.width, image.height):
+                raise ServiceError("ASSET_METADATA_MISMATCH", "Dimensi gambar tidak sesuai.")
+            image.uri = actual.uri
     for entry in artifacts:
         if entries:
             path = media_service.settings.data_dir / entry["path"]
@@ -166,10 +168,14 @@ def csv_atoms(bundle):
     return stream.getvalue().encode("utf-8-sig")
 
 
-def overlay(bundle, media_service, owner, atom_id=None):
-    if not bundle.input.image:
+def overlay(bundle, media_service, owner, atom_id=None, asset_id=None):
+    images = {m.asset_id: m for m in bundle.input.images}
+    if not images:
         raise ServiceError("IMAGE_REQUIRED", "Tidak ada gambar.")
-    path, _, _ = media_service.resolve(bundle.input.image, owner, preview=True)
+    target = images.get(asset_id) if asset_id else next(iter(images.values()))
+    if target is None:
+        raise ServiceError("IMAGE_REQUIRED", "Gambar tidak ditemukan untuk aset ini.")
+    path, _, _ = media_service.resolve(target, owner, preview=True)
     image = Image.open(path).convert("RGB")
     draw = ImageDraw.Draw(image)
     if bundle.analysis:
@@ -181,6 +187,8 @@ def overlay(bundle, media_service, owner, atom_id=None):
                 ("#d07a1e", assessment.contradicting_regions),
             ):
                 for r in regions:
+                    if r.asset_id != target.asset_id:
+                        continue
                     x1, y1, x2, y2 = r.bbox
                     draw.rectangle(
                         (x1 * image.width, y1 * image.height, x2 * image.width - 1, y2 * image.height - 1),

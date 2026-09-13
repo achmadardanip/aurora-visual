@@ -87,15 +87,15 @@ with tempfile.TemporaryDirectory(prefix="aurora-smoke-") as temp:
             blob = io.BytesIO()
             image.save(blob, "PNG")
             ref = client.post(
-                "/api/v1/media", files={"image": ("live.png", blob.getvalue(), "image/png")}
-            ).json()
+                "/api/v1/media", files={"images": ("live.png", blob.getvalue(), "image/png")}
+            ).json()["images"][0]
             live = {
                 **b,
                 "case_id": str(uuid4()),
                 "mode": "live",
                 "warnings": [],
                 "extensions": {},
-                "input": {**b["input"], "image": ref, "claim_text": "Bidang ini berwarna merah"},
+                "input": {**b["input"], "images": [ref], "claim_text": "Bidang ini berwarna merah"},
             }
             response = client.post("/api/v1/analyze", json=live, headers={"Idempotency-Key": "live-smoke"})
             response.raise_for_status()

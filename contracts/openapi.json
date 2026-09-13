@@ -159,6 +159,43 @@
         }
       }
     },
+    "/api/v1/media/{asset_id}/thumbnail": {
+      "get": {
+        "summary": "Get Thumbnail",
+        "operationId": "get_thumbnail_api_v1_media__asset_id__thumbnail_get",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analyze": {
       "post": {
         "summary": "Submit",
@@ -497,6 +534,22 @@
                 }
               ],
               "title": "Atom Id"
+            }
+          },
+          {
+            "name": "asset_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Asset Id"
             }
           }
         ],
@@ -995,15 +1048,18 @@
       },
       "Body_upload_api_v1_media_post": {
         "properties": {
-          "image": {
-            "type": "string",
-            "contentMediaType": "application/octet-stream",
-            "title": "Image"
+          "images": {
+            "items": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream"
+            },
+            "type": "array",
+            "title": "Images"
           }
         },
         "type": "object",
         "required": [
-          "image"
+          "images"
         ],
         "title": "Body_upload_api_v1_media_post"
       },
@@ -1745,15 +1801,12 @@
             "pattern": "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$",
             "title": "Language"
           },
-          "image": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/MediaRef"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "images": {
+            "items": {
+              "$ref": "#/components/schemas/MediaRef"
+            },
+            "type": "array",
+            "title": "Images"
           },
           "as_of": {
             "anyOf": [
@@ -1773,7 +1826,7 @@
         "required": [
           "claim_text",
           "language",
-          "image",
+          "images",
           "as_of"
         ],
         "title": "Input"

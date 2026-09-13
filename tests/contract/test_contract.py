@@ -61,7 +61,7 @@ def test_invariants(client, app, demo, mutation):
     elif mutation == "duplicate":
         result["analysis"]["visual_assessments"].append(copy.deepcopy(v))
     elif mutation == "identity":
-        result["input"]["image"]["sha256"] = "f" * 64
+        result["input"]["images"][0]["sha256"] = "f" * 64
     with pytest.raises(ValidationError):
         AuroraBundle.model_validate(result)
 
@@ -74,7 +74,7 @@ def test_missing_is_not_null(demo):
 
 def test_uri_not_identity(client, app, demo):
     result, _ = run(client, app, demo)
-    result["input"]["image"]["uri"] = "media/portable.png"
+    result["input"]["images"][0]["uri"] = "media/portable.png"
     assert AuroraBundle.model_validate(result).analysis.atom_set_id == result["analysis"]["atom_set_id"]
 
 
