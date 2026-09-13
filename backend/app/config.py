@@ -86,6 +86,19 @@ def normalize_overlay(values: dict) -> dict:
     return result
 
 
+def validate_hive_policy(values: dict):
+    """Hive V3 is the mandatory credential; V2 project keys are optional add-ons.
+
+    Raises ValueError when Hive is enabled without the V3 secret so that no
+    configuration state can advertise Hive while lacking its required API.
+    """
+    if values.get("hive_enabled") and not values.get("hive_v3_secret"):
+        raise ValueError(
+            "hive_enabled memerlukan hive_v3_secret: secret V3 wajib untuk provider Hive "
+            "(atomizer + observasi multimodal); project key V2 bersifat opsional"
+        )
+
+
 @dataclass
 class Settings:
     data_dir: Path = field(default_factory=lambda: Path(os.getenv("AURORA_DATA_DIR", "var")).resolve())
@@ -177,6 +190,7 @@ class Settings:
             raise ValueError("Public mode requires deployment host names in AURORA_ALLOWED_HOSTS")
         # Range/type validation for every UI field (covers env-provided values too).
         normalize_overlay(self.overlay_values())
+        validate_hive_policy(self.overlay_values())
         for name in ("media", "derived", "artifacts", "cache"):
             (self.data_dir / name).mkdir(parents=True, exist_ok=True)
 

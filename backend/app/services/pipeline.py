@@ -3,6 +3,7 @@ import resource
 import time
 from datetime import datetime, timezone
 
+import httpx
 import torch
 from aurora_visual.alignment.uot import align
 from aurora_visual.atomization.parser import HiveVLMAtomizer, RuleAtomizer, StructuredLLMAtomizer
@@ -72,6 +73,10 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
     parser_name = options.get("parser", "rules")
     if not use_hive and (parser_name == "hive-vlm" or options.get("translation_shadow", False)):
         raise ValueError("HIVE_PROVIDER_REQUIRED")
+    if use_hive and not settings.hive_v3_secret:
+        # V3 is the mandatory Hive credential; validated at config time and
+        # enforced here so a mis-built settings object cannot silently degrade.
+        raise ValueError("HIVE_V3_REQUIRED")
     hive_extension = None
     warnings = []
     hive_v2_models = []
@@ -81,7 +86,9 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         hive_extension = {
             "mode": "external",
             "egress": {
-                "original_media_stage1": True,
+                # Original bytes leave the server only for the optional V2 origin
+                # detector; without a V2 key stage 1 stays fully local.
+                "original_media_stage1": False,
                 "normalized_preview_stage3": True,
                 "caption_stage2_3": True,
             },
@@ -91,9 +98,15 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "provider_status": hive_v2_status,
         }
         groups = group_v2_capabilities(settings)
+        hive_extension["egress"]["original_media_stage1"] = any(
+            representation == "original" for _, representation in groups
+        )
         configured_capabilities = {
             capability for capabilities in groups.values() for capability in capabilities
         }
+        # V2 project keys are optional: unconfigured capabilities are recorded for
+        # transparency but never warn or mark the run partial. Stages 1–3 still
+        # function through the local path plus the mandatory V3 VLM.
         missing_capabilities = {
             "origin",
             "ocr",
@@ -104,11 +117,9 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "celebrity",
         } - configured_capabilities
         hive_v2_status.extend(
-            {"capability": capability, "status": "unconfigured"}
+            {"capability": capability, "status": "unconfigured", "optional": True}
             for capability in sorted(missing_capabilities)
         )
-        if missing_capabilities:
-            warnings.append(warning_for_error("unconfigured", "hive_v2_capabilities"))
         for (key, representation), capabilities in groups.items():
             for asset in assets:
                 target = asset["source_path"] if representation == "original" else asset["preview_path"]
@@ -197,6 +208,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
                 "provider": "hive-v2",
                 "status": "unconfigured",
                 "representation": "original_bytes",
+                "optional": True,
             }
     for asset in assets:
         label = asset["screening"]["decision"]["label"]
@@ -244,12 +256,29 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
                         "error_code": code,
                     }
         else:
-            parser = (
-                StructuredLLMAtomizer(settings.llm_url, settings.llm_model, settings.llm_allowed_origins)
-                if parser_name == "llm"
-                else RuleAtomizer()
-            )
-            parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
+            if parser_name == "llm":
+                try:
+                    parser = StructuredLLMAtomizer(
+                        settings.llm_url, settings.llm_model, settings.llm_allowed_origins
+                    )
+                    parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
+                except (httpx.HTTPError, ValueError) as exc:
+                    # A failed optional LLM parser degrades to the deterministic
+                    # rules atomizer instead of failing the whole analysis.
+                    warnings.append(
+                        Warning(
+                            code="LLM_FALLBACK_RULES",
+                            message=(
+                                "Parser LLM gagal ("
+                                + type(exc).__name__
+                                + "); klaim diurai ulang dengan aturan lokal."
+                            ),
+                            component="atomizer",
+                        )
+                    )
+                    parsed = RuleAtomizer().parse(bundle.input.claim_text, bundle.input.language)
+            else:
+                parsed = RuleAtomizer().parse(bundle.input.claim_text, bundle.input.language)
         atoms, parser_config = parsed.atoms, parsed.config
         warnings.extend(parsed.warnings)
     if use_hive and options.get("translation_shadow"):
@@ -338,6 +367,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "representation": "normalized_preview",
             "models": [],
             "status": "unconfigured_or_unsupported",
+            "optional": True,
             "ocr_provenance": [],
             "regions": [],
         }
@@ -389,7 +419,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             )
         )
     assessments = assess(atoms, features, transport, ocr, fixture=bundle.mode == "demo")
-    if use_hive and settings.hive_v3_secret:
+    if use_hive:
         try:
             vlm_client = HiveV3Client(settings.hive_v3_secret, settings.hive_timeout)
             vlm_observations = []
@@ -427,13 +457,6 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
                 **existing,
                 "vlm": {"provider": "hive-v3-vlm", "status": code},
             }
-    elif use_hive:
-        warnings.append(warning_for_error("unconfigured", "hive_vlm_observation"))
-        existing = hive_extension.get("stage3") or {}
-        hive_extension["stage3"] = {
-            **existing,
-            "vlm": {"provider": "hive-v3-vlm", "status": "unconfigured"},
-        }
     logits = None
     checkpoint_meta = None
     if options.get("head", "heuristic") == "trained":
@@ -498,8 +521,15 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         global_feature=features["global"].numpy(),
     )
     elapsed = (time.perf_counter() - clock) * 1000
+    # Review advisories (external/parser output needing human audit) accompany
+    # successful runs; only degraded or failed components mark a run partial.
+    review_only = {"LLM_REVIEW", "HIVE_ATOMIZER_REVIEW"}
     partial = any(
-        w.code in ("OCR_UNAVAILABLE", "OCR_FAILED", "UOT_NONCONVERGENCE") or w.code.startswith("HIVE_")
+        (
+            w.code in ("OCR_UNAVAILABLE", "OCR_FAILED", "UOT_NONCONVERGENCE", "LLM_FALLBACK_RULES")
+            or w.code.startswith("HIVE_")
+        )
+        and w.code not in review_only
         for w in warnings
     )
     bundle.analysis = Analysis(

@@ -229,24 +229,30 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
   {
     title: "Hive",
     description:
-      "Provider eksternal opsional. Aktifkan hanya bila server boleh mengirim gambar keluar; kebijakan egress diatur admin.",
+      "Provider eksternal opsional. Secret V3 wajib saat Hive diaktifkan; project key V2 opsional dan analisis tetap berfungsi tanpa V2. Kebijakan egress diatur admin.",
     fields: [
       { name: "hive_enabled", label: "Aktifkan provider Hive" },
       { name: "hive_timeout", label: "Timeout Hive (detik)", hint: "1–120" },
       {
         name: "hive_v3_secret",
-        label: "V3 secret key",
-        hint: "disimpan terenkripsi di server",
+        label: "V3 secret key (wajib)",
+        hint: "wajib saat Hive aktif; hanya disimpan di server",
       },
-      { name: "hive_v2_shared_key", label: "V2 project key bersama" },
-      { name: "hive_v2_origin_key", label: "V2 origin key" },
-      { name: "hive_v2_ocr_key", label: "V2 OCR key" },
-      { name: "hive_v2_object_key", label: "V2 object key" },
-      { name: "hive_v2_scene_key", label: "V2 scene key" },
-      { name: "hive_v2_people_key", label: "V2 people key" },
-      { name: "hive_v2_logo_key", label: "V2 logo key" },
-      { name: "hive_v2_celebrity_key", label: "V2 celebrity key" },
-      { name: "hive_v2_translation_key", label: "V2 translation key" },
+      {
+        name: "hive_v2_shared_key",
+        label: "V2 project key bersama (opsional)",
+      },
+      { name: "hive_v2_origin_key", label: "V2 origin key (opsional)" },
+      { name: "hive_v2_ocr_key", label: "V2 OCR key (opsional)" },
+      { name: "hive_v2_object_key", label: "V2 object key (opsional)" },
+      { name: "hive_v2_scene_key", label: "V2 scene key (opsional)" },
+      { name: "hive_v2_people_key", label: "V2 people key (opsional)" },
+      { name: "hive_v2_logo_key", label: "V2 logo key (opsional)" },
+      { name: "hive_v2_celebrity_key", label: "V2 celebrity key (opsional)" },
+      {
+        name: "hive_v2_translation_key",
+        label: "V2 translation key (opsional)",
+      },
     ],
   },
   {
@@ -287,6 +293,7 @@ const detectorStatus: Record<string, string> = {
   unavailable: "Belum dikonfigurasi",
   unconfigured: "Belum dikonfigurasi",
   unconfigured_or_unsupported: "Belum tersedia",
+  optional: "Opsional",
   failed: "Provider gagal",
   provider_failed: "Provider gagal",
   http_error: "Provider gagal",
@@ -448,6 +455,7 @@ export default function App() {
   const [backbone, setBackbone] = useState("local-color-v1");
   const [alignment, setAlignment] = useState("uot");
   const [provider, setProvider] = useState<"local" | "hive">("local");
+  const [parser, setParser] = useState<"rules" | "llm">("rules");
   const [editing, setEditing] = useState<Atom[] | null>(null);
   const [reason, setReason] = useState("");
   const [snapshots, setSnapshots] = useState<
@@ -489,6 +497,14 @@ export default function App() {
   const hiveV3Ready = capabilities.some(
     (capability) =>
       capability.provider === "hive-v3-vlm" && capability.status === "ok",
+  );
+  const ollamaReady = capabilities.some(
+    (capability) =>
+      capability.provider === "ollama" && capability.status === "ok",
+  );
+  const hiveV2OriginReady = capabilities.some(
+    (capability) =>
+      capability.provider === "hive-v2-origin" && capability.status === "ok",
   );
   const activeProvider =
     mode === "live" && provider === "hive" ? "Hive eksternal" : "Lokal";
@@ -660,11 +676,13 @@ export default function App() {
     setMode(data.mode);
     const savedOptions = (
       data.extensions.aurora_visual as
-        { options?: { provider?: "local" | "hive" } } | undefined
+        | { options?: { provider?: "local" | "hive"; parser?: string } }
+        | undefined
     )?.options;
     setProvider(
       data.mode === "demo" ? "local" : savedOptions?.provider || "local",
     );
+    setParser(savedOptions?.parser === "llm" ? "llm" : "rules");
     setSelected(data.analysis?.atomic_claims[0]?.atom_id || null);
     setEditing(null);
     setShowSnapshots(false);
@@ -849,7 +867,12 @@ export default function App() {
           options: {
             backbone,
             alignment,
-            parser: provider === "hive" ? "hive-vlm" : "rules",
+            parser:
+              mode === "demo"
+                ? "rules"
+                : provider === "hive"
+                  ? "hive-vlm"
+                  : parser,
             head: "heuristic",
             top_k: 16,
             provider: mode === "demo" ? "local" : provider,
@@ -1359,19 +1382,43 @@ export default function App() {
                         </label>
                       </div>
                     )}
+                    {mode === "live" && provider === "local" && (
+                      <div className="field-row">
+                        <label>
+                          Parser klaim (Tahap 2)
+                          <select
+                            value={parser}
+                            onChange={(e) =>
+                              setParser(e.target.value as "rules" | "llm")
+                            }
+                            disabled={!!running}
+                          >
+                            <option value="rules">
+                              Aturan lokal (deterministik)
+                            </option>
+                            <option value="llm" disabled={!ollamaReady}>
+                              LLM Ollama {ollamaReady ? "" : "· belum tersedia"}
+                            </option>
+                          </select>
+                        </label>
+                      </div>
+                    )}
                     {mode === "live" && !hiveV3Ready && (
                       <p className="provider-unavailable">
-                        Hive belum dapat dipilih: server belum memiliki
-                        konfigurasi V3 VLM lengkap.
+                        Hive belum dapat dipilih: secret V3 (wajib) belum
+                        dikonfigurasi di server. Project key V2 tidak wajib —
+                        Tahap 1–3 tetap berfungsi hanya dengan V3.
                       </p>
                     )}
                     {mode === "live" && provider === "hive" && (
                       <div className="egress-disclosure" role="note">
                         <ShieldCheck size={16} />
                         <span>
-                          Dengan menjalankan analisis, byte gambar asli dikirim
-                          untuk Tahap 1; preview ternormalisasi dan caption
-                          dikirim untuk Tahap 2–3 ke Hive. Kredensial tetap di
+                          {hiveV2OriginReady
+                            ? "Dengan menjalankan analisis, byte gambar asli dikirim untuk detektor Tahap 1 (V2 opsional); "
+                            : "Screening Tahap 1 berjalan lokal tanpa byte asli (project key V2 tidak dikonfigurasi); "}
+                          preview ternormalisasi dan caption dikirim untuk Tahap
+                          2–3 ke Hive (V3 VLM wajib). Kredensial tetap di
                           server. Kebijakan retensi provider berlaku.
                         </span>
                       </div>

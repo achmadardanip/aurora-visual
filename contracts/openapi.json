@@ -37,6 +37,37 @@
         }
       }
     },
+    "/api/v1/settings": {
+      "get": {
+        "summary": "Get Settings",
+        "description": "Server-side provider configuration for the settings UI; secrets masked.",
+        "operationId": "get_settings_api_v1_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Put Settings",
+        "operationId": "put_settings_api_v1_settings_put",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/providers/mafindo/latest": {
       "get": {
         "summary": "Mafindo Latest",

@@ -1,10 +1,19 @@
 import io
+import os
 
 import pytest
 from app.api.main import create_app
 from app.config import Settings
 from fastapi.testclient import TestClient
 from PIL import Image
+
+# The suite must be hermetic: importing app modules loads the developer's
+# .env once (load_dotenv), so strip provider/pipeline values afterwards.
+# Every Settings() instance then uses code defaults unless a test (or a
+# monkeypatch) sets values explicitly.
+for _name in list(os.environ):
+    if _name.startswith(("AURORA_", "VITE_")):
+        del os.environ[_name]
 
 
 @pytest.fixture

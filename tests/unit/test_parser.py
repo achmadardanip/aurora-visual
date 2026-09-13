@@ -1,5 +1,11 @@
 import pytest
-from aurora_visual.atomization.parser import RuleAtomizer, StructuredLLMAtomizer
+from aurora_visual.atomization.parser import (
+    RuleAtomizer,
+    StructuredLLMAtomizer,
+    _ollama_schema,
+    _repair_spans,
+    validate_structured_atoms,
+)
 from aurora_visual.training.weak import perturb
 
 
@@ -78,3 +84,47 @@ def test_decimal_sign_passive_and_independent_clauses():
     assert (relation.subject, relation.predicate, relation.object) == ("Alice", "pushes", "Bob")
     atoms = parser.parse("A mendorong B dan C menarik D").atoms
     assert [(a.subject, a.object) for a in atoms] == [("A", "B"), ("C", "D")]
+
+
+def test_ollama_schema_drops_grammar_unsupported_keywords():
+    schema = _ollama_schema(
+        {
+            "type": "object",
+            "properties": {"statement": {"type": "string", "minLength": 1, "maxLength": 10000}},
+            "required": ["statement"],
+        }
+    )
+    assert "minLength" not in schema["properties"]["statement"]
+    assert "maxLength" not in schema["properties"]["statement"]
+    # Supported constraints survive.
+    kept = _ollama_schema(
+        {"type": "object", "properties": {"atom_id": {"type": "string", "pattern": "^a[0-9]{6}$"}}}
+    )
+    assert kept["properties"]["atom_id"]["pattern"] == "^a[0-9]{6}$"
+
+
+def test_repair_spans_reanchors_statement_to_true_offsets():
+    caption = "Mahasiswa melakukan aksi di Monas"
+    raw = {
+        "atoms": [
+            {
+                "atom_id": "a000001",
+                "statement": "melakukan aksi",
+                "role": "action",
+                "subject": "Mahasiswa",
+                "predicate": "melakukan",
+                "object": "aksi",
+                "qualifiers": {"negated": False, "quantity": None, "time": None, "location": None},
+                # Model-estimated offsets are off by three code points.
+                "spans": [{"start": 14, "end": 27}],
+                "depends_on": [],
+                "check_worthiness": 0.5,
+                "parser_confidence": None,
+            }
+        ]
+    }
+    repaired = _repair_spans(raw, caption)
+    span = repaired["atoms"][0]["spans"][0]
+    assert caption[span["start"] : span["end"]] == "melakukan aksi"
+    atoms = validate_structured_atoms(repaired, caption)
+    assert atoms[0].statement == "melakukan aksi"

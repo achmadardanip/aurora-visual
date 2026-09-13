@@ -212,38 +212,54 @@ def create_app(settings=None, embedded_worker=True):
                 "message": "Parser structured output opsional",
             },
         ]
+        hive_v3_configured = bool(settings.hive_v3_secret)
         hive_capabilities = [
-            ("hive-v3-vlm", "atomizer and multimodal observations", bool(settings.hive_v3_secret)),
+            ("hive-v3-vlm", "atomizer and multimodal observations", hive_v3_configured, False),
             (
                 "hive-v2-origin",
                 "AI generation, deepfake, metadata observations",
                 bool(settings.hive_v2_key("origin")),
+                True,
             ),
-            ("hive-v2-ocr", "OCR", bool(settings.hive_v2_key("ocr"))),
-            ("hive-v2-object", "common object detection", bool(settings.hive_v2_key("object"))),
-            ("hive-v2-scene", "contextual scene classification", bool(settings.hive_v2_key("scene"))),
-            ("hive-v2-people", "people-count category", bool(settings.hive_v2_key("people"))),
-            ("hive-v2-logo", "logo and logo-location proposals", bool(settings.hive_v2_key("logo"))),
+            ("hive-v2-ocr", "OCR", bool(settings.hive_v2_key("ocr")), True),
+            ("hive-v2-object", "common object detection", bool(settings.hive_v2_key("object")), True),
+            ("hive-v2-scene", "contextual scene classification", bool(settings.hive_v2_key("scene")), True),
+            ("hive-v2-people", "people-count category", bool(settings.hive_v2_key("people")), True),
+            ("hive-v2-logo", "logo and logo-location proposals", bool(settings.hive_v2_key("logo")), True),
             (
                 "hive-v2-celebrity",
                 "probabilistic celebrity proposal",
                 bool(settings.hive_v2_key("celebrity")),
+                True,
             ),
-            ("hive-v2-translation", "optional shadow translation", bool(settings.hive_v2_key("translation"))),
+            (
+                "hive-v2-translation",
+                "optional shadow translation",
+                bool(settings.hive_v2_key("translation")),
+                True,
+            ),
         ]
         caps.extend(
             {
                 "provider": provider,
                 "mode": "external opt-in",
                 "capability": capability,
-                "status": "ok" if settings.hive_enabled and configured else "unconfigured",
+                "status": (
+                    "ok"
+                    if settings.hive_enabled and configured
+                    else ("optional" if optional else "unconfigured")
+                ),
                 "message": (
                     "Konfigurasi server tersedia; readiness tidak menghubungi provider berbayar"
                     if settings.hive_enabled and configured
-                    else "Nonaktif atau project key server belum dikonfigurasi"
+                    else "Secret V3 wajib untuk mengaktifkan Hive; kunci V2 opsional"
+                    if not optional
+                    else "Kapabilitas V2 opsional; tidak diperlukan untuk jalur Hive V3"
+                    if settings.hive_enabled
+                    else "Provider Hive nonaktif"
                 ),
             }
-            for provider, capability, configured in hive_capabilities
+            for provider, capability, configured, optional in hive_capabilities
         )
         status = (
             "not_ready"

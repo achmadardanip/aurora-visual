@@ -68,7 +68,9 @@ uv run aurora robustness --smoke --checkpoint artifacts/checkpoints/smoke.pt --o
 
 Salin `.env.example` menjadi `.env` jika diperlukan; jangan masukkan secret ke frontend. `var/aurora.db` menyimpan kasus, snapshot revisi, audit dan job; `var/media`, `var/derived`, `var/cache`, `var/artifacts` menyimpan berkas. Jangan menghapus folder ini untuk melakukan restart.
 
-`AURORA_OPENCLIP_PRETRAINED` menerima checkpoint lokal atau nama pretrained yang didukung OpenCLIP. Nama remote mengizinkan unduhan bobot saat fitur dipilih; verifikasi lisensi bobot dan ruang disk sebelum mengaktifkannya. `AURORA_OPENCLIP_MODEL` default `ViT-B-32`; model beku, tidak menggunakan random weights sebagai hasil. `AURORA_CHECKPOINT` hanya untuk checkpoint head dengan metadata lengkap dan `data_kind=research`; checkpoint smoke ditolak pada live. Dukungan Indonesia OpenCLIP standar belum divalidasi.
+`AURORA_OPENCLIP_PRETRAINED` menerima checkpoint lokal atau nama pretrained yang didukung OpenCLIP. Nama remote mengizinkan unduhan bobot saat fitur dipilih; verifikasi lisensi bobot dan ruang disk sebelum mengaktifkannya. `AURORA_OPENCLIP_MODEL` default `ViT-B-32`; untuk tag `openai` gunakan `ViT-B-32-quickgelu` agar aktivasi QuickGELU cocok. Model beku, tidak menggunakan random weights sebagai hasil. `AURORA_CHECKPOINT` hanya untuk checkpoint head dengan metadata lengkap dan `data_kind=research`; checkpoint smoke ditolak pada live. Dukungan Indonesia OpenCLIP standar belum divalidasi.
+
+Hive adalah provider eksternal opt-in per analisis (mode live): secret **V3 wajib** saat `AURORA_HIVE_ENABLED=true` (atomizer VLM Tahap 2 dan observasi multimodal Tahap 3), sedangkan project key **V2 bersifat opsional** — tanpa kunci V2, Tahap 1 berjalan lokal, model preview Tahap 3 dilewati, dan seluruh tahap tetap berfungsi. Kredensial hanya disimpan server-side.
 
 ## Docker dan satu server
 

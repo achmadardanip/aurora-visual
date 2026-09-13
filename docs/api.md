@@ -39,7 +39,7 @@ Contoh opsi internal:
 {"aurora_visual":{"options":{"backbone":"local-color-v1","alignment":"uot","parser":"rules","head":"heuristic","top_k":16}}}
 ```
 
-Backbone: local-color-v1/openclip. Alignment: global/max-region/mean-region/attention/balanced-ot/uot. Parser: rules/llm. Head: heuristic/trained. Checkpoint/path/URL model tidak menerima input bebas dari browser; dikendalikan environment server. Head trained membutuhkan metadata split, label map bernama, hash checkpoint cocok, dan dataset_kind research. Pemilihan model tersedia juga lewat API; UI default memakai heuristic.
+Backbone: local-color-v1/openclip. Alignment: global/max-region/mean-region/attention/balanced-ot/uot. Parser: rules/llm/hive-vlm (hive-vlm hanya saat provider hive mode live; tanpa provider Hive, request ditolak `HIVE_PROVIDER_REQUIRED`; secret V3 wajib dan dijaga `HIVE_V3_REQUIRED`). Kegagalan parser llm (jaringan/validasi) fallback ke aturan lokal dengan peringatan `LLM_FALLBACK_RULES`. Head: heuristic/trained. Checkpoint/path/URL model tidak menerima input bebas dari browser; dikendalikan environment server. Head trained membutuhkan metadata split, label map bernama, hash checkpoint cocok, dan dataset_kind research. Pemilihan model tersedia juga lewat API; UI default memakai heuristic.
 
 Koreksi:
 
