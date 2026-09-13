@@ -10,6 +10,7 @@ from aurora_visual.atomization.parser import HiveVLMAtomizer, RuleAtomizer, Stru
 from aurora_visual.entailment.reasoning import assess
 from aurora_visual.hive import (
     PROVIDER_REGION_START,
+    V3_DETECTION_MODEL,
     HiveError,
     HiveV2Client,
     HiveV3Client,
@@ -24,6 +25,7 @@ from aurora_visual.hive import (
     regions_for_detections,
     select_models,
     stage1_from_v2,
+    stage1_from_v3,
     v2_capability_status,
     warning_for_error,
 )
@@ -86,9 +88,10 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         hive_extension = {
             "mode": "external",
             "egress": {
-                # Original bytes leave the server only for the optional V2 origin
-                # detector; without a V2 key stage 1 stays fully local.
-                "original_media_stage1": False,
+                # Original bytes leave the server for stage-1 AI/deepfake
+                # detection: via the mandatory V3 detection model (default) or
+                # the optional V2 enterprise origin project.
+                "original_media_stage1": True,
                 "normalized_preview_stage3": True,
                 "caption_stage2_3": True,
             },
@@ -98,8 +101,9 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "provider_status": hive_v2_status,
         }
         groups = group_v2_capabilities(settings)
-        hive_extension["egress"]["original_media_stage1"] = any(
-            representation == "original" for _, representation in groups
+        v2_origin_configured = any("origin" in capabilities for capabilities in groups.values())
+        hive_extension["egress"]["original_media_stage1"] = bool(
+            v2_origin_configured or settings.hive_v3_secret
         )
         configured_capabilities = {
             capability for capabilities in groups.values() for capability in capabilities
@@ -196,19 +200,54 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
                             },
                         )
         if "origin" in missing_capabilities:
+            # No V2 enterprise origin key: stage-1 AI/deepfake detection runs
+            # through the mandatory V3 detection model on the original bytes.
+            detection_client = HiveV3Client(settings.hive_v3_secret, settings.hive_timeout)
+            stage1_status = "ok"
             for asset in assets:
-                asset["screening"]["detectors"] = detector_for_error("unconfigured")
-                asset["screening"]["provider_metadata"] = {
-                    "provider": "hive-v2",
-                    "status": "unconfigured",
-                    "verification": "provider_observation_not_cryptographically_verified",
-                    "observations": [],
-                }
+                try:
+                    started = time.perf_counter()
+                    detected = detection_client.detect_ai_generated(
+                        asset["source_path"], asset["ref"].media_type
+                    )
+                    detectors, provider_metadata = stage1_from_v3(detected)
+                    asset["screening"]["detectors"] = detectors
+                    asset["screening"]["provider_metadata"] = provider_metadata
+                    asset.setdefault(
+                        "stage1",
+                        {
+                            "provider": "hive-v3",
+                            "model": V3_DETECTION_MODEL,
+                            "status": "ok",
+                            "representation": "original_bytes",
+                            "duration_ms": round((time.perf_counter() - started) * 1000),
+                            "frames": detected.get("frames", 1),
+                        },
+                    )
+                except HiveError as exc:
+                    stage1_status = exc.code
+                    warnings.append(warning_for_error(exc.code, "hive_stage1_detection"))
+                    asset["screening"]["detectors"] = detector_for_error(exc.code, "hive-v3")
+                    asset["screening"]["provider_metadata"] = {
+                        "provider": "hive-v3",
+                        "status": exc.code,
+                        "verification": "provider_observation_not_cryptographically_verified",
+                        "observations": [],
+                    }
+                    asset.setdefault(
+                        "stage1",
+                        {
+                            "provider": "hive-v3",
+                            "model": V3_DETECTION_MODEL,
+                            "status": exc.code,
+                            "representation": "original_bytes",
+                        },
+                    )
             hive_extension["stage1"] = {
-                "provider": "hive-v2",
-                "status": "unconfigured",
+                "provider": "hive-v3",
+                "model": V3_DETECTION_MODEL,
+                "status": stage1_status,
                 "representation": "original_bytes",
-                "optional": True,
             }
     for asset in assets:
         label = asset["screening"]["decision"]["label"]

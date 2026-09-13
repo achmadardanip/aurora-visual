@@ -216,8 +216,14 @@ def create_app(settings=None, embedded_worker=True):
         hive_capabilities = [
             ("hive-v3-vlm", "atomizer and multimodal observations", hive_v3_configured, False),
             (
+                "hive-v3-ai-deepfake",
+                "AI-generated and deepfake content detection (stage 1)",
+                hive_v3_configured,
+                False,
+            ),
+            (
                 "hive-v2-origin",
-                "AI generation, deepfake, metadata observations",
+                "AI generation, deepfake, metadata observations (enterprise project)",
                 bool(settings.hive_v2_key("origin")),
                 True,
             ),

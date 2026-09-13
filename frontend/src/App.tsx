@@ -502,10 +502,6 @@ export default function App() {
     (capability) =>
       capability.provider === "ollama" && capability.status === "ok",
   );
-  const hiveV2OriginReady = capabilities.some(
-    (capability) =>
-      capability.provider === "hive-v2-origin" && capability.status === "ok",
-  );
   const activeProvider =
     mode === "live" && provider === "hive" ? "Hive eksternal" : "Lokal";
   const detectorSummary = screening?.detectors
@@ -1414,11 +1410,11 @@ export default function App() {
                       <div className="egress-disclosure" role="note">
                         <ShieldCheck size={16} />
                         <span>
-                          {hiveV2OriginReady
-                            ? "Dengan menjalankan analisis, byte gambar asli dikirim untuk detektor Tahap 1 (V2 opsional); "
-                            : "Screening Tahap 1 berjalan lokal tanpa byte asli (project key V2 tidak dikonfigurasi); "}
-                          preview ternormalisasi dan caption dikirim untuk Tahap
-                          2–3 ke Hive (V3 VLM wajib). Kredensial tetap di
+                          Dengan menjalankan analisis, byte gambar asli dikirim
+                          ke Hive untuk deteksi AI/deepfake Tahap 1 (model
+                          deteksi V3; project V2 enterprise dipakai bila
+                          dikonfigurasi); preview ternormalisasi dan caption
+                          dikirim untuk Tahap 2–3 (VLM V3). Kredensial tetap di
                           server. Kebijakan retensi provider berlaku.
                         </span>
                       </div>
@@ -1585,9 +1581,9 @@ export default function App() {
                         <div>
                           <h3 id="hive-title">Jejak pemrosesan Hive</h3>
                           <p>
-                            Dukungan dikonfigurasi dan diuji dengan mock;
-                            kompatibilitas live belum diverifikasi sampai
-                            project key berhasil digunakan secara eksplisit.
+                            Jalur V3 (deteksi AI/deepfake, atomizer, observasi
+                            multimodal) terverifikasi live; project key V2
+                            enterprise opsional dan tidak diperlukan.
                           </p>
                         </div>
                       </div>

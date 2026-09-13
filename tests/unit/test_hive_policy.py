@@ -49,7 +49,9 @@ def test_put_settings_allows_v3_only_and_protects_the_secret(client):
         if c["provider"].startswith("hive-")
     }
     assert caps["hive-v3-vlm"] == "ok"
-    assert all(status == "optional" for provider, status in caps.items() if provider != "hive-v3-vlm")
+    assert caps["hive-v3-ai-deepfake"] == "ok"
+    v3_providers = {"hive-v3-vlm", "hive-v3-ai-deepfake"}
+    assert all(status == "optional" for provider, status in caps.items() if provider not in v3_providers)
     # Clearing the mandatory secret while Hive stays enabled is rejected.
     response = client.put("/api/v1/settings", json={"hive_v3_secret": ""})
     assert response.status_code == 422
@@ -63,7 +65,7 @@ def test_overlay_enabling_hive_without_v3_secret_is_ignored(tmp_path):
 
 
 class StubV3Client:
-    """Deterministic V3 stand-in: rules-quality atoms, no observations."""
+    """Deterministic V3 stand-in: rules-quality atoms, benign detection, no observations."""
 
     def __init__(self, secret, timeout=45.0):
         assert secret == "v3-secret"
@@ -75,6 +77,20 @@ class StubV3Client:
     def observe(self, path, media_type, caption, atoms):
         assert path.is_file()
         return {"observations": []}
+
+    def detect_ai_generated(self, path, media_type):
+        assert path.is_file()
+        return {
+            "model": "hive/ai-generated-and-deepfake-content-detection",
+            "frames": 1,
+            "classes": [
+                {"label": "ai_generated", "score": 0.03},
+                {"label": "not_ai_generated", "score": 0.97},
+                {"label": "deepfake", "score": 0.01},
+                {"label": "none", "score": 0.99},
+            ],
+            "metadata": {"width": 64, "height": 48},
+        }
 
 
 def live_bundle(ref, options):
@@ -120,10 +136,16 @@ def test_v3_only_hive_run_completes_without_v2(tmp_path, monkeypatch):
     hive = result.extensions["aurora_visual"]["hive"]
     assert hive["stage2"]["provider"] == "hive-v3-vlm" and hive["stage2"]["status"] == "ok"
     assert hive["stage3"]["vlm"]["status"] == "ok"
-    assert hive["stage1"]["status"] == "unconfigured" and hive["stage1"]["optional"] is True
+    # Stage-1 AI/deepfake detection runs through the V3 detection model when
+    # no V2 enterprise origin key is configured.
+    assert hive["stage1"]["provider"] == "hive-v3" and hive["stage1"]["status"] == "ok"
+    detectors = result.extensions["aurora_visual"]["screening"]["detectors"]
+    assert {d["task"] for d in detectors} == {"ai_generation_detection", "deepfake_detection"}
+    assert all(d["provider"] == "hive-v3" for d in detectors)
+    assert detectors[0]["assessment"] == "uncertain"  # not_ai_generated is not authenticity evidence
     assert hive["stage3"]["status"] == "unconfigured_or_unsupported"
-    # Without a V2 origin key the original bytes never leave the server.
-    assert hive["egress"]["original_media_stage1"] is False
+    # The mandatory V3 detection model receives the original bytes for stage 1.
+    assert hive["egress"]["original_media_stage1"] is True
     assert hive["egress"]["normalized_preview_stage3"] is True
     assert hive["egress"]["caption_stage2_3"] is True
     assert len(hive["provider_status"]) == 7

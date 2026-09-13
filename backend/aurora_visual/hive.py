@@ -17,7 +17,9 @@ from app.models.contract import Atom, OCRItem, Region, Warning, strict_json
 
 V2_ENDPOINT = "https://api.thehive.ai/api/v2/task/sync"
 V3_ENDPOINT = "https://api.thehive.ai/api/v3/chat/completions"
+V3_DETECTION_ENDPOINT = "https://api.thehive.ai/api/v3/hive/ai-generated-and-deepfake-content-detection"
 V3_MODEL = "hive/vision-language-model"
+V3_DETECTION_MODEL = "hive/ai-generated-and-deepfake-content-detection"
 _MAX_V2_RESPONSE = 4_000_000
 _MAX_V3_RESPONSE = 1_000_000
 _MAX_V3_CONTENT = 512_000
@@ -450,8 +452,10 @@ _SOURCE_LABELS = {
     "midjourney",
     "dall-e",
     "dall_e",
+    "dalle",
     "firefly",
     "stable_diffusion",
+    "stablediffusion",
     "flux",
     "runway",
     "sora",
@@ -588,10 +592,10 @@ def stage1_from_v2(normalized: dict) -> tuple[list[dict], dict]:
     }
 
 
-def _unavailable_detector(task: str, status: str, code: str | None = None) -> dict:
+def _unavailable_detector(task: str, status: str, code: str | None = None, provider: str = "hive-v2") -> dict:
     return {
         "task": task,
-        "provider": "hive-v2" if status != "unconfigured" else "unconfigured",
+        "provider": provider if status != "unconfigured" else "unconfigured",
         "status": status,
         "assessment": "not_assessed",
         "error_code": code,
@@ -701,6 +705,183 @@ class HiveV3Client:
             }
         ]
         return self.complete(messages, schema, "aurora_visible_observations", 2048)
+
+    def detect_ai_generated(self, path, media_type: str) -> dict:
+        """Submit original bytes to the V3 AI-generated & deepfake detection model.
+
+        Uses the same mandatory V3 secret as the VLM endpoints; images only
+        (this application never submits video/audio). Response is normalized to
+        per-class scores plus a bounded metadata tree.
+        """
+        if not self.configured:
+            raise HiveError("unconfigured")
+        raw = path.read_bytes()
+        encoded = base64.b64encode(raw).decode("ascii")
+        data_uri = f"data:{media_type};base64,{encoded}"
+        if len(data_uri.encode("ascii")) > _MAX_V3_DATA_URI_BYTES:
+            raise HiveError("media_too_large")
+        body = {
+            "media_metadata": True,
+            "input": [{"media_base64": data_uri}],
+        }
+        try:
+            with httpx.Client(
+                timeout=self.timeout,
+                follow_redirects=False,
+                transport=self.transport,
+            ) as client:
+                _, payload = _request_json(
+                    client,
+                    V3_DETECTION_ENDPOINT,
+                    _MAX_V3_RESPONSE,
+                    headers={"Authorization": "Bearer " + self.secret, "Content-Type": "application/json"},
+                    json=body,
+                )
+            return normalize_v3_detection(payload)
+        except HiveError:
+            raise
+        except (httpx.TimeoutException, httpx.NetworkError) as exc:
+            raise HiveError(
+                "timeout" if isinstance(exc, httpx.TimeoutException) else "network_error"
+            ) from None
+
+
+def normalize_v3_detection(payload: Any) -> dict:
+    """Normalize the V3 detection response: classes, generator attribution, metadata.
+
+    Images produce a single output frame; video-style multi-frame payloads are
+    merged with a bounded frame count for defense in depth.
+    """
+    if not isinstance(payload, dict):
+        raise HiveError("malformed_response")
+    output = payload.get("output")
+    if not isinstance(output, list) or not output or len(output) > 120:
+        raise HiveError("malformed_response")
+    classes: list[dict] = []
+    for frame in output:
+        if not isinstance(frame, dict):
+            raise HiveError("malformed_response")
+        frame_classes = frame.get("classes")
+        if not isinstance(frame_classes, list):
+            raise HiveError("malformed_response")
+        # The real attribution head returns 100+ engine labels; the caps bound
+        # memory while keeping the trailing deepfake/audio classes intact.
+        for item in frame_classes[:300]:
+            if not isinstance(item, dict):
+                continue
+            score = _score(item.get("value"))
+            label = _normalize_label(item.get("class"))
+            if label and score is not None:
+                classes.append({"label": label, "score": score})
+    if not classes:
+        raise HiveError("malformed_response")
+    return {
+        "model": _safe_text(payload.get("model"), 120) or V3_DETECTION_MODEL,
+        "frames": len(output),
+        "classes": classes[:600],
+        "metadata": _safe_tree(payload.get("metadata")),
+    }
+
+
+# Classes that are not generator-attribution labels; everything else in the
+# attribution head (100+ engine labels, e.g. midjourney, flux, gemini3, seedream)
+# is reported generically so new engines need no code change.
+_NON_ATTRIBUTION_LABELS = {
+    "ai_generated",
+    "not_ai_generated",
+    "deepfake",
+    "yes_deepfake",
+    "no_deepfake",
+    "ai_generated_audio",
+    "not_ai_generated_audio",
+    "inconclusive",
+    "inconclusive_video",
+    "none",
+}
+
+
+def stage1_from_v3(detected: dict) -> tuple[list[dict], dict]:
+    """Build stage-1 detectors from normalized V3 detection output.
+
+    Threshold 0.9 follows Hive's documented recommendation; a score below it is
+    inconclusive, and ``not_ai_generated`` is never treated as authenticity
+    evidence (same conservative semantics as the V2 path).
+    """
+    all_classes = detected["classes"]
+    ai = _best(all_classes, {"ai_generated"})
+    non_ai = _best(all_classes, {"not_ai_generated"})
+    deepfake = _best(all_classes, {"deepfake", "yes_deepfake"})
+    sources = sorted(
+        (item for item in all_classes if item["label"] not in _NON_ATTRIBUTION_LABELS),
+        key=lambda item: item["score"],
+        reverse=True,
+    )[:5]
+    if ai and ai["score"] >= 0.9:
+        ai_detector = {
+            "task": "ai_generation_detection",
+            "provider": "hive-v3",
+            "status": "ok",
+            "assessment": "likely_ai_generated",
+            "score": ai["score"],
+            "raw_label": ai["label"],
+            "source_attribution": sources,
+            "calibration": "provider_threshold_not_locally_validated",
+            "message": "Sinyal probabilistik Hive; bukan bukti asal atau kebenaran caption.",
+        }
+    elif non_ai and (not ai or non_ai["score"] >= ai["score"]):
+        ai_detector = {
+            "task": "ai_generation_detection",
+            "provider": "hive-v3",
+            "status": "inconclusive",
+            "assessment": "uncertain",
+            "score": non_ai["score"],
+            "raw_label": non_ai["label"],
+            "source_attribution": sources,
+            "calibration": "provider_threshold_not_locally_validated",
+            "message": "Kelas not_ai_generated bukan bukti kamera, manusia, atau autentisitas.",
+        }
+    elif ai:
+        ai_detector = {
+            "task": "ai_generation_detection",
+            "provider": "hive-v3",
+            "status": "inconclusive",
+            "assessment": "uncertain",
+            "score": ai["score"],
+            "raw_label": ai["label"],
+            "source_attribution": sources,
+            "calibration": "provider_threshold_not_locally_validated",
+            "message": "Skor di bawah ambang provider; belum dapat disimpulkan.",
+        }
+    else:
+        ai_detector = _unavailable_detector("ai_generation_detection", "unsupported", provider="hive-v3")
+    if deepfake:
+        likely = deepfake["score"] >= 0.9
+        deepfake_detector = {
+            "task": "deepfake_detection",
+            "provider": "hive-v3",
+            "status": "ok" if likely else "inconclusive",
+            "assessment": "likely_deepfake" if likely else "uncertain",
+            "score": deepfake["score"],
+            "raw_label": deepfake["label"],
+            "faces": [],
+            "calibration": "aggregate_provider_output_not_locally_validated",
+            "message": "Output agregat tidak menyediakan region wajah; perlu telaah manusia.",
+        }
+    else:
+        deepfake_detector = _unavailable_detector("deepfake_detection", "unsupported", provider="hive-v3")
+    observations = [
+        {"kind": "generator_attribution", "classes": sources},
+        {"kind": "audio", "classes": [c for c in all_classes if c["label"].endswith("_audio")][:10]},
+    ]
+    if isinstance(detected.get("metadata"), dict) and detected["metadata"]:
+        observations.append({"kind": "media_metadata", "fields": detected["metadata"]})
+    return [ai_detector, deepfake_detector], {
+        "provider": "hive-v3",
+        "model": detected.get("model", V3_DETECTION_MODEL),
+        "verification": "provider_observation_not_cryptographically_verified",
+        "observations": observations,
+        "message": "Kelas/skor berasal dari respons provider dan bukan validasi rantai kepercayaan.",
+    }
 
 
 def atomization_schema() -> dict:
@@ -974,15 +1155,15 @@ def fuse_observations(
     return assessments
 
 
-def detector_for_error(code: str) -> list[dict]:
+def detector_for_error(code: str, provider: str = "hive-v2") -> list[dict]:
     status = {
         "rate_limited": "rate_limited",
         "unconfigured": "unconfigured",
         "unsupported_output": "unsupported",
     }.get(code, "failed")
     return [
-        _unavailable_detector("ai_generation_detection", status, code),
-        _unavailable_detector("deepfake_detection", status, code),
+        _unavailable_detector("ai_generation_detection", status, code, provider),
+        _unavailable_detector("deepfake_detection", status, code, provider),
     ]
 
 

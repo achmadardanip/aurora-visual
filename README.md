@@ -20,7 +20,7 @@ Mode **Live lokal** menjalankan parser, grid, pengukuran warna nyata, OCR, dan U
 Setiap analisis mengikuti empat tahap yang terlihat di UI:
 
 1. **Tahap 0 — Masukan:** caption asli dan gambar PNG/JPG/WebP yang diunggah.
-2. **Tahap 1 — Screening asal media:** nama field metadata, penanda perangkat lunak generatif yang dikenal, dan marker C2PA/JUMBF diperiksa secara lokal. Nilai asli EXIF tidak diekspor pada panel screening. Status AI-image, deepfake, dan watermark tak terlihat selalu **belum dikonfigurasi** sampai detektor tervalidasi disediakan.
+2. **Tahap 1 — Screening asal media:** nama field metadata, penanda perangkat lunak generatif yang dikenal, dan marker C2PA/JUMBF diperiksa secara lokal. Nilai asli EXIF tidak diekspor pada panel screening. Saat provider Hive dipilih (mode live), deteksi AI-image/deepfake berbasis model juga dijalankan pada byte asli (V3) dan dilaporkan terpisah sebagai sinyal probabilistik; watermark tak terlihat tetap **belum dikonfigurasi** sampai detektor tervalidasi disediakan.
 3. **Tahap 2 — Urai klaim:** caption dipecah menjadi atom aktor, aksi, objek, atribut, lokasi, waktu, jumlah, relasi, atau sebab.
 4. **Tahap 3 — Analisis multimodal:** OCR, grid region, alignment, dan assessment visual konservatif dijalankan.
 
@@ -70,7 +70,7 @@ Salin `.env.example` menjadi `.env` jika diperlukan; jangan masukkan secret ke f
 
 `AURORA_OPENCLIP_PRETRAINED` menerima checkpoint lokal atau nama pretrained yang didukung OpenCLIP. Nama remote mengizinkan unduhan bobot saat fitur dipilih; verifikasi lisensi bobot dan ruang disk sebelum mengaktifkannya. `AURORA_OPENCLIP_MODEL` default `ViT-B-32`; untuk tag `openai` gunakan `ViT-B-32-quickgelu` agar aktivasi QuickGELU cocok. Model beku, tidak menggunakan random weights sebagai hasil. `AURORA_CHECKPOINT` hanya untuk checkpoint head dengan metadata lengkap dan `data_kind=research`; checkpoint smoke ditolak pada live. Dukungan Indonesia OpenCLIP standar belum divalidasi.
 
-Hive adalah provider eksternal opt-in per analisis (mode live): secret **V3 wajib** saat `AURORA_HIVE_ENABLED=true` (atomizer VLM Tahap 2 dan observasi multimodal Tahap 3), sedangkan project key **V2 bersifat opsional** — tanpa kunci V2, Tahap 1 berjalan lokal, model preview Tahap 3 dilewati, dan seluruh tahap tetap berfungsi. Kredensial hanya disimpan server-side.
+Hive adalah provider eksternal opt-in per analisis (mode live): secret **V3 wajib** saat `AURORA_HIVE_ENABLED=true` dan mengaktifkan tiga jalur — deteksi **AI-generated & deepfake** pada byte asli (Tahap 1, model `hive/ai-generated-and-deepfake-content-detection`, ambang provider 0.9), **atomizer VLM** (Tahap 2), dan **observasi multimodal** (Tahap 3). Project key **V2 bersifat opsional** (enterprise; origin/OCR/objek/scene/orang/logo/selebriti/terjemahan) — tanpa kunci V2 seluruh tahap tetap berfungsi. Kredensial hanya disimpan server-side.
 
 ## Docker dan satu server
 

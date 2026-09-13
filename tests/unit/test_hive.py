@@ -17,10 +17,12 @@ from aurora_visual.hive import (
     normalize_observations,
     normalize_translation,
     normalize_v2,
+    normalize_v3_detection,
     ocr_from_models,
     regions_for_detections,
     select_models,
     stage1_from_v2,
+    stage1_from_v3,
     v2_capability_status,
 )
 
@@ -695,3 +697,126 @@ def test_fusion_disagreement_clears_local_evidence():
     assert result.observability_score is None
     assert not result.supporting_regions and not result.contradicting_regions
     assert result.counter_evidence is None
+
+
+def detection_payload(classes):
+    return {
+        "task_id": "fixture-task",
+        "model": "hive/ai-generated-and-deepfake-content-detection",
+        "output": [
+            {
+                "extra": [{"name": "frame_index", "value": 0}, {"name": "timestamp", "value": 0.0}],
+                "classes": [{"class": label, "value": value} for label, value in classes],
+            }
+        ],
+    }
+
+
+def test_v3_detection_uses_bearer_and_base64_data_uri(tmp_path):
+    image = tmp_path / "photo.png"
+    image.write_bytes(b"original-bytes")
+    seen = {}
+
+    def handler(request):
+        seen["url"] = str(request.url)
+        seen["authorization"] = request.headers["authorization"]
+        seen["body"] = json.loads(request.read())
+        return httpx.Response(200, json=detection_payload([("not_ai_generated", 0.99), ("deepfake", 0.01)]))
+
+    client = HiveV3Client("v3-secret", transport=httpx.MockTransport(handler))
+    detected = client.detect_ai_generated(image, "image/png")
+    assert seen["url"] == "https://api.thehive.ai/api/v3/hive/ai-generated-and-deepfake-content-detection"
+    assert seen["authorization"] == "Bearer v3-secret"
+    assert seen["body"]["media_metadata"] is True
+    media = seen["body"]["input"][0]["media_base64"]
+    assert media == "data:image/png;base64," + __import__("base64").b64encode(b"original-bytes").decode()
+    assert detected["frames"] == 1
+    assert {"label": "not_ai_generated", "score": 0.99} in detected["classes"]
+    assert "v3-secret" not in repr(detected)
+
+
+def test_v3_detection_normalization_bounds_and_rejects_malformed():
+    normalized = normalize_v3_detection(
+        detection_payload([("ai_generated", 0.5), ("junk", "not-a-number"), ("deepfake", 1.2)])
+    )
+    assert [c["label"] for c in normalized["classes"]] == ["ai_generated"]
+    for malformed in (
+        {},
+        {"output": []},
+        {"output": "no"},
+        {"output": [{"classes": "no"}]},
+        {"output": [{"classes": []}]},
+    ):
+        with pytest.raises(HiveError, match="malformed_response"):
+            normalize_v3_detection(malformed)
+
+
+def test_v3_detection_media_too_large(tmp_path, monkeypatch):
+    image = tmp_path / "big.png"
+    image.write_bytes(b"x" * 32)
+    monkeypatch.setattr("aurora_visual.hive._MAX_V3_DATA_URI_BYTES", 16)
+    with pytest.raises(HiveError, match="media_too_large"):
+        HiveV3Client("secret").detect_ai_generated(image, "image/png")
+
+
+def test_stage1_from_v3_thresholds_and_conservative_semantics():
+    detected = normalize_v3_detection(
+        detection_payload(
+            [
+                ("ai_generated", 0.95),
+                ("not_ai_generated", 0.05),
+                ("deepfake", 0.03),
+                ("midjourney", 0.8),
+                ("stablediffusion", 0.1),
+                ("none", 0.05),
+            ]
+        )
+    )
+    detectors, metadata = stage1_from_v3(detected)
+    ai, deepfake = detectors
+    assert ai["provider"] == "hive-v3" and ai["status"] == "ok"
+    assert ai["assessment"] == "likely_ai_generated" and ai["score"] == 0.95
+    assert [s["label"] for s in ai["source_attribution"]][:2] == ["midjourney", "stablediffusion"]
+    assert deepfake["status"] == "inconclusive" and deepfake["assessment"] == "uncertain"
+    assert metadata["provider"] == "hive-v3"
+    assert metadata["verification"] == "provider_observation_not_cryptographically_verified"
+
+    # Below the documented 0.9 threshold the result stays inconclusive.
+    low = normalize_v3_detection(
+        detection_payload([("ai_generated", 0.5), ("not_ai_generated", 0.5), ("deepfake", 0.2)])
+    )
+    detectors_low, _ = stage1_from_v3(low)
+    assert detectors_low[0]["status"] == "inconclusive" and detectors_low[0]["assessment"] == "uncertain"
+    assert detectors_low[1]["status"] == "inconclusive"
+
+    # not_ai_generated alone is never authenticity evidence.
+    natural = normalize_v3_detection(
+        detection_payload([("not_ai_generated", 0.99), ("ai_generated", 0.01), ("deepfake", 0.0)])
+    )
+    detectors_natural, _ = stage1_from_v3(natural)
+    assert detectors_natural[0]["assessment"] == "uncertain"
+    assert "not_ai_generated" in detectors_natural[0]["raw_label"]
+
+    # A likely deepfake needs the same 0.9 threshold.
+    fake = normalize_v3_detection(
+        detection_payload([("not_ai_generated", 0.1), ("ai_generated", 0.1), ("deepfake", 0.93)])
+    )
+    detectors_fake, _ = stage1_from_v3(fake)
+    assert detectors_fake[1]["assessment"] == "likely_deepfake" and detectors_fake[1]["status"] == "ok"
+
+
+def test_stage1_from_v3_handles_long_real_shaped_responses():
+    """The live endpoint returns 100+ engine labels with deepfake near the end."""
+    classes = [("not_ai_generated", 0.057), ("ai_generated", 0.943)]
+    classes += [(f"engine_{i}", 1e-7) for i in range(105)]  # attribution head bulk
+    classes += [("gemini3", 0.97), ("none", 0.018), ("deepfake", 1.45e-06)]
+    classes += [("not_ai_generated_audio", 1.0), ("ai_generated_audio", 0.0)]
+    detectors, _ = stage1_from_v3(normalize_v3_detection(detection_payload(classes)))
+    ai, deepfake = detectors
+    assert ai["assessment"] == "likely_ai_generated" and ai["score"] == 0.943
+    # deepfake was not truncated away by the long attribution list.
+    assert deepfake["status"] == "inconclusive" and deepfake["score"] == pytest.approx(1.45e-06)
+    # Attribution is generic: unknown engines (gemini3) rank by score, none/audio excluded.
+    assert ai["source_attribution"][0]["label"] == "gemini3"
+    labels = [s["label"] for s in ai["source_attribution"]]
+    assert "none" not in labels and "ai_generated" not in labels and "deepfake" not in labels
