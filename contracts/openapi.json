@@ -40,7 +40,7 @@
     "/api/v1/providers/mafindo/latest": {
       "get": {
         "summary": "Mafindo Latest",
-        "description": "Opt-in diagnostic bridge only; it does not attach provider data to a case.",
+        "description": "Opt-in diagnostic bridge only; never expose it from the public service.",
         "operationId": "mafindo_latest_api_v1_providers_mafindo_latest_get",
         "parameters": [
           {

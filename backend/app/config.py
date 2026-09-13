@@ -21,10 +21,24 @@ class Settings:
     mafindo_timeout: float = field(
         default_factory=lambda: float(os.getenv("AURORA_MAFINDO_TIMEOUT_SECONDS", "12"))
     )
+    allowed_hosts: list[str] = field(
+        default_factory=lambda: [
+            item.strip()
+            for item in os.getenv("AURORA_ALLOWED_HOSTS", "127.0.0.1,localhost,testserver").split(",")
+            if item.strip()
+        ]
+    )
 
     def prepare(self):
-        if self.public and len(self.token) < 24:
-            raise ValueError("Public mode requires AURORA_API_TOKEN with at least 24 characters")
+        if self.public and len(self.token) < 32:
+            raise ValueError("Public mode requires AURORA_API_TOKEN with at least 32 characters")
+        if not self.allowed_hosts or any("*" in host for host in self.allowed_hosts):
+            raise ValueError("AURORA_ALLOWED_HOSTS must contain explicit host names")
+        if self.public and any(
+            host.rstrip(".").lower() in {"127.0.0.1", "localhost", "testserver"}
+            for host in self.allowed_hosts
+        ):
+            raise ValueError("Public mode requires deployment host names in AURORA_ALLOWED_HOSTS")
         if not 1 <= self.mafindo_timeout <= 60:
             raise ValueError("AURORA_MAFINDO_TIMEOUT_SECONDS must be between 1 and 60")
         for name in ("media", "derived", "artifacts", "cache"):

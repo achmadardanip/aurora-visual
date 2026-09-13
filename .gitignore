@@ -14,5 +14,6 @@ artifacts/checkpoints/
 artifacts/cache/
 playwright-report/
 test-results/
+backups/
 .claude/
 prompt-aurora/

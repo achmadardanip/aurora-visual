@@ -2,6 +2,8 @@
 
 Sumber primer diperiksa pada 12 September 2026. Salinan README yang dibaca dan hasil pemeriksaan lisensi tersedia di `artifacts/reports/*-source.txt` dan `source-verification.json`. Tidak ada dataset besar/bobot berlisensi yang diunduh otomatis.
 
+**MAFINDO V1 bukan dataset training visual AURORA.** Uji live hanya mengembalikan metadata fact-check yang dinormalisasi (ID, judul, klasifikasi/status, tanggal), tanpa pasangan byte gambar–caption, region gold, label atom S/C/U, atau grant lisensi training/redistribusi yang telah diverifikasi. Karena itu respons API tidak diimpor sebagai corpus penelitian dan tidak dikirim ke GPU. Penggunaan data untuk training baru boleh dilakukan setelah pemilik data memberikan ketentuan lisensi tertulis, media diperoleh secara sah, dan anotasi visual sesuai kontrak tersedia.
+
 | Sumber primer | Format aktual yang diperiksa | Label dan akses |
 |---|---|---|
 | [NewsCLIPpings](https://github.com/g-luo/news_clippings) (master README) | JSON `annotations`: id, image_id, falsified; join ke VisualNews `origin/data.json` untuk caption/image_path | Label pasangan pristine/falsified, bukan gold atom. GitHub tidak menyajikan LICENSE pada endpoint lisensi yang diperiksa; hak VisualNews/media harus diperiksa sebelum penggunaan/redistribusi. |

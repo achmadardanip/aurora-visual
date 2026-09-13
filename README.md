@@ -45,6 +45,9 @@ Perintah tersebut meminta endpoint `latest(1)`, menyembunyikan URL/credential da
 | `make evaluate` | Training CPU fixture 3 epoch dan metrik/intervensi fitur pada test fixture |
 | `make experiments` | Training ulang 11 baseline/ablation/probe pada satu seed smoke |
 | `make build` | Build frontend produksi |
+| `make backup` | Backup online SQLite + staged media/sidecar dengan manifest SHA-256 |
+| `make verify-backup ARCHIVE=…` | Verifikasi schema/member/ukuran/checksum dan integritas SQLite tanpa ekstraksi |
+| `make restore-backup ARCHIVE=… RESTORE_DIR=…` | Restore terverifikasi ke directory baru/kosong untuk drill |
 | `make schema` | JSON Schema, OpenAPI dan fixture kanonis |
 
 Hasil aktual disimpan di `artifacts/reports/`; JSON/ZIP/CSV/overlay untuk serah terima di `artifacts/handoff/`. Screenshot browser desktop/ponsel dan catatan smoke browser disertakan. Metrik fixture adalah pemeriksaan perangkat lunak, **bukan hasil penelitian**. Lihat [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
@@ -73,6 +76,6 @@ Salin `.env.example` menjadi `.env` jika diperlukan; jangan masukkan secret ke f
 docker compose up --build
 ```
 
-Compose mengikat port API 8101 dan frontend 5171 ke **127.0.0.1**, dengan volume data persisten. Dockerfile/Compose disediakan; runtime Docker belum tersedia pada mesin implementasi sehingga build container belum diverifikasi. Dependensi PyTorch pada image dapat berukuran besar. Untuk satu server, baca [docs/deployment.md](docs/deployment.md): TLS/reverse proxy, token autentikasi, pembatasan request, dan backup wajib diatur sebelum ekspos publik. Tidak ada deployment publik yang dilakukan.
+Compose mengikat port API 8101 dan frontend 5171 ke **127.0.0.1**, dengan volume data persisten. Untuk public mode, API mewajibkan token acak minimal 32 karakter, origin CORS persis, hostname deployment tepercaya, dan TLS di reverse proxy; diagnostik MAFINDO dinonaktifkan. Image API berjalan non-root dan menyertakan CLI backup/verify/restore. Build serta smoke Compose arm64 telah lulus pada Docker Desktop 29.7.2/Compose 5.5.1: migrasi, health/readiness, browser Tahap 0–3 dari origin container, persistensi restart/idempotency, public-mode auth/Host/CORS/HSTS, dan drill backup/restore named volume. Pemindaian kerentanan Docker Scout belum dijalankan karena CLI meminta login Docker. Untuk satu server, baca [docs/deployment.md](docs/deployment.md): konfigurasi domain/TLS, backup terverifikasi, restore drill, monitoring, serta batas SQLite wajib dipenuhi sebelum ekspos publik. Tidak ada deployment publik yang dilakukan.
 
 Panduan rinci: [arsitektur](docs/architecture.md), [API](docs/api.md), [data](docs/data.md), [evaluasi](docs/evaluation.md), [batasan](docs/limitations.md), [handoff](docs/handoff.md).

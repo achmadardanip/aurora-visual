@@ -233,22 +233,62 @@ def test_cancel_and_readiness(client, app, demo):
     assert client.post("/api/v1/jobs/" + j["job_id"] + "/cancel").json()["status"] == "failed"
 
 
-def test_auth_and_origin_protection(tmp_path):
-    settings = Settings(data_dir=tmp_path / "secure", public=True, token="long-secret-token-for-test-only")
+def test_auth_origin_host_and_security_headers(tmp_path, monkeypatch):
+    monkeypatch.setenv("AURORA_CORS", "https://aurora.example.org")
+    settings = Settings(
+        data_dir=tmp_path / "secure",
+        public=True,
+        token="long-secret-token-for-production-test",
+        allowed_hosts=["aurora.example.org"],
+    )
     secure = create_app(settings, embedded_worker=False)
+    auth = {"Authorization": "Bearer " + settings.token, "Host": "aurora.example.org"}
     with TestClient(secure) as client:
-        assert client.get("/api/v1/cases").status_code == 401
-        assert (
-            client.get("/api/v1/cases", headers={"Authorization": "Bearer " + settings.token}).status_code
-            == 200
-        )
+        assert client.get("/api/v1/cases", headers={"Host": "aurora.example.org"}).status_code == 401
+        unauthorized = client.get("/api/v1/cases", headers={"Host": "aurora.example.org"})
+        assert unauthorized.headers["cache-control"] == "no-store"
+        assert unauthorized.headers["strict-transport-security"].startswith("max-age=")
+        response = client.get("/api/v1/cases", headers=auth)
+        assert response.status_code == 200
+        assert response.headers["strict-transport-security"].startswith("max-age=")
+        assert response.headers["referrer-policy"] == "no-referrer"
+        assert response.headers["x-frame-options"] == "DENY"
+        assert client.get("/api/v1/cases", headers={**auth, "Host": "evil.example"}).status_code == 400
+        assert client.get("/api/v1/providers/mafindo/latest", headers=auth).status_code == 404
+        secure.state.worker.heartbeat()
+        ready = client.get("/ready", headers=auth)
+        capabilities = {item["provider"]: item for item in ready.json()["capabilities"]}
+        assert ready.json()["status"] == "degraded"
+        assert capabilities["mafindo-v1"]["status"] == "disabled"
         assert (
             client.post(
                 "/api/v1/demo/supported",
-                headers={"Authorization": "Bearer " + settings.token, "Origin": "https://evil.example"},
+                headers={**auth, "Origin": "https://evil.example"},
             ).status_code
             == 403
         )
+
+
+def test_public_configuration_rejects_weak_auth_and_wildcards(tmp_path, monkeypatch):
+    with pytest.raises(ValueError, match="at least 32"):
+        Settings(
+            data_dir=tmp_path / "weak",
+            public=True,
+            token="short",
+            allowed_hosts=["aurora.example.org"],
+        ).prepare()
+    with pytest.raises(ValueError, match="explicit host"):
+        Settings(data_dir=tmp_path / "wild-host", allowed_hosts=["*.example.org"]).prepare()
+    with pytest.raises(ValueError, match="deployment host"):
+        Settings(
+            data_dir=tmp_path / "local-host",
+            public=True,
+            token="test-token-with-at-least-32-characters",
+            allowed_hosts=["LOCALHOST."],
+        ).prepare()
+    monkeypatch.setenv("AURORA_CORS", "*")
+    with pytest.raises(ValueError, match="explicit origins"):
+        create_app(Settings(data_dir=tmp_path / "wild-cors"), embedded_worker=False)
 
 
 def test_chunked_body_limit(client):
@@ -261,12 +301,18 @@ def test_chunked_body_limit(client):
     assert response.status_code == 413
 
 
-def test_preflight_for_authenticated_frontend(tmp_path):
+def test_preflight_for_authenticated_frontend(tmp_path, monkeypatch):
+    monkeypatch.setenv("AURORA_CORS", "http://127.0.0.1:5171")
     secure = create_app(
-        Settings(data_dir=tmp_path / "cors", public=True, token="test-token-with-at-least-24-characters"),
+        Settings(
+            data_dir=tmp_path / "cors",
+            public=True,
+            token="test-token-with-at-least-32-characters",
+            allowed_hosts=["aurora.test"],
+        ),
         embedded_worker=False,
     )
-    with TestClient(secure) as client:
+    with TestClient(secure, base_url="http://aurora.test") as client:
         response = client.options(
             "/api/v1/cases",
             headers={

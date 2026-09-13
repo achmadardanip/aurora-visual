@@ -9,7 +9,7 @@ Diperbarui **13 September 2026**. Modul 1 dan kontrak **v1.0.0**. Implementasi l
 | API, worker, database | implemented, demo_verified | FastAPI, SQLAlchemy/SQLite, migrasi Alembic, antrean persisten, lease/timeout/recovery, idempotency dan snapshot revisi. Smoke menjalankan server dan proses worker dengan database sementara baru, kemudian restart. |
 | Frontend Indonesia | implemented, demo_verified | Alur terlihat Tahap 0–3: unggah/caption, screening asal media, atom, lalu analisis multimodal. Demo S/C/U, progres, hasil per atom, sorotan region, koreksi, riwayat, kemampuan model, impor/ekspor diuji pada desktop 1280 px dan ponsel 390 px. |
 | Screening asal media (Tahap 1) | implemented, live_verified terbatas | Memeriksa byte asli, nama/presence metadata dan marker C2PA/JUMBF; output hanya di `extensions.aurora_visual.screening`. Bukan validator C2PA atau detektor AI/deepfake/watermark tervalidasi, dan tidak mengubah S/C/U atau kebenaran caption. |
-| MAFINDO V1 diagnostik | implemented; provider live tidak dipanggil | Bridge baca-saja server-side dengan host tetap, encoding path, batas respons dan redaksi secret. Tidak menyimpan atau menerjemahkan output provider ke bundle, retrieval, decision, assessment visual, atau verdict. |
+| MAFINDO V1 diagnostik | implemented, live_verified | Bridge baca-saja server-side dengan host tetap, encoding path, batas respons dan redaksi secret. Uji provider 13 September 2026 menerima 20/20 record ternormalisasi (20 ID unik/judul/tanggal valid; rentang 3–12 September 2026) dan uji kompatibilitas `latest(1)` lulus. Output tidak disimpan atau diterjemahkan ke bundle, retrieval, decision, assessment visual, atau verdict; endpoint dinonaktifkan pada public mode. MAFINDO belum terbukti menyediakan corpus visual berlisensi untuk training. |
 | Kontrak dan pertukaran | implemented, demo_verified | Pydantic, JSON Schema, OpenAPI, TypeScript, hash JCS Python/JavaScript, Unicode/emoji, contoh kontrak dan guard hasil downstream. ZIP berisi media/sidecar; JSON, CSV dan overlay tersedia. Validator mandiri repo modul 2/3 belum dijalankan karena repo tersebut tidak tersedia. |
 | Parser aturan ID/EN | implemented, live_verified terbatas | Parser nyata tanpa API key; mempertahankan SPO, negasi, angka, peran, span code point, waktu/lokasi dan warning ambiguitas. Bukan dependency/SRL/NER penuh. Benchmark manusia belum ditinjau. |
 | Gambar dan region | implemented, live_verified terbatas | Hash byte asli, EXIF orientation, RGB, grid 1–32 region, global context, cache fitur. Grid bukan segmentasi objek. |
@@ -21,16 +21,16 @@ Diperbarui **13 September 2026**. Modul 1 dan kontrak **v1.0.0**. Implementasi l
 | OpenCLIP beku | implemented; live belum diverifikasi | Adapter, cache dan deteksi CUDA/MPS/CPU tersedia. Checkpoint pretrained belum dipilih/diunduh/dijalankan. Bahasa Indonesia belum divalidasi. |
 | Parser LLM opsional | implemented; live belum diverifikasi | Adapter structured output dan validasi tersedia; endpoint/model Ollama belum dikonfigurasi. |
 | Dataset publik/importer | implemented; research_evaluated=false | Adapter NewsCLIPpings, VERITE, COSMOS, MMFakeBench serta pemeriksaan sumber primer tersedia. Label post-level tidak menjadi gold atom. Dataset berlisensi dan anotasi manusia belum tersedia. |
-| Docker/deployment | implemented; runtime belum diverifikasi | Dockerfile, Compose, volume, healthcheck, konfigurasi proxy/TLS dan autentikasi didokumentasikan. Docker tidak terpasang pada mesin ini; tidak ada deployment publik. |
+| Docker/deployment | single-server hardened; container_verified | Build API/frontend dan smoke Compose arm64 lulus pada Docker Desktop 29.7.2/Compose 5.5.1. Public mode mewajibkan token 32+ karakter, exact CORS dan trusted host; MAFINDO diagnostik dinonaktifkan, header keamanan/HSTS aktif, API non-root, dan backup/restore SQLite-media tersedia. Domain/TLS/Caddy runtime/monitoring belum dideploy; bukan arsitektur multi-user/scale-out. |
 
 ## Bukti pemeriksaan aktual
 
-Ringkasan mesin, perintah, exit code, dan lokasi log tersedia di [verification.json](artifacts/reports/verification.json) serta laporan terkait. Pemeriksaan Stage 0–3 berikut menambahkan cakupan screening dan isolasi MAFINDO tanpa mengubah kontrak publik.
+Ringkasan mesin, perintah, exit code, dan lokasi log tersedia di [verification.json](artifacts/reports/verification.json) serta laporan terkait. Pemeriksaan Stage 0–3 berikut menambahkan cakupan screening dan isolasi MAFINDO tanpa mengubah kontrak publik. Angka lulus terbaru berada di `pytest.xml`; `checks.log` adalah snapshot run terdahulu dan tidak menjadi sumber hitungan terbaru.
 
 | Perintah/pemeriksaan | Hasil aktual | Artefak |
 | --- | --- | --- |
 | `make setup` | Lulus; dependency terkunci, frontend terpasang, migrasi/schema selesai. | [setup.log](artifacts/reports/setup.log) |
-| `make test` | Ruff, format, TypeScript, Prettier dan golden JCS lulus; **103 passed**, 0 failed, 3 warning yang telah diketahui. | [checks.log](artifacts/reports/checks.log), [pytest.xml](artifacts/reports/pytest.xml) |
+| `make test` | Ruff, format, TypeScript, Prettier dan golden JCS lulus; **112 passed**, 0 failed, 3 warning yang telah diketahui. | [pytest.xml](artifacts/reports/pytest.xml); [checks.log](artifacts/reports/checks.log) adalah snapshot run sebelumnya. |
 | `make smoke` | Lulus: fixture S/C/U tetap semantik sama, live warna lokal, ekspor JSON/ZIP/CSV/overlay, worker terpisah, restart, dan idempotency setelah restart. | [http-smoke.json](artifacts/reports/http-smoke.json), [http-smoke.log](artifacts/reports/http-smoke.log) |
 | `make browser-test` | **2 passed**, 0 skipped/flaky: desktop memeriksa Stage 1/3, koreksi atom → invalidasi → analisis ulang → reload/riwayat; ponsel memeriksa Stage 1 dan tanpa overflow. | [playwright.json](artifacts/reports/playwright.json), [browser-smoke.log](artifacts/reports/browser-smoke.log) |
 | `make build` | Build produksi frontend lulus. | [build.log](artifacts/reports/build.log) |
@@ -42,7 +42,9 @@ Ringkasan mesin, perintah, exit code, dan lokasi log tersedia di [verification.j
 | `aurora cache-features --smoke …` | CLI fixture 8 sampel lulus; cache fitur piksel nyata juga dipakai smoke HTTP/robustness. | [cache-smoke.json](artifacts/reports/cache-smoke.json) |
 | `aurora robustness --smoke …` | Original, blur, crop, OCR overlay selesai; override fitur fixture ditandai eksplisit. | [robustness-smoke.json](artifacts/reports/robustness-smoke.json) |
 | `aurora evaluate-parser …` | Runner lulus; **awaiting_human_review**, 12 kandidat, 0 reviewed, metrics=null. | [parser-benchmark.json](artifacts/reports/parser-benchmark.json) |
-| `make mafindo-live-test` tanpa key | Berhenti sebelum menghubungi provider, sesuai desain server-only opt-in. Tidak ada respons provider atau credential dalam artefak. | Output terminal terkontrol; tidak dijalankan oleh test/smoke/browser-test. |
+| `make mafindo-live-test` dengan key server-side | Lulus pada 13 September 2026: `latest(1)` kompatibel (~781 ms). Uji sampel terpisah meminta/menerima 20 record; semua ID unik, judul terisi, dan tanggal dapat diparse. Data tidak dipersistenkan atau dipakai untuk training/verdict. | Output terminal terkontrol; credential dan record mentah tidak ditulis ke artefak. |
+| Backup create/verify/restore | Lulus: SQLite backup API, staging media/sidecar, schema manifest/checksum SHA-256, batas dan validasi member archive, `PRAGMA integrity_check`, serta restore atomik ke directory kosong disposable; WAL/SHM transien tidak dimasukkan. | CLI `make backup`, `make verify-backup ARCHIVE=…`, `make restore-backup ARCHIVE=… RESTORE_DIR=…`; unit test backup/restore. |
+| Docker image/Compose | Lulus pada Docker Desktop 29.7.2/Compose 5.5.1 arm64: kedua image dibangun, migrasi `0001`, API UID/GID 10001, volume writable, SQLite integrity, health/readiness langsung/proxy, syntax Nginx, browser Tahap 0–3 origin container, restart kasus/media + replay idempotency, public auth/Host/CORS/HSTS/MAFINDO-disablement, dan drill backup/verify/restore named volume. CLI backup tersedia dalam image; filesystem image tidak memuat `.env`, `.claude`, atau `prompt-aurora`; Uvicorn tanpa header `Server`. Pemindaian CVE Docker Scout tertunda karena login Docker diperlukan. | Smoke container disposable 13 September 2026; stack dan volume uji telah dihapus. Caddy/TLS/domain publik belum diuji runtime. |
 
 Screenshot aktual: [desktop](artifacts/reports/browser-desktop.png), [ponsel](artifacts/reports/browser-mobile.png). Skrip browser memakai database sementara sendiri, sehingga tidak menghapus atau mengubah riwayat pengguna.
 
@@ -72,7 +74,7 @@ Buka [UI lokal](http://127.0.0.1:5171) dan [OpenAPI](http://127.0.0.1:8101/docs)
 
 Pada pemeriksaan akhir, API lokal memberikan `/health` **200 ok** dan `/ready` **200 degraded**: database, worker, demo, warna lokal, serta OCR siap; OpenCLIP, head penelitian, dan LLM belum dikonfigurasi. Status degraded berasal dari kemampuan opsional tersebut.
 
-Lingkungan aktual: macOS 27.0 arm64, Python 3.12.13, Node 26.0.0, npm 11.12.1, uv 0.12.8, PyTorch 2.14.0. MPS tersedia, CUDA tidak; training/evaluasi smoke memakai CPU. Tesseract memiliki bahasa `ind` dan `eng`. Folder workspace belum merupakan repositori Git; tidak ada commit atau pekerjaan pengguna yang dihapus.
+Lingkungan aktual: macOS 27.0 arm64, Python 3.12.13, Node 26.0.0, npm 11.12.1, uv 0.12.8, PyTorch 2.14.0. MPS tersedia, CUDA tidak; training/evaluasi smoke memakai CPU. Tesseract memiliki bahasa `ind` dan `eng`. Repository Git dipublikasikan pada `main` di commit `1a7b0523b53f3c581f94f246b775ea50a630d382`; hardening produksi saat ini berada di branch `production-hardening` dan belum dipush.
 
 ## Yang perlu disediakan untuk jalur berikutnya
 
@@ -84,13 +86,13 @@ Lingkungan aktual: macOS 27.0 arm64, Python 3.12.13, Node 26.0.0, npm 11.12.1, u
 | `AURORA_LLM_URL`, `AURORA_LLM_MODEL`, `AURORA_LLM_ALLOWED_ORIGINS` | Server Ollama-compatible opsional, model tersedia, dan origin dalam allowlist server. Belum diuji live. |
 | Dataset/anotasi | Media dengan hak akses/lisensi yang sesuai, grouping image/event/source, label atom/region dan dua anotator manusia. Kandidat benchmark belum menjadi gold. |
 | Eksperimen penelitian | Jalankan lima seed, perbandingan parser, lintas dataset, kalibrasi yang relevan dan profiling GPU setelah data/model tersedia. Kalibrasi/fusi faktual utama dimiliki modul 3. |
-| Deployment server | Pasang Docker atau runtime layanan, atur TLS/proxy, `AURORA_PUBLIC=true` dan token kuat `AURORA_API_TOKEN`; ikuti [deployment.md](docs/deployment.md). Tidak diperlukan untuk localhost. |
+| Deployment server | Pilih server/domain, atur DNS/TLS/proxy/firewall, `AURORA_PUBLIC=true`, token acak 32+ karakter, exact `AURORA_CORS`/`AURORA_ALLOWED_HOSTS`, backup terenkripsi off-host, restore drill, monitoring, reboot/recovery, dan acceptance test eksternal; ikuti [deployment.md](docs/deployment.md). Build dan smoke Compose lokal arm64 sudah lulus, tetapi ini tidak menggantikan verifikasi host produksi. Tidak diperlukan untuk localhost. |
 
 FG-CLIP/SAM2/TextRegion belum diaktifkan. Kinerja target GPU 16–24 GB, akurasi umum, benchmark manusia dan target peningkatan ilmiah **belum diverifikasi**.
 
 ## Serah terima modul 2/3
 
-- Definisi bersama: [kontrak sumber](prompt-aurora/KONTRAK_BERSAMA.md), [Pydantic](backend/app/models/contract.py), [JSON Schema](contracts/aurora.schema.json), [OpenAPI](contracts/openapi.json), [TypeScript](contracts/aurora.ts).
+- Definisi bersama: [Pydantic](backend/app/models/contract.py), [JSON Schema](contracts/aurora.schema.json), [OpenAPI](contracts/openapi.json), [TypeScript](contracts/aurora.ts). Dokumen prompt internal yang menjadi acuan awal sengaja tidak dipublikasikan.
 - Golden lintas bahasa: [golden-bundle.json](contracts/golden-bundle.json), [jcs-golden.json](contracts/jcs-golden.json).
 - Output aktual: [supported.zip](artifacts/handoff/supported.zip), [contradicted.zip](artifacts/handoff/contradicted.zip), [unobservable.zip](artifacts/handoff/unobservable.zip). JSON/CSV/overlay pendamping berada di folder yang sama, bersama [live-local.json](artifacts/handoff/live-local.json).
 - Panduan konsumsi atom set, probability nullable, sidecar, media dan run provenance: [docs/handoff.md](docs/handoff.md).

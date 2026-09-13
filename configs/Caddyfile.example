@@ -1,9 +1,19 @@
-# Replace with your domain. Bind app locally and set AURORA_PUBLIC=true + strong token.
-# Caddy obtains TLS only when you explicitly deploy it on a server.
+# Replace with your domain. Keep Compose ports loopback-only and set
+# AURORA_PUBLIC=true, AURORA_ALLOWED_HOSTS=aurora.example.org, an exact
+# AURORA_CORS origin, and a strong random API token on the server.
 aurora.example.org {
-    encode gzip
+    encode zstd gzip
     request_body {
         max_size 40MB
     }
-    reverse_proxy 127.0.0.1:5171
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+        -Server
+    }
+    reverse_proxy 127.0.0.1:5171 {
+        header_up X-Forwarded-Proto {scheme}
+    }
 }

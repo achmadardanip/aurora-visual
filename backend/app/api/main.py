@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy import select, text
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.limits import RequestSizeLimit
 from app.config import ServiceError, Settings
@@ -46,7 +47,14 @@ def create_app(settings=None, embedded_worker=True):
     app = FastAPI(title="AURORA Visual", version="1.0.0", lifespan=lifespan)
     app.state.settings, app.state.session, app.state.worker = settings, session, worker
     app.state.media, app.state.cases = media, cases
-    origins = os.getenv("AURORA_CORS", "http://localhost:5171,http://127.0.0.1:5171").split(",")
+    origins = [
+        origin.strip()
+        for origin in os.getenv("AURORA_CORS", "http://localhost:5171,http://127.0.0.1:5171").split(",")
+        if origin.strip()
+    ]
+    if not origins or any(origin == "*" for origin in origins):
+        raise ValueError("AURORA_CORS must contain explicit origins")
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
@@ -64,24 +72,31 @@ def create_app(settings=None, embedded_worker=True):
 
     @app.middleware("http")
     async def security(request, call_next):
+        def hardened(response):
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Referrer-Policy"] = "no-referrer"
+            response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+            response.headers["X-Frame-Options"] = "DENY"
+            if settings.public:
+                response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+            return response
+
         if (
             request.method != "GET"
             and request.headers.get("origin")
             and request.headers["origin"] not in origins
         ):
-            return error("ORIGIN_FORBIDDEN", "Origin tidak diizinkan.", 403)
+            return hardened(error("ORIGIN_FORBIDDEN", "Origin tidak diizinkan.", 403))
         if settings.public and request.method != "OPTIONS" and request.url.path not in ("/health",):
             expected = "Bearer " + settings.token
             if not secrets.compare_digest(request.headers.get("authorization", ""), expected):
-                return error("AUTH_REQUIRED", "Token akses diperlukan.", 401)
+                return hardened(error("AUTH_REQUIRED", "Token akses diperlukan.", 401))
         request.state.owner = sha(settings.token) if settings.public else "local"
         length = request.headers.get("content-length")
         if length and (not length.isdigit() or int(length) > settings.max_upload * 4 + 65536):
-            return error("REQUEST_TOO_LARGE", "Request terlalu besar.", 413)
-        response = await call_next(request)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Cache-Control"] = "no-store"
-        return response
+            return hardened(error("REQUEST_TOO_LARGE", "Request terlalu besar.", 413))
+        return hardened(await call_next(request))
 
     @app.exception_handler(ServiceError)
     async def service_error(_, exc):
@@ -167,9 +182,13 @@ def create_app(settings=None, embedded_worker=True):
                 "provider": "mafindo-v1",
                 "mode": "diagnostic",
                 "capability": "provider compatibility test only",
-                "status": "ok" if settings.mafindo_api_key else "unconfigured",
+                "status": (
+                    "disabled" if settings.public else "ok" if settings.mafindo_api_key else "unconfigured"
+                ),
                 "message": (
-                    "Read-only diagnostic tersedia; hasil bukan bukti visual atau verdict faktual"
+                    "Diagnostik dinonaktifkan pada public mode"
+                    if settings.public
+                    else "Read-only diagnostic tersedia; hasil bukan bukti visual atau verdict faktual"
                     if settings.mafindo_api_key
                     else "Konfigurasikan AURORA_MAFINDO_API_KEY hanya pada server untuk uji kompatibilitas"
                 ),
@@ -193,7 +212,7 @@ def create_app(settings=None, embedded_worker=True):
             "not_ready"
             if not database_ok or not worker_ok
             else "degraded"
-            if any(c["status"] != "ok" for c in caps)
+            if any(c["status"] in {"unconfigured", "unavailable", "failed"} for c in caps)
             else "ready"
         )
         return JSONResponse(
@@ -208,7 +227,13 @@ def create_app(settings=None, embedded_worker=True):
 
     @app.get("/api/v1/providers/mafindo/latest")
     def mafindo_latest(request: Request, limit: int = 1):
-        """Opt-in diagnostic bridge only; it does not attach provider data to a case."""
+        """Opt-in diagnostic bridge only; never expose it from the public service."""
+        if settings.public:
+            raise ServiceError(
+                "DIAGNOSTIC_DISABLED",
+                "Diagnostik provider hanya tersedia pada instance lokal tepercaya.",
+                404,
+            )
         client = MafindoClient(settings.mafindo_api_key, settings.mafindo_timeout)
         return client.latest(limit)
 
