@@ -1,82 +1,84 @@
-INFO:     Started server process [97452]
+INFO:     Started server process [35016]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:57007 (Press CTRL+C to quit)
-INFO:     127.0.0.1:57014 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/demo/supported HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/3d572048-3dc9-433e-956a-b80aad12fc5d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/1413a058-be07-4c1c-be73-ace7ba0bb12c/export?format=json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/1413a058-be07-4c1c-be73-ace7ba0bb12c/export?format=zip HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/1413a058-be07-4c1c-be73-ace7ba0bb12c/export?format=csv HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/1413a058-be07-4c1c-be73-ace7ba0bb12c/export?format=overlay HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/demo/contradicted HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/6c5efe9a-8b17-439e-9e03-31a22bde610a HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/7bcb7da5-31b2-48e3-9cb5-f8e91afcb544/export?format=json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/7bcb7da5-31b2-48e3-9cb5-f8e91afcb544/export?format=zip HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/7bcb7da5-31b2-48e3-9cb5-f8e91afcb544/export?format=csv HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/7bcb7da5-31b2-48e3-9cb5-f8e91afcb544/export?format=overlay HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/demo/unobservable HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/a2c499ac-0509-453d-b1a2-f8d909122de1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/0d080c95-fa43-4c0a-be19-0f9d5f54f611/export?format=json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/0d080c95-fa43-4c0a-be19-0f9d5f54f611/export?format=zip HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/0d080c95-fa43-4c0a-be19-0f9d5f54f611/export?format=csv HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/cases/0d080c95-fa43-4c0a-be19-0f9d5f54f611/export?format=overlay HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/media HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57015 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
+INFO:     Uvicorn running on http://127.0.0.1:65010 (Press CTRL+C to quit)
+INFO:     127.0.0.1:65017 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/demo/supported HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/fd58ef91-f56f-4482-b1d7-ec9e43dbfdf5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/a9d38c4f-ca59-4fc8-b146-ac44cc7b34b4/export?format=json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/a9d38c4f-ca59-4fc8-b146-ac44cc7b34b4/export?format=zip HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/a9d38c4f-ca59-4fc8-b146-ac44cc7b34b4/export?format=csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/a9d38c4f-ca59-4fc8-b146-ac44cc7b34b4/export?format=overlay HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/demo/contradicted HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/901d2a3e-5ae1-4b55-9f7a-6a030af66161 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/f53dc332-5173-463e-88d5-55cf2bd23cd5/export?format=json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/f53dc332-5173-463e-88d5-55cf2bd23cd5/export?format=zip HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/f53dc332-5173-463e-88d5-55cf2bd23cd5/export?format=csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/f53dc332-5173-463e-88d5-55cf2bd23cd5/export?format=overlay HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/demo/unobservable HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/8ccbc309-5176-4680-99b6-8741ff4aca36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/977fc685-6498-4e8e-8fa8-24a1221e2275/export?format=json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/977fc685-6498-4e8e-8fa8-24a1221e2275/export?format=zip HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/977fc685-6498-4e8e-8fa8-24a1221e2275/export?format=csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/cases/977fc685-6498-4e8e-8fa8-24a1221e2275/export?format=overlay HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/media HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65018 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [97452]
-INFO:     Started server process [97474]
+INFO:     Finished server process [35016]
+INFO:     Started server process [35084]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:57007 (Press CTRL+C to quit)
-INFO:     127.0.0.1:57022 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57023 - "GET /api/v1/jobs/1645a072-463c-418d-971d-edd09582f4ce HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57023 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     Uvicorn running on http://127.0.0.1:65010 (Press CTRL+C to quit)
+INFO:     127.0.0.1:65029 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65030 - "GET /api/v1/jobs/18d4b038-ee36-4941-b11a-298358942f7f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65030 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [97474]
+INFO:     Finished server process [35084]

@@ -21,6 +21,24 @@ class Settings:
     mafindo_timeout: float = field(
         default_factory=lambda: float(os.getenv("AURORA_MAFINDO_TIMEOUT_SECONDS", "12"))
     )
+    hive_enabled: bool = field(
+        default_factory=lambda: os.getenv("AURORA_HIVE_ENABLED", "false").lower() == "true"
+    )
+    hive_timeout: float = field(default_factory=lambda: float(os.getenv("AURORA_HIVE_TIMEOUT_SECONDS", "45")))
+    hive_v3_secret: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V3_SECRET_KEY", ""))
+    hive_v2_shared_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_SHARED_API_KEY", ""))
+    hive_v2_origin_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_ORIGIN_API_KEY", ""))
+    hive_v2_ocr_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_OCR_API_KEY", ""))
+    hive_v2_object_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_OBJECT_API_KEY", ""))
+    hive_v2_scene_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_SCENE_API_KEY", ""))
+    hive_v2_people_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_PEOPLE_API_KEY", ""))
+    hive_v2_logo_key: str = field(default_factory=lambda: os.getenv("AURORA_HIVE_V2_LOGO_API_KEY", ""))
+    hive_v2_celebrity_key: str = field(
+        default_factory=lambda: os.getenv("AURORA_HIVE_V2_CELEBRITY_API_KEY", "")
+    )
+    hive_v2_translation_key: str = field(
+        default_factory=lambda: os.getenv("AURORA_HIVE_V2_TRANSLATION_API_KEY", "")
+    )
     allowed_hosts: list[str] = field(
         default_factory=lambda: [
             item.strip()
@@ -28,6 +46,10 @@ class Settings:
             if item.strip()
         ]
     )
+
+    def hive_v2_key(self, capability: str) -> str:
+        value = getattr(self, f"hive_v2_{capability}_key", "")
+        return value or self.hive_v2_shared_key
 
     def prepare(self):
         if self.public and len(self.token) < 32:
@@ -41,6 +63,8 @@ class Settings:
             raise ValueError("Public mode requires deployment host names in AURORA_ALLOWED_HOSTS")
         if not 1 <= self.mafindo_timeout <= 60:
             raise ValueError("AURORA_MAFINDO_TIMEOUT_SECONDS must be between 1 and 60")
+        if not 1 <= self.hive_timeout <= 120:
+            raise ValueError("AURORA_HIVE_TIMEOUT_SECONDS must be between 1 and 120")
         for name in ("media", "derived", "artifacts", "cache"):
             (self.data_dir / name).mkdir(parents=True, exist_ok=True)
 

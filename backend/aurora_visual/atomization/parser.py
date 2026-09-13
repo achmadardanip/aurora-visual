@@ -264,6 +264,49 @@ class RuleAtomizer:
         )
 
 
+def validate_structured_atoms(raw, caption: str) -> list[Atom]:
+    if not isinstance(raw, dict) or set(raw) != {"atoms"} or not isinstance(raw["atoms"], list):
+        raise ValueError("Invalid structured atom response")
+    atoms = [Atom.model_validate(atom) for atom in raw["atoms"]]
+    if not atoms or len(atoms) > 128:
+        raise ValueError("Invalid number of atoms")
+    ids = [atom.atom_id for atom in atoms]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Duplicate atom identifiers")
+    graph = {atom.atom_id: atom.depends_on for atom in atoms}
+    caption_tokens = set(re.findall(r"\w+", caption.casefold()))
+    visited = set()
+
+    def visit(atom_id, stack):
+        if atom_id in visited:
+            return
+        if atom_id in stack:
+            raise ValueError("Cyclic atom dependencies")
+        for dependency in graph[atom_id]:
+            if dependency not in graph:
+                raise ValueError("Dangling atom dependency")
+            visit(dependency, stack | {atom_id})
+        visited.add(atom_id)
+
+    for atom in atoms:
+        if len(atom.depends_on) != len(set(atom.depends_on)):
+            raise ValueError("Duplicate atom dependency")
+        if not atom.spans or any(span.end > len(caption) for span in atom.spans):
+            raise ValueError("LLM spans invalid")
+        for entity in (atom.subject, atom.object):
+            if entity and not set(re.findall(r"\w+", entity.casefold())) <= caption_tokens:
+                raise ValueError("LLM entity not grounded in caption")
+        covered = " ".join(caption[span.start : span.end] for span in atom.spans)
+        if bool(re.search(r"\b(tidak|bukan|tak|tanpa|not|no|never)\b", covered, re.I)) != (
+            atom.qualifiers.negated
+        ):
+            raise ValueError("LLM negation does not match caption span")
+        atom.parser_confidence = None
+    for atom_id in ids:
+        visit(atom_id, set())
+    return atoms
+
+
 class StructuredLLMAtomizer:
     """Optional server-configured Ollama adapter. Never follows user-supplied URLs."""
 
@@ -310,24 +353,7 @@ class StructuredLLMAtomizer:
         from app.models.contract import strict_json
 
         raw = strict_json(response.json()["message"]["content"])
-        atoms = [Atom.model_validate(a) for a in raw["atoms"]]
-        if not atoms or len(atoms) > 128:
-            raise ValueError("Invalid number of atoms")
-        caption_tokens = set(re.findall(r"\w+", caption.lower()))
-        for a in atoms:
-            if not a.spans or any(s.end > len(caption) for s in a.spans):
-                raise ValueError("LLM spans invalid")
-            for entity in (a.subject, a.object):
-                if entity and not set(re.findall(r"\w+", entity.lower())) <= caption_tokens:
-                    raise ValueError("LLM entity not grounded in caption")
-            covered = " ".join(caption[span.start : span.end] for span in a.spans)
-            if (
-                bool(re.search(r"\b(tidak|bukan|tak|tanpa|not|no|never)\b", covered, re.I))
-                != a.qualifiers.negated
-            ):
-                raise ValueError("LLM negation does not match caption span")
-            a.parser_confidence = None
-        # Validate identifiers/dependencies and full atom-set invariants in service.
+        atoms = validate_structured_atoms(raw, caption)
         return ParseResult(
             atoms,
             [
@@ -341,5 +367,32 @@ class StructuredLLMAtomizer:
                 "name": "ollama-structured-v1",
                 "model": os.environ.get("AURORA_LLM_MODEL"),
                 "language": language,
+            },
+        )
+
+
+class HiveVLMAtomizer:
+    """Hive VLM structured parser with the same canonical-caption validation as Ollama."""
+
+    def __init__(self, client):
+        self.client = client
+
+    def parse(self, caption: str, language: str = "id") -> ParseResult:
+        raw = self.client.parse_atoms(caption, language)
+        atoms = validate_structured_atoms(raw, caption)
+        return ParseResult(
+            atoms,
+            [
+                Warning(
+                    code="HIVE_ATOMIZER_REVIEW",
+                    message="Atom Hive VLM memerlukan audit semantik manusia.",
+                    component="atomizer",
+                )
+            ],
+            {
+                "name": "hive-v3-vlm-structured-v1",
+                "model": "hive/vision-language-model",
+                "language": language,
+                "unicode_offsets": "code_points",
             },
         )

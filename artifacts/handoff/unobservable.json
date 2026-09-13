@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
-  "case_id": "0d080c95-fa43-4c0a-be19-0f9d5f54f611",
+  "case_id": "977fc685-6498-4e8e-8fa8-24a1221e2275",
   "claim_revision": 1,
   "mode": "demo",
-  "created_at": "2026-09-12T20:15:44.108615Z",
+  "created_at": "2026-09-13T06:17:31.212738Z",
   "input": {
     "claim_text": "Mahasiswa melakukan aksi di Monas pada September 2026",
     "language": "id",
@@ -19,10 +19,10 @@
   },
   "analysis": {
     "run": {
-      "run_id": "369d1891-14af-4436-b51b-4fbe9df48da5",
+      "run_id": "a14daa00-4e29-4ea1-b19c-3286e7ecedb4",
       "mode": "demo",
-      "started_at": "2026-09-12T20:15:45.010439Z",
-      "finished_at": "2026-09-12T20:15:45.124921Z",
+      "started_at": "2026-09-13T06:17:32.009694Z",
+      "finished_at": "2026-09-13T06:17:32.131350Z",
       "status": "completed",
       "versions": {
         "service": "1.0.0",
@@ -50,7 +50,7 @@
         }
       ]
     },
-    "atom_set_id": "aset_6fb33ee7b65c7d2238f95c64793c79d0d4ef4adf94ae083da636651cc7e32dc4",
+    "atom_set_id": "aset_24856a38b10a0bdbaff5df92abfa4084fdc4667c459d6993c2da78feba30e7bf",
     "atomic_claims": [
       {
         "atom_id": "a000001",
@@ -286,8 +286,9 @@
           "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
           "Hasil screening tidak mengubah status visual atau verdict faktual."
         ],
-        "analyzed_at": "2026-09-12T20:15:45.014768+00:00"
+        "analyzed_at": "2026-09-13T06:17:32.014054+00:00"
       },
+      "hive": null,
       "method": {
         "backbone": "local-color-v1",
         "alignment": "uot",
@@ -314,28 +315,28 @@
         "hit": false
       },
       "timing": {
-        "parse_ms": 4.9914169940166175,
-        "total_ms": 114.47233399667311,
-        "peak_rss_platform_units": 247398400,
+        "parse_ms": 5.065125005785376,
+        "total_ms": 121.64300000586081,
+        "peak_rss_platform_units": 247660544,
         "peak_rss_note": "bytes on macOS, KiB on Linux; entire job process",
         "cuda_peak_bytes": null
       },
       "config_sha256": "27acb3fd95f622fbc899db76da896029c46238cc9d6d4c36ce0a9c948bdd3ffc",
       "artifacts": [
         {
-          "path": "artifacts/369d1891-14af-4436-b51b-4fbe9df48da5/transport.json",
-          "sha256": "480d9de0c4f68da21a6b437639d9499e397d148e18b1310a6c1c5aadf3bd1172"
+          "path": "artifacts/a14daa00-4e29-4ea1-b19c-3286e7ecedb4/transport.json",
+          "sha256": "8139faae6e5ccd8ac69a2547cae00c5ee798a2828ff41972f1e3ef77563c1740"
         },
         {
-          "path": "artifacts/369d1891-14af-4436-b51b-4fbe9df48da5/features.npz",
+          "path": "artifacts/a14daa00-4e29-4ea1-b19c-3286e7ecedb4/features.npz",
           "sha256": "b296338ab5e85e0cc3170b5f1c04e11ec12523505a9260283b9be0d83305da0e"
         }
       ]
     },
     "aurora_contract": {
       "run_inputs": {
-        "369d1891-14af-4436-b51b-4fbe9df48da5": {
-          "snapshot_sha256": "eae10a164ba6a8422398bd3550e1fc63a5350a11f64ce999d06a2767fcedf7cd",
+        "a14daa00-4e29-4ea1-b19c-3286e7ecedb4": {
+          "snapshot_sha256": "de6aa1c2ba67fa954c0791e1b944966ccfc54d12faf873e8a0f9b7f931e288ef",
           "parent_run_ids": {}
         }
       }

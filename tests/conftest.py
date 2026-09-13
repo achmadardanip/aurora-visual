@@ -10,7 +10,22 @@ from PIL import Image
 @pytest.fixture
 def app(tmp_path):
     return create_app(
-        Settings(data_dir=tmp_path, mafindo_api_key="", mafindo_timeout=12),
+        Settings(
+            data_dir=tmp_path,
+            mafindo_api_key="",
+            mafindo_timeout=12,
+            hive_enabled=False,
+            hive_v3_secret="",
+            hive_v2_shared_key="",
+            hive_v2_origin_key="",
+            hive_v2_ocr_key="",
+            hive_v2_object_key="",
+            hive_v2_scene_key="",
+            hive_v2_people_key="",
+            hive_v2_logo_key="",
+            hive_v2_celebrity_key="",
+            hive_v2_translation_key="",
+        ),
         embedded_worker=False,
     )
 
