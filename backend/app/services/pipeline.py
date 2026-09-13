@@ -6,8 +6,26 @@ from datetime import datetime, timezone
 
 import torch
 from aurora_visual.alignment.uot import align
-from aurora_visual.atomization.parser import RuleAtomizer, StructuredLLMAtomizer
+from aurora_visual.atomization.parser import HiveVLMAtomizer, RuleAtomizer, StructuredLLMAtomizer
 from aurora_visual.entailment.reasoning import assess
+from aurora_visual.hive import (
+    HiveError,
+    HiveV2Client,
+    HiveV3Client,
+    detector_for_error,
+    fuse_observations,
+    group_v2_capabilities,
+    model_capabilities,
+    normalize_observations,
+    normalize_translation,
+    normalize_v2,
+    ocr_from_models,
+    regions_for_detections,
+    select_models,
+    stage1_from_v2,
+    v2_capability_status,
+    warning_for_error,
+)
 from aurora_visual.ocr.engine import recognize
 from aurora_visual.origin_screen import screen_image
 from aurora_visual.vision.features import extract, feature_identity, model_inputs
@@ -39,7 +57,125 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
     path, _, _ = media_service.resolve(media, owner, preview=True)
     image = Image.open(path).convert("RGB")
     screening = screen_image(source_path, media, bundle.mode)
+    use_hive = bundle.mode == "live" and settings.hive_enabled and options.get("provider", "local") == "hive"
+    parser_name = options.get("parser", "rules")
+    if not use_hive and (parser_name == "hive-vlm" or options.get("translation_shadow", False)):
+        raise ValueError("HIVE_PROVIDER_REQUIRED")
+    hive_extension = None
     warnings = []
+    hive_v2_models = []
+    hive_v2_status = []
+    if use_hive:
+        hive_extension = {
+            "mode": "external",
+            "egress": {
+                "original_media_stage1": True,
+                "normalized_preview_stage3": True,
+                "caption_stage2_3": True,
+            },
+            "stage1": None,
+            "stage2": None,
+            "stage3": None,
+            "provider_status": hive_v2_status,
+        }
+        groups = group_v2_capabilities(settings)
+        configured_capabilities = {
+            capability for capabilities in groups.values() for capability in capabilities
+        }
+        missing_capabilities = {
+            "origin",
+            "ocr",
+            "object",
+            "scene",
+            "people",
+            "logo",
+            "celebrity",
+        } - configured_capabilities
+        hive_v2_status.extend(
+            {"capability": capability, "status": "unconfigured"}
+            for capability in sorted(missing_capabilities)
+        )
+        if missing_capabilities:
+            warnings.append(warning_for_error("unconfigured", "hive_v2_capabilities"))
+        if "origin" in missing_capabilities:
+            screening["detectors"] = detector_for_error("unconfigured")
+            screening["provider_metadata"] = {
+                "provider": "hive-v2",
+                "status": "unconfigured",
+                "verification": "provider_observation_not_cryptographically_verified",
+                "observations": [],
+            }
+            hive_extension["stage1"] = {
+                "provider": "hive-v2",
+                "status": "unconfigured",
+                "representation": "original_bytes",
+            }
+        for (key, representation), capabilities in groups.items():
+            try:
+                target = source_path if representation == "original" else path
+                response = HiveV2Client(key, settings.hive_timeout).submit_media(target)
+                if representation == "original":
+                    original_size = transform.get("original_size", [media.width, media.height])
+                    width, height = int(original_size[0]), int(original_size[1])
+                else:
+                    width, height = media.width, media.height
+                normalized = normalize_v2(response["payload"], width, height)
+                models = select_models(normalized, capabilities)
+                if representation == "preview":
+                    hive_v2_models.extend(models)
+                capability_states = {}
+                for capability in capabilities:
+                    status, error_code = v2_capability_status(normalized, capability)
+                    capability_states[capability] = status
+                    record = {"capability": capability, "status": status}
+                    if error_code:
+                        record["error_code"] = error_code
+                    hive_v2_status.append(record)
+                    if status in {"failed", "unsupported"}:
+                        warnings.append(warning_for_error(status, f"hive_v2_{capability}"))
+                if "origin" in capabilities:
+                    origin_status = capability_states["origin"]
+                    if origin_status == "ok":
+                        detectors, metadata = stage1_from_v2({"models": models})
+                        screening["detectors"] = detectors
+                        screening["provider_metadata"] = metadata
+                    else:
+                        screening["detectors"] = detector_for_error(
+                            "provider_failed" if origin_status == "failed" else "unsupported_output"
+                        )
+                        screening["provider_metadata"] = {
+                            "provider": "hive-v2",
+                            "status": origin_status,
+                            "verification": "provider_observation_not_cryptographically_verified",
+                            "observations": [],
+                        }
+                    hive_extension["stage1"] = {
+                        "provider": "hive-v2",
+                        "status": origin_status,
+                        "representation": "original_bytes",
+                        "coordinate_space": "original_upload",
+                        "duration_ms": response["duration_ms"],
+                        "model_count": len(models),
+                        "entries": normalized["entries"],
+                    }
+            except HiveError as exc:
+                warnings.append(warning_for_error(exc.code, "hive_stage1_3"))
+                hive_v2_status.extend(
+                    {"capability": capability, "status": exc.code} for capability in capabilities
+                )
+                if "origin" in capabilities:
+                    screening["detectors"] = detector_for_error(exc.code)
+                    screening["provider_metadata"] = {
+                        "provider": "hive-v2",
+                        "status": exc.code,
+                        "verification": "provider_observation_not_cryptographically_verified",
+                        "observations": [],
+                    }
+                    hive_extension["stage1"] = {
+                        "provider": "hive-v2",
+                        "status": exc.code,
+                        "representation": "original_bytes",
+                    }
     if screening["decision"]["label"] == "likely_ai_generated":
         warnings.append(
             Warning(
@@ -63,14 +199,108 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "parent_atom_set_id": bundle.analysis.atom_set_id,
         }
     else:
-        parser = StructuredLLMAtomizer() if options.get("parser") == "llm" else RuleAtomizer()
-        parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
+        if parser_name == "hive-vlm" and use_hive:
+            try:
+                parser = HiveVLMAtomizer(HiveV3Client(settings.hive_v3_secret, settings.hive_timeout))
+                parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
+                if hive_extension is not None:
+                    hive_extension["stage2"] = {
+                        "provider": "hive-v3-vlm",
+                        "status": "ok",
+                        "atom_count": len(parsed.atoms),
+                    }
+            except (HiveError, ValueError) as exc:
+                code = exc.code if isinstance(exc, HiveError) else "atomizer_invalid"
+                warnings.append(warning_for_error(code, "atomizer"))
+                parsed = RuleAtomizer().parse(bundle.input.claim_text, bundle.input.language)
+                if hive_extension is not None:
+                    hive_extension["stage2"] = {
+                        "provider": "hive-v3-vlm",
+                        "status": "failed_fallback_rules",
+                        "error_code": code,
+                    }
+        else:
+            parser = StructuredLLMAtomizer() if parser_name == "llm" else RuleAtomizer()
+            parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
         atoms, parser_config = parsed.atoms, parsed.config
         warnings.extend(parsed.warnings)
+    if use_hive and options.get("translation_shadow"):
+        key = settings.hive_v2_key("translation")
+        caption = bundle.input.claim_text
+        if len(caption) > 512:
+            warnings.append(warning_for_error("unsupported_length", "hive_translation"))
+            hive_extension["translation_shadow"] = {
+                "status": "unsupported_length",
+                "canonical_caption_unchanged": True,
+            }
+        elif not key:
+            warnings.append(warning_for_error("unconfigured", "hive_translation"))
+            hive_extension["translation_shadow"] = {
+                "status": "unconfigured",
+                "canonical_caption_unchanged": True,
+            }
+        else:
+            try:
+                translated = HiveV2Client(key, settings.hive_timeout).translate(
+                    caption,
+                    bundle.input.language.split("-")[0],
+                    "en",
+                )
+                hive_extension["translation_shadow"] = {
+                    "status": "ok",
+                    "text": normalize_translation(translated),
+                    "canonical_caption_unchanged": True,
+                }
+            except (HiveError, ValueError) as exc:
+                code = exc.code if isinstance(exc, HiveError) else "translation_invalid"
+                warnings.append(warning_for_error(code, "hive_translation"))
+                hive_extension["translation_shadow"] = {
+                    "status": "failed",
+                    "canonical_caption_unchanged": True,
+                }
     parse_ms = (time.perf_counter() - clock) * 1000
     progress("Menghitung OCR dan representasi region")
     ocr, ocr_warnings = recognize(image, settings.ocr_lang)
     warnings.extend(ocr_warnings)
+    if use_hive and hive_v2_models:
+        hive_ocr, hive_ocr_provenance = ocr_from_models(hive_v2_models, bundle.input.language)
+        ocr.extend(hive_ocr)
+        detections = [
+            detection
+            for model in hive_v2_models
+            if model.get("detections")
+            for detection in model["detections"]
+        ]
+        provider_regions = regions_for_detections(detections, media, run_id)
+        hive_extension["stage3"] = {
+            "provider": "hive-v2",
+            "representation": "normalized_preview",
+            "models": [
+                {
+                    "model": model["model"],
+                    "model_version": model["model_version"],
+                    "model_type": model["model_type"],
+                    "capabilities": sorted(model_capabilities(model)),
+                    "classes": model["classes"][:50],
+                    "detections": model["detections"][:50],
+                    "people_counts": model["people_counts"][:20],
+                    "block_text": model["block_text"][:20],
+                    "interpretation": "diagnostic_observation_only",
+                }
+                for model in hive_v2_models[:20]
+            ],
+            "ocr_provenance": hive_ocr_provenance,
+            "regions": [region.model_dump(mode="json") for region in provider_regions],
+        }
+    elif use_hive:
+        hive_extension["stage3"] = {
+            "provider": "hive-v2",
+            "representation": "normalized_preview",
+            "models": [],
+            "status": "unconfigured_or_unsupported",
+            "ocr_provenance": [],
+            "regions": [],
+        }
     features = extract(
         image,
         media,
@@ -117,6 +347,39 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             )
         )
     assessments = assess(atoms, features, transport, ocr, fixture=bundle.mode == "demo")
+    if use_hive and settings.hive_v3_secret:
+        try:
+            raw_observations = HiveV3Client(
+                settings.hive_v3_secret,
+                settings.hive_timeout,
+            ).observe(path, "image/png", bundle.input.claim_text, atoms)
+            observations = normalize_observations(raw_observations, {atom.atom_id for atom in atoms})
+            assessments = fuse_observations(assessments, observations, atoms, media, run_id)
+            existing = hive_extension.get("stage3") or {}
+            hive_extension["stage3"] = {
+                **existing,
+                "vlm": {
+                    "provider": "hive-v3-vlm",
+                    "status": "ok",
+                    "observations": observations,
+                    "interpretation": "probabilistic_visual_observation_requiring_review",
+                },
+            }
+        except (HiveError, ValueError) as exc:
+            code = exc.code if isinstance(exc, HiveError) else "observation_invalid"
+            warnings.append(warning_for_error(code, "hive_vlm_observation"))
+            existing = hive_extension.get("stage3") or {}
+            hive_extension["stage3"] = {
+                **existing,
+                "vlm": {"provider": "hive-v3-vlm", "status": code},
+            }
+    elif use_hive:
+        warnings.append(warning_for_error("unconfigured", "hive_vlm_observation"))
+        existing = hive_extension.get("stage3") or {}
+        hive_extension["stage3"] = {
+            **existing,
+            "vlm": {"provider": "hive-v3-vlm", "status": "unconfigured"},
+        }
     logits = None
     checkpoint_meta = None
     if options.get("head", "heuristic") == "trained":
@@ -181,7 +444,10 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         global_feature=features["global"].numpy(),
     )
     elapsed = (time.perf_counter() - clock) * 1000
-    partial = any(w.code in ("OCR_UNAVAILABLE", "OCR_FAILED", "UOT_NONCONVERGENCE") for w in warnings)
+    partial = any(
+        w.code in ("OCR_UNAVAILABLE", "OCR_FAILED", "UOT_NONCONVERGENCE") or w.code.startswith("HIVE_")
+        for w in warnings
+    )
     bundle.analysis = Analysis(
         run=RunInfo(
             run_id=run_id,
@@ -214,6 +480,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         "parser": parser_config,
         "transform": transform,
         "screening": screening,
+        "hive": hive_extension,
         "method": {
             "backbone": backbone,
             "alignment": method,

@@ -1,5 +1,5 @@
 ﻿case_id,claim_revision,atom_set_id,atom_id,statement,role,visual_status,gold_label,gold_bbox,reviewer,notes
-0d080c95-fa43-4c0a-be19-0f9d5f54f611,1,aset_6fb33ee7b65c7d2238f95c64793c79d0d4ef4adf94ae083da636651cc7e32dc4,a000001,Pelaku berstatus Mahasiswa,actor,Unobservable,,,,
-0d080c95-fa43-4c0a-be19-0f9d5f54f611,1,aset_6fb33ee7b65c7d2238f95c64793c79d0d4ef4adf94ae083da636651cc7e32dc4,a000002,Mahasiswa melakukan aksi,action,Unobservable,,,,
-0d080c95-fa43-4c0a-be19-0f9d5f54f611,1,aset_6fb33ee7b65c7d2238f95c64793c79d0d4ef4adf94ae083da636651cc7e32dc4,a000003,Mahasiswa di Monas,location,Unobservable,,,,
-0d080c95-fa43-4c0a-be19-0f9d5f54f611,1,aset_6fb33ee7b65c7d2238f95c64793c79d0d4ef4adf94ae083da636651cc7e32dc4,a000004,Peristiwa berlangsung pada September 2026,time,Unobservable,,,,
+977fc685-6498-4e8e-8fa8-24a1221e2275,1,aset_24856a38b10a0bdbaff5df92abfa4084fdc4667c459d6993c2da78feba30e7bf,a000001,Pelaku berstatus Mahasiswa,actor,Unobservable,,,,
+977fc685-6498-4e8e-8fa8-24a1221e2275,1,aset_24856a38b10a0bdbaff5df92abfa4084fdc4667c459d6993c2da78feba30e7bf,a000002,Mahasiswa melakukan aksi,action,Unobservable,,,,
+977fc685-6498-4e8e-8fa8-24a1221e2275,1,aset_24856a38b10a0bdbaff5df92abfa4084fdc4667c459d6993c2da78feba30e7bf,a000003,Mahasiswa di Monas,location,Unobservable,,,,
+977fc685-6498-4e8e-8fa8-24a1221e2275,1,aset_24856a38b10a0bdbaff5df92abfa4084fdc4667c459d6993c2da78feba30e7bf,a000004,Peristiwa berlangsung pada September 2026,time,Unobservable,,,,

@@ -176,7 +176,7 @@ def create_app(settings=None, embedded_worker=True):
                 "mode": "live",
                 "capability": "metadata, provenance markers, AI/deepfake detector status",
                 "status": "ok",
-                "message": "Metadata dan marker C2PA/JUMBF diperiksa lokal; model AI/deepfake belum dikonfigurasi",
+                "message": "Metadata dan marker C2PA/JUMBF diperiksa lokal; detektor Hive opsional dilaporkan terpisah bila dikonfigurasi",
             },
             {
                 "provider": "mafindo-v1",
@@ -208,6 +208,39 @@ def create_app(settings=None, embedded_worker=True):
                 "message": "Parser structured output opsional",
             },
         ]
+        hive_capabilities = [
+            ("hive-v3-vlm", "atomizer and multimodal observations", bool(settings.hive_v3_secret)),
+            (
+                "hive-v2-origin",
+                "AI generation, deepfake, metadata observations",
+                bool(settings.hive_v2_key("origin")),
+            ),
+            ("hive-v2-ocr", "OCR", bool(settings.hive_v2_key("ocr"))),
+            ("hive-v2-object", "common object detection", bool(settings.hive_v2_key("object"))),
+            ("hive-v2-scene", "contextual scene classification", bool(settings.hive_v2_key("scene"))),
+            ("hive-v2-people", "people-count category", bool(settings.hive_v2_key("people"))),
+            ("hive-v2-logo", "logo and logo-location proposals", bool(settings.hive_v2_key("logo"))),
+            (
+                "hive-v2-celebrity",
+                "probabilistic celebrity proposal",
+                bool(settings.hive_v2_key("celebrity")),
+            ),
+            ("hive-v2-translation", "optional shadow translation", bool(settings.hive_v2_key("translation"))),
+        ]
+        caps.extend(
+            {
+                "provider": provider,
+                "mode": "external opt-in",
+                "capability": capability,
+                "status": "ok" if settings.hive_enabled and configured else "unconfigured",
+                "message": (
+                    "Konfigurasi server tersedia; readiness tidak menghubungi provider berbayar"
+                    if settings.hive_enabled and configured
+                    else "Nonaktif atau project key server belum dikonfigurasi"
+                ),
+            }
+            for provider, capability, configured in hive_capabilities
+        )
         status = (
             "not_ready"
             if not database_ok or not worker_ok

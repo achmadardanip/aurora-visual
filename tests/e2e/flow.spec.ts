@@ -77,8 +77,12 @@ test("mobile empty state and unobservable event claims", async ({ page }) => {
     page.getByRole("button", { name: /September 2026 Tidak teramati/ }),
   ).toBeVisible({ timeout: 30000 });
   await expect(page.getByText("TAHAP 1 · SCREENING ASAL MEDIA")).toBeVisible();
+  const detectorRow = page.locator(".screening-ledger > div", {
+    hasText: "Detektor AI / deepfake",
+  });
+  await expect(detectorRow.getByText("Belum dikonfigurasi")).toBeVisible();
   await expect(
-    page.getByText("Belum dikonfigurasi", { exact: true }),
+    detectorRow.getByText(/bukan verdict autentisitas/),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /di Monas Tidak teramati/ }),

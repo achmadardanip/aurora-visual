@@ -64,9 +64,48 @@ type Screening = {
     task: string;
     provider: string;
     status: string;
+    assessment?: string;
+    score?: number | null;
     message: string;
   }[];
   limitations: string[];
+};
+type HiveStatus = {
+  capability: string;
+  status: string;
+  error_code?: string;
+};
+type HiveExtension = {
+  mode: string;
+  provider_status?: HiveStatus[];
+  stage1?: {
+    provider: string;
+    status: string;
+    representation?: string;
+    coordinate_space?: string;
+  } | null;
+  stage2?: {
+    provider: string;
+    status: string;
+    atom_count?: number;
+    error_code?: string;
+  } | null;
+  stage3?: {
+    provider?: string;
+    representation?: string;
+    status?: string;
+    models?: { model: string; capabilities: string[] }[];
+    vlm?: {
+      provider: string;
+      status: string;
+      observations?: unknown[];
+      interpretation?: string;
+    };
+  } | null;
+  translation_shadow?: {
+    status: string;
+    canonical_caption_unchanged: boolean;
+  };
 };
 type CaseItem = {
   case_id: string;
@@ -104,6 +143,29 @@ const roleNames: Record<string, string> = {
   relation: "Relasi",
   cause: "Sebab",
 };
+const detectorStatus: Record<string, string> = {
+  ok: "Teramati",
+  inconclusive: "Belum konklusif",
+  unsupported: "Tidak didukung project",
+  unsupported_output: "Output tidak didukung",
+  unavailable: "Belum dikonfigurasi",
+  unconfigured: "Belum dikonfigurasi",
+  unconfigured_or_unsupported: "Belum tersedia",
+  failed: "Provider gagal",
+  provider_failed: "Provider gagal",
+  http_error: "Provider gagal",
+  network_error: "Jaringan gagal",
+  timeout: "Provider timeout",
+  rate_limited: "Rate limited",
+  malformed_response: "Respons tidak valid",
+  observation_invalid: "Observasi tidak valid",
+  failed_fallback_rules: "Gagal · aturan lokal dipakai",
+  not_applicable: "Tidak berlaku",
+};
+const statusLabel = (status?: string) =>
+  status
+    ? detectorStatus[status] || status.replaceAll("_", " ")
+    : "Belum tersedia";
 const score = (v: number | null | undefined) =>
   v == null ? "Tidak tersedia" : v.toFixed(3);
 
@@ -190,6 +252,7 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [backbone, setBackbone] = useState("local-color-v1");
   const [alignment, setAlignment] = useState("uot");
+  const [provider, setProvider] = useState<"local" | "hive">("local");
   const [editing, setEditing] = useState<Atom[] | null>(null);
   const [reason, setReason] = useState("");
   const [snapshots, setSnapshots] = useState<
@@ -218,10 +281,22 @@ export default function App() {
         };
         timing?: { total_ms: number };
         screening?: Screening;
+        hive?: HiveExtension | null;
         correction?: { reason: string };
       }
     | undefined;
   const screening = extension?.screening;
+  const hive = extension?.hive;
+  const hiveV3Ready = capabilities.some(
+    (capability) =>
+      capability.provider === "hive-v3-vlm" && capability.status === "ok",
+  );
+  const activeProvider =
+    mode === "live" && provider === "hive" ? "Hive eksternal" : "Lokal";
+  const detectorSummary = screening?.detectors
+    .map((detector) => statusLabel(detector.status))
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .join(" · ");
 
   const editorOpen = editing !== null;
   useEffect(() => {
@@ -334,6 +409,13 @@ export default function App() {
     setLanguage(data.input.language);
     setMedia(data.input.image);
     setMode(data.mode);
+    const savedOptions = (
+      data.extensions.aurora_visual as
+        { options?: { provider?: "local" | "hive" } } | undefined
+    )?.options;
+    setProvider(
+      data.mode === "demo" ? "local" : savedOptions?.provider || "local",
+    );
     setSelected(data.analysis?.atomic_claims[0]?.atom_id || null);
     setEditing(null);
     setShowSnapshots(false);
@@ -433,9 +515,11 @@ export default function App() {
           options: {
             backbone,
             alignment,
-            parser: "rules",
+            parser: provider === "hive" ? "hive-vlm" : "rules",
             head: "heuristic",
             top_k: 16,
+            provider: mode === "demo" ? "local" : provider,
+            translation_shadow: false,
           },
         },
       };
@@ -588,7 +672,7 @@ export default function App() {
           </span>
         </div>
         <div className="sidebar-footer">
-          <span className="online-dot" /> Workspace lokal <span>v1.0</span>
+          <span className="online-dot" /> {activeProvider} <span>v1.0</span>
         </div>
       </aside>
       <main>
@@ -603,8 +687,10 @@ export default function App() {
                   : "Metode & kemampuan"}
             </strong>
           </div>
-          <span className="local-pill">
-            <span className="online-dot" /> Lokal
+          <span
+            className={`local-pill ${provider === "hive" && mode === "live" ? "external" : ""}`}
+          >
+            <span className="online-dot" /> {activeProvider}
           </span>
         </header>
         <div className="main-content">
@@ -686,7 +772,10 @@ export default function App() {
                     <button
                       disabled={!!bundle || !!running}
                       className={mode === "demo" ? "active" : ""}
-                      onClick={() => setMode("demo")}
+                      onClick={() => {
+                        setMode("demo");
+                        setProvider("local");
+                      }}
                     >
                       <FlaskConical size={14} /> Demo
                     </button>
@@ -695,7 +784,7 @@ export default function App() {
                       className={mode === "live" ? "active" : ""}
                       onClick={() => setMode("live")}
                     >
-                      <Activity size={14} /> Live lokal
+                      <Activity size={14} /> Live
                     </button>
                   </div>
                 </div>
@@ -771,7 +860,11 @@ export default function App() {
                           <ImagePlus size={30} />
                         </span>
                         <strong>Pilih atau letakkan gambar</strong>
-                        <span>Gambar akan diproses di workspace lokal</span>
+                        <span>
+                          {mode === "live" && provider === "hive"
+                            ? "Unggahan disimpan di AURORA; analisis Hive hanya setelah persetujuan"
+                            : "Gambar akan diproses di workspace lokal"}
+                        </span>
                         <em>
                           <Plus size={14} /> Pilih berkas
                         </em>
@@ -841,14 +934,60 @@ export default function App() {
                         </select>
                       </label>
                     </div>
+                    {mode === "live" && (
+                      <div className="provider-choice">
+                        <span>Pemrosesan</span>
+                        <label>
+                          <input
+                            type="radio"
+                            name="provider"
+                            value="local"
+                            checked={provider === "local"}
+                            onChange={() => setProvider("local")}
+                            disabled={!!running}
+                          />
+                          Lokal
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="provider"
+                            value="hive"
+                            checked={provider === "hive"}
+                            onChange={() => setProvider("hive")}
+                            disabled={!!running || !hiveV3Ready}
+                          />
+                          Hive eksternal
+                        </label>
+                      </div>
+                    )}
+                    {mode === "live" && !hiveV3Ready && (
+                      <p className="provider-unavailable">
+                        Hive belum dapat dipilih: server belum memiliki
+                        konfigurasi V3 VLM lengkap.
+                      </p>
+                    )}
+                    {mode === "live" && provider === "hive" && (
+                      <div className="egress-disclosure" role="note">
+                        <ShieldCheck size={16} />
+                        <span>
+                          Dengan menjalankan analisis, byte gambar asli dikirim
+                          untuk Tahap 1; preview ternormalisasi dan caption
+                          dikirim untuk Tahap 2–3 ke Hive. Kredensial tetap di
+                          server. Kebijakan retensi provider berlaku.
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="input-footer">
                   <span>
                     <ShieldCheck size={15} />{" "}
-                    {mode === "demo"
-                      ? "Fixture berlabel jelas, tanpa klaim akurasi"
-                      : "Komputasi nyata · hasil heuristik konservatif"}
+                    {mode === "live"
+                      ? provider === "hive"
+                        ? "Pemrosesan eksternal dipilih · hasil probabilistik dan jalur lokal tetap diaudit"
+                        : "Komputasi lokal nyata · hasil heuristik konservatif"
+                      : "Fixture berlabel jelas, tanpa klaim akurasi"}
                   </span>
                   <button
                     className="button primary"
@@ -949,8 +1088,17 @@ export default function App() {
                         </div>
                         <div>
                           <span>Detektor AI / deepfake</span>
-                          <strong>Belum dikonfigurasi</strong>
-                          <small>Bukan hasil negatif</small>
+                          <strong>{detectorSummary || "Belum tersedia"}</strong>
+                          <small>
+                            {screening.detectors
+                              .map((detector) =>
+                                detector.task === "ai_generation_detection"
+                                  ? "Generasi AI"
+                                  : "Deepfake",
+                              )
+                              .join(" · ")}{" "}
+                            · bukan verdict autentisitas
+                          </small>
                         </div>
                       </div>
                       <p className="screening-boundary">
@@ -978,6 +1126,67 @@ export default function App() {
                           ))}
                         </ul>
                       </details>
+                    </section>
+                  )}
+                  {hive && (
+                    <section
+                      className="hive-provenance"
+                      aria-labelledby="hive-title"
+                    >
+                      <div className="hive-provenance-title">
+                        <ShieldCheck size={17} />
+                        <div>
+                          <h3 id="hive-title">Jejak pemrosesan Hive</h3>
+                          <p>
+                            Dukungan dikonfigurasi dan diuji dengan mock;
+                            kompatibilitas live belum diverifikasi sampai
+                            project key berhasil digunakan secara eksplisit.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hive-stage-grid">
+                        <div>
+                          <span>Tahap 1 · byte asli</span>
+                          <strong>{statusLabel(hive.stage1?.status)}</strong>
+                          <small>
+                            AI/deepfake dan metadata provider tidak memengaruhi
+                            status visual.
+                          </small>
+                        </div>
+                        <div>
+                          <span>Tahap 2 · caption kanonis</span>
+                          <strong>{statusLabel(hive.stage2?.status)}</strong>
+                          <small>
+                            {hive.stage2?.provider ||
+                              "Hive VLM belum dijalankan"}
+                          </small>
+                        </div>
+                        <div>
+                          <span>Tahap 3 · preview normal</span>
+                          <strong>
+                            {statusLabel(
+                              hive.stage3?.vlm?.status || hive.stage3?.status,
+                            )}
+                          </strong>
+                          <small>
+                            {hive.stage3?.models?.length || 0} output model V2 ·
+                            observasi memerlukan telaah.
+                          </small>
+                        </div>
+                      </div>
+                      {!!hive.provider_status?.length && (
+                        <details>
+                          <summary>Status kapabilitas project key</summary>
+                          <ul>
+                            {hive.provider_status.map((item, index) => (
+                              <li key={`${item.capability}-${index}`}>
+                                {item.capability}: {statusLabel(item.status)}
+                                {item.error_code ? ` (${item.error_code})` : ""}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
                     </section>
                   )}
                   <div className="result-heading">
@@ -1395,7 +1604,7 @@ export default function App() {
                     <div>
                       <span className="tiny-tag">{c.mode}</span>
                       <span className={`cap-status ${c.status}`}>
-                        {c.status === "ok" ? "Tersedia" : "Belum dikonfigurasi"}
+                        {statusLabel(c.status)}
                       </span>
                     </div>
                     <h3>{c.provider}</h3>

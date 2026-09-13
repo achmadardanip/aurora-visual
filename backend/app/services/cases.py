@@ -66,16 +66,37 @@ class CaseService:
             "top_k",
             "parser",
             "head",
+            "provider",
+            "translation_shadow",
         }:
             raise ServiceError("INVALID_OPTIONS", "Opsi analisis tidak dikenal.")
         if (
             options.get("alignment", "uot")
             not in ("uot", "balanced-ot", "attention", "max-region", "mean-region", "global")
             or options.get("backbone", self.settings.backbone) not in ("local-color-v1", "openclip")
-            or options.get("parser", "rules") not in ("rules", "llm")
+            or options.get("parser", "rules") not in ("rules", "llm", "hive-vlm")
             or options.get("head", "heuristic") not in ("heuristic", "trained")
+            or options.get("provider", "local") not in ("local", "hive")
+            or type(options.get("translation_shadow", False)) is not bool
         ):
             raise ServiceError("INVALID_OPTIONS", "Pilihan model/metode tidak didukung.")
+        provider = options.get("provider", "local")
+        parser = options.get("parser", "rules")
+        translation_shadow = options.get("translation_shadow", False)
+        if bundle.mode == "demo" and (provider != "local" or parser == "hive-vlm" or translation_shadow):
+            raise ServiceError("INVALID_OPTIONS", "Mode demo hanya boleh memakai pemrosesan lokal.")
+        if provider != "hive" and (parser == "hive-vlm" or translation_shadow):
+            raise ServiceError(
+                "HIVE_PROVIDER_REQUIRED",
+                "Parser dan terjemahan Hive memerlukan pemilihan pemrosesan eksternal Hive.",
+            )
+        if provider == "hive" and not self.settings.hive_enabled:
+            raise ServiceError("HIVE_DISABLED", "Pemrosesan eksternal Hive belum diaktifkan pada server.")
+        if provider == "hive" and not self.settings.hive_v3_secret:
+            raise ServiceError(
+                "HIVE_V3_UNCONFIGURED",
+                "Hive V3 VLM wajib dikonfigurasi untuk atomisasi dan observasi multimodal.",
+            )
         if type(options.get("top_k", 16)) is not int or not 1 <= options.get("top_k", 16) <= 32:
             raise ServiceError("INVALID_OPTIONS", "Jumlah region harus 1–32.")
         try:
