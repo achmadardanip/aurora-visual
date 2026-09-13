@@ -1,0 +1,45 @@
+{
+  "judge": "qwen2.5:7b-instruct",
+  "pairs": [
+    {
+      "source": "Dua mahasiswa memprotes kebijakan kampus di depan rektorat",
+      "modified": "Dua mahasiswa memprotes kebijakan kampus di depan rektorat.",
+      "kind": "paraphrase",
+      "label": null,
+      "provenance": "rule-generated; conditional on supported source and explicit alternative annotation",
+      "confidence": null,
+      "quality": {
+        "token_edit_fraction": 0.125,
+        "grammar_rule_pass": true,
+        "minimality_pass": true,
+        "visual_role_annotated": false,
+        "empirical_accuracy": null
+      },
+      "atom_correspondence": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "judge": {
+        "meaning_preserved": true,
+        "claim_changed": false,
+        "explanation": "The sentences are identical, only differing in formatting.",
+        "confidence": 1.0,
+        "expects_meaning_preserved": true,
+        "consistent": true,
+        "disposition": "accepted",
+        "provenance": "llm-judge-v1",
+        "model": "qwen2.5:7b-instruct"
+      }
+    }
+  ]
+}

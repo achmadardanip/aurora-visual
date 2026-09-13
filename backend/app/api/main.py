@@ -178,9 +178,25 @@ def create_app(settings=None, embedded_worker=True):
             {
                 "provider": "origin-screen-v1",
                 "mode": "live",
-                "capability": "metadata, provenance markers, AI/deepfake detector status",
+                "capability": "metadata, C2PA manifest validation, AI/deepfake/watermark detector status",
                 "status": "ok",
-                "message": "Metadata dan marker C2PA/JUMBF diperiksa lokal; detektor Hive opsional dilaporkan terpisah bila dikonfigurasi",
+                "message": "Metadata diperiksa lokal; manifest C2PA diurai dan tanda tangannya divalidasi c2pa-python; detektor Hive/SynthID opsional dilaporkan terpisah bila dikonfigurasi",
+            },
+            {
+                "provider": "synthid-detector",
+                "mode": "external opt-in",
+                "capability": "SynthID invisible watermark detection (stage 1)",
+                "status": (
+                    "ok"
+                    if settings.synthid_enabled and settings.synthid_endpoint and settings.synthid_api_key
+                    else "unconfigured"
+                ),
+                "message": (
+                    "Gateway SynthID Detector siap; hasil probabilistik dan bukan bukti asal kamera"
+                    if settings.synthid_enabled and settings.synthid_endpoint and settings.synthid_api_key
+                    else "Portal SynthID Detector masih early access; setel endpoint gateway + API key "
+                    "server-side untuk mengaktifkan deteksi watermark"
+                ),
             },
             {
                 "provider": "mafindo-v1",

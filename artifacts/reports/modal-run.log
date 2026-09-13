@@ -1,0 +1,94 @@
+✓ Initialized. View run at 
+https://modal.com/apps/bxaxhll/main/ap-L7rJZDeDDFe5A8XBmejqIr
+Building image im-Y8jaUxWaPFLGqOyAzNSoyv
+
+Using legacy Image Builder version. We suggest upgrading at https://modal.com/settings/image-config.
+
+=> Step 0: FROM base
+
+=> Step 1: COPY . /
+Saving image...
+Image saved, took 572.16ms
+
+Built image im-Y8jaUxWaPFLGqOyAzNSoyv in 1.41s
+
+
+Building image im-HPOgmvYblylJHEg6S1ny14
+
+Using legacy Image Builder version. We suggest upgrading at https://modal.com/settings/image-config.
+
+=> Step 0: FROM base
+
+=> Step 1: COPY . /
+Saving image...
+Image saved, took 548.35ms
+
+Built image im-HPOgmvYblylJHEg6S1ny14 in 1.20s
+
+
+Building image im-b7xkCRJrsMyV79ONH4J5WM
+
+Using legacy Image Builder version. We suggest upgrading at https://modal.com/settings/image-config.
+
+=> Step 0: FROM base
+
+=> Step 1: ENV PYTHONPATH=/aurora/backend
+
+=> Step 2: ENV AURORA_DATA_DIR=/tmp/aurora
+Saving image...
+Image saved, took 723.87ms
+
+Built image im-b7xkCRJrsMyV79ONH4J5WM in 1.52s
+
+
+Building image im-nYBYnaV61QtKmeweLGYqv8
+
+Using legacy Image Builder version. We suggest upgrading at https://modal.com/settings/image-config.
+
+=> Step 0: FROM base
+
+=> Step 1: RUN python -c "import sys; sys.path.insert(0,'/aurora/backend'); import app.models.contract"
+Saving image...
+Image saved, took 722.83ms
+
+Built image im-nYBYnaV61QtKmeweLGYqv8 in 2.15s
+
+
+✓ Created objects.
+├── 🔨 Created mount /Users/ardan/Developer/aurora-visual/scripts/modal_train.py
+├── 🔨 Created mount /Users/ardan/Developer/aurora-visual/backend
+├── 🔨 Created mount /Users/ardan/Developer/aurora-visual/configs
+└── 🔨 Created function run.
+[I 2026-09-13 21:59:09,300] A new study created in memory with name: no-name-b2b121cb-b765-4153-ad7f-56945e3a6aa4
+[I 2026-09-13 21:59:13,011] Trial 0 finished with value: 1.0 and parameters: {'loss_ce': 1.0, 'loss_contrastive': 0.1, 'loss_margin': 0.05, 'loss_consistency': 0.2, 'loss_entropy': 0.001, 'learning_rate': 0.0020176100426360557, 'hidden': 32, 'method': 'attention', 'use_unmatched': True, 'cosine_only': False}. Best is trial 0 with value: 1.0.
+[I 2026-09-13 21:59:13,137] Trial 1 finished with value: 1.0 and parameters: {'loss_ce': 1.0, 'loss_contrastive': 0.05, 'loss_margin': 0.05, 'loss_consistency': 0.5, 'loss_entropy': 0.005, 'learning_rate': 0.0039312934246863865, 'hidden': 32, 'method': 'attention', 'use_unmatched': False, 'cosine_only': False}. Best is trial 0 with value: 1.0.
+[I 2026-09-13 21:59:13,798] Trial 2 finished with value: 0.16666666666666666 and parameters: {'loss_ce': 0.5, 'loss_contrastive': 0.1, 'loss_margin': 0.1, 'loss_consistency': 0.5, 'loss_entropy': 0.005, 'learning_rate': 0.00010749602023356394, 'hidden': 64, 'method': 'uot', 'use_unmatched': True, 'cosine_only': False}. Best is trial 0 with value: 1.0.
+{
+  "device": "cuda",
+  "gpu": "Tesla T4",
+  "torch": "2.14.0+cu130",
+  "samples": 8,
+  "data_kind": "fixture",
+  "research_evaluated": false,
+  "mode": "tune",
+  "best_config": {
+    "learning_rate": 0.0020176100426360557,
+    "hidden": 32,
+    "method": "attention",
+    "use_unmatched": true,
+    "cosine_only": false,
+    "loss_weights": {
+      "ce": 1.0,
+      "contrastive": 0.1,
+      "margin": 0.05,
+      "consistency": 0.2,
+      "entropy": 0.001
+    }
+  },
+  "best_validation_macro_f1": 1.0,
+  "trials": 3
+}
+/Users/ardan/Developer/aurora-visual/artifacts/reports/modal-run.json
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/bxaxhll/main/ap-L7rJZDeDDFe5A8XBmejqIr

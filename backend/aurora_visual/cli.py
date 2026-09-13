@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from pathlib import Path
 
 from app.models.contract import AuroraBundle, sha, strict_json
@@ -54,14 +55,62 @@ def main():
     p.add_argument("caption")
     p.add_argument("--output", default="artifacts/reports/weak.json")
     p = sub.add_parser("import-dataset")
-    p.add_argument("--source", required=True, choices=["newsclippings", "verite", "cosmos", "mmfakebench"])
+    p.add_argument(
+        "--source",
+        required=True,
+        choices=[
+            "newsclippings",
+            "verite",
+            "cosmos",
+            "mmfakebench",
+            "snli-ve",
+            "countbench",
+            "refcoco",
+            "flickr30k-entities",
+            "visual-genome",
+            "sa1b",
+            "fsc-147",
+            "im2gps3k",
+            "osv5m",
+            "vggface2",
+            "yfcc100m",
+        ],
+    )
     p.add_argument("--input", required=True)
     p.add_argument("--output", required=True)
     p.add_argument("--image-root", required=True)
-    p.add_argument("--groups", required=True)
+    p.add_argument("--groups")
     p.add_argument("--split", required=True)
     p.add_argument("--license-note", required=True)
     p.add_argument("--visualnews")
+    p.add_argument("--classes", help="FSC-147 ImageClasses.tsv")
+    p.add_argument("--relations", help="Visual Genome relationships.json")
+    p.add_argument("--attributes", help="Visual Genome attributes.json")
+    p.add_argument("--boxes", help="Flickr30k Entities XML annotations directory")
+    p = sub.add_parser("mafindo-corpus")
+    p.add_argument("--limit", type=int, default=100_000)
+    p.add_argument("--output", default="data/mafindo/corpus.jsonl")
+    p.add_argument("--summary", default="artifacts/reports/mafindo-corpus.json")
+    p.add_argument("--page-size", type=int, default=100)
+    p.add_argument("--delay", type=float, default=0.4)
+    p = sub.add_parser("judge")
+    p.add_argument("--task", choices=["triage", "weak-pairs"], required=True)
+    p.add_argument("--input")
+    p.add_argument("--caption")
+    p.add_argument("--limit", type=int, default=100)
+    p.add_argument("--output", default="artifacts/reports/llm-judge.json")
+    p.add_argument("--url")
+    p.add_argument("--model")
+    p = sub.add_parser("tune")
+    p.add_argument("--manifest")
+    p.add_argument("--smoke", action="store_true")
+    p.add_argument("--trials", type=int, default=20)
+    p.add_argument("--epochs", type=int, default=5)
+    p.add_argument("--seed", type=int, default=17)
+    p.add_argument("--backbone", default="local-color-v1")
+    p.add_argument("--storage", default="sqlite:///artifacts/tuning/optuna.db")
+    p.add_argument("--output", default="artifacts/reports/tune.json")
+    p.add_argument("--best-config", default="artifacts/tuning/best-config.json")
     args = parser.parse_args()
     if args.command == "evaluate-parser":
         from aurora_visual.evaluation.parser_benchmark import evaluate_parser
@@ -137,18 +186,129 @@ def main():
         write(args.output, perturb(args.caption))
         return
     if args.command == "import-dataset":
-        print(
-            import_public(
-                args.source,
-                args.input,
-                args.output,
-                args.image_root,
-                args.split,
-                args.license_note,
-                args.groups,
-                args.visualnews,
+        if args.source in ("newsclippings", "verite", "cosmos", "mmfakebench"):
+            if not args.groups:
+                parser.error(f"--groups is required for {args.source}")
+            print(
+                import_public(
+                    args.source,
+                    args.input,
+                    args.output,
+                    args.image_root,
+                    args.split,
+                    args.license_note,
+                    args.groups,
+                    args.visualnews,
+                )
             )
+            return
+        from aurora_visual.training.importers import (
+            CAPABILITY_SOURCES,
+            import_capability,
+            import_caption_dataset,
         )
+
+        if args.source in CAPABILITY_SOURCES:
+            print(
+                import_capability(
+                    args.source,
+                    args.input,
+                    args.output,
+                    args.image_root,
+                    args.split,
+                    args.license_note,
+                    classes_path=args.classes,
+                    groups_path=args.groups,
+                )
+            )
+        else:
+            print(
+                import_caption_dataset(
+                    args.source,
+                    args.input,
+                    args.output,
+                    args.image_root,
+                    args.split,
+                    args.license_note,
+                    groups_path=args.groups,
+                    relations_path=args.relations,
+                    attributes_path=args.attributes,
+                    boxes_dir=args.boxes,
+                )
+            )
+        return
+    if args.command == "mafindo-corpus":
+        from aurora_visual.mafindo_corpus import pull_corpus
+
+        api_key = os.environ.get("AURORA_MAFINDO_API_KEY", "")
+        summary = pull_corpus(
+            api_key,
+            args.output,
+            max_records=args.limit,
+            page_size=args.page_size,
+            delay=args.delay,
+        )
+        write(args.summary, summary)
+        return
+    if args.command == "judge":
+        from aurora_visual.training.llm_judge import (
+            OllamaJudge,
+            judge_weak_pairs,
+            triage_corpus,
+        )
+
+        judge = OllamaJudge(url=args.url, model=args.model)
+        if not judge.configured:
+            parser.error(
+                "Judge LLM not configured: set AURORA_LLM_URL and AURORA_LLM_MODEL "
+                "(free local Ollama, e.g. http://127.0.0.1:11434 + qwen2.5:7b-instruct)"
+            )
+        if args.task == "weak-pairs":
+            from aurora_visual.training.weak import perturb
+
+            caption = args.caption or (Path(args.input).read_text().strip() if args.input else "")
+            if not caption:
+                parser.error("Provide --caption or --input for weak-pairs")
+            pairs = perturb(caption)
+            write(args.output, {"judge": judge.model, "pairs": judge_weak_pairs(judge, pairs)})
+            return
+        if not args.input:
+            parser.error("--input corpus JSONL is required for triage")
+        from aurora_visual.mafindo_corpus import strict_json_line
+
+        records = []
+        for line in Path(args.input).read_text().splitlines():
+            if line.strip():
+                try:
+                    records.append(strict_json_line(line))
+                except ValueError:
+                    continue
+        write(args.output, {"judge": judge.model, "records": triage_corpus(judge, records, args.limit)})
+        return
+    if args.command == "tune":
+        from aurora_visual.training.tuning import tune
+
+        if not args.smoke and not args.manifest:
+            parser.error("Provide --manifest or explicitly select --smoke")
+        samples = (
+            smoke_samples(args.seed)
+            if args.smoke
+            else samples_from_manifest(args.manifest, "artifacts/cache", args.backbone)
+        )
+        _, best_config, summary = tune(
+            samples,
+            args.trials,
+            {"epochs": args.epochs, "seed": args.seed},
+            backbone=args.backbone,
+            storage=args.storage,
+            seed=args.seed,
+        )
+        best_path = Path(args.best_config)
+        best_path.parent.mkdir(parents=True, exist_ok=True)
+        best_path.write_text(json.dumps(best_config, indent=2) + "\n")
+        print(str(best_path.resolve()))
+        summary["best_config_path"] = str(best_path)
+        write(args.output, summary)
         return
     if args.command == "export-checkpoint":
         model, meta, _ = load_checkpoint(args.checkpoint)

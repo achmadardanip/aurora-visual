@@ -73,6 +73,7 @@ class CaseService:
             "head",
             "provider",
             "translation_shadow",
+            "synthid_detector",
         }:
             raise ServiceError("INVALID_OPTIONS", "Opsi analisis tidak dikenal.")
         if (
@@ -83,12 +84,16 @@ class CaseService:
             or options.get("head", "heuristic") not in ("heuristic", "trained")
             or options.get("provider", "local") not in ("local", "hive")
             or type(options.get("translation_shadow", False)) is not bool
+            or type(options.get("synthid_detector", False)) is not bool
         ):
             raise ServiceError("INVALID_OPTIONS", "Pilihan model/metode tidak didukung.")
         provider = options.get("provider", "local")
         parser = options.get("parser", "rules")
         translation_shadow = options.get("translation_shadow", False)
-        if bundle.mode == "demo" and (provider != "local" or parser == "hive-vlm" or translation_shadow):
+        synthid_detector = options.get("synthid_detector", False)
+        if bundle.mode == "demo" and (
+            provider != "local" or parser == "hive-vlm" or translation_shadow or synthid_detector
+        ):
             raise ServiceError("INVALID_OPTIONS", "Mode demo hanya boleh memakai pemrosesan lokal.")
         if provider != "hive" and (parser == "hive-vlm" or translation_shadow):
             raise ServiceError(

@@ -673,6 +673,10 @@ h1 {
   margin: 0;
   accent-color: var(--blue);
 }
+.provider-choice label:has(input:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .provider-unavailable {
   margin-top: 9px;
   color: #8a7760;

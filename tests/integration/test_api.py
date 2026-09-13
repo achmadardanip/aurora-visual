@@ -81,7 +81,7 @@ def test_fixture_semantics(client, app, fixture, expected):
 def test_origin_screen_stays_module_local_and_preserves_visual_semantics(client, app, demo):
     result, _ = run(client, app, demo)
     screening = result["extensions"]["aurora_visual"]["screening"]
-    assert screening["version"] == "origin-screen-v1"
+    assert screening["version"] == "origin-screen-v2"
     assert screening["target"]["asset_id"] == result["input"]["images"][0]["asset_id"]
     assert screening["decision"]["does_not_affect_visual_assessment"] is True
     assert screening["decision"]["does_not_decide_claim_truth"] is True

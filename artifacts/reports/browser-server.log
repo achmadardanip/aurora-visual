@@ -1,86 +1,87 @@
 
 > aurora-visual-ui@1.0.0 dev
-> vite --host 127.0.0.1 --port 57977
+> vite --host 127.0.0.1 --port 59661
 
 
-  VITE v6.4.3  ready in 87 ms
+  VITE v6.4.3  ready in 95 ms
 
-  ➜  Local:   http://127.0.0.1:57977/
-7:41:54 PM [vite] http proxy error: /ready
-Error: connect ECONNREFUSED 127.0.0.1:57976
+  ➜  Local:   http://127.0.0.1:59661/
+10:32:31 PM [vite] http proxy error: /ready
+Error: connect ECONNREFUSED 127.0.0.1:59660
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
-7:41:54 PM [vite] http proxy error: /ready
-Error: connect ECONNREFUSED 127.0.0.1:57976
+10:32:31 PM [vite] http proxy error: /ready
+Error: connect ECONNREFUSED 127.0.0.1:59660
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16)
-INFO:     Started server process [827]
+INFO:     Started server process [9787]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:57976 (Press CTRL+C to quit)
-INFO:     127.0.0.1:57984 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57991 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57993 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57992 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57994 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57995 - "POST /api/v1/demo/contradicted HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57997 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57999 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58001 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:58003 - "GET /api/v1/jobs/f7876b86-11fa-489e-ab7f-af18207323fd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58005 - "GET /api/v1/jobs/f7876b86-11fa-489e-ab7f-af18207323fd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58007 - "GET /api/v1/jobs/f7876b86-11fa-489e-ab7f-af18207323fd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58009 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58012 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58013 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58015 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58017 - "PATCH /api/v1/cases/c16407d3-8288-433d-99cb-3e7b299f4115/atoms HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58019 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:58021 - "GET /api/v1/jobs/e3675f77-5a64-4428-b727-0b06958c64ac HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58023 - "GET /api/v1/jobs/e3675f77-5a64-4428-b727-0b06958c64ac HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58025 - "GET /api/v1/jobs/e3675f77-5a64-4428-b727-0b06958c64ac HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58027 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58029 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58034 - "GET /api/v1/cases/c16407d3-8288-433d-99cb-3e7b299f4115 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58036 - "GET /api/v1/cases/c16407d3-8288-433d-99cb-3e7b299f4115 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58033 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58038 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58042 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58041 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58044 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58046 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58048 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58050 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58058 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58060 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58059 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58061 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58062 - "POST /api/v1/demo/unobservable HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58063 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58065 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58067 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:58069 - "GET /api/v1/jobs/5af564a1-0d44-4aa7-948c-c23c23ac3dd4 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58071 - "GET /api/v1/jobs/5af564a1-0d44-4aa7-948c-c23c23ac3dd4 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58073 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58076 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58077 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58079 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58087 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58089 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58088 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58090 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58091 - "POST /api/v1/media HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58092 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58094 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58096 - "POST /api/v1/media HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58098 - "GET /api/v1/media/asset_016961787cd78b7d1fb70cdd33eb90e9d09c6dc663bb89e984851860aefa0eb0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58100 - "GET /api/v1/media/asset_016961787cd78b7d1fb70cdd33eb90e9d09c6dc663bb89e984851860aefa0eb0/thumbnail HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58102 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:58104 - "GET /api/v1/jobs/24b0a9d9-6985-4717-953a-61965b86470f HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58107 - "GET /api/v1/jobs/24b0a9d9-6985-4717-953a-61965b86470f HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58109 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58113 - "GET /api/v1/cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58112 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58115 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915?preview=true HTTP/1.1" 200 OK
+INFO:     Uvicorn running on http://127.0.0.1:59660 (Press CTRL+C to quit)
+INFO:     127.0.0.1:59668 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59675 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59677 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59676 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59679 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59680 - "POST /api/v1/demo/contradicted HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59682 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59684 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59686 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:59688 - "GET /api/v1/jobs/da82a63d-dc28-450c-9aba-81b0f553467a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59690 - "GET /api/v1/jobs/da82a63d-dc28-450c-9aba-81b0f553467a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59692 - "GET /api/v1/jobs/da82a63d-dc28-450c-9aba-81b0f553467a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59694 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59697 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59698 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59700 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59702 - "PATCH /api/v1/cases/b5e53945-d444-43e6-a73b-bbefb50feab5/atoms HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59704 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:59706 - "GET /api/v1/jobs/faba6b27-c90f-47bc-b46f-4db1945bfbe0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59708 - "GET /api/v1/jobs/faba6b27-c90f-47bc-b46f-4db1945bfbe0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59710 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59712 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59717 - "GET /api/v1/cases/b5e53945-d444-43e6-a73b-bbefb50feab5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59719 - "GET /api/v1/cases/b5e53945-d444-43e6-a73b-bbefb50feab5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59716 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59721 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59724 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59725 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59727 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59729 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59731 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59733 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59741 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59743 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59742 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59744 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59745 - "POST /api/v1/demo/unobservable HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59746 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59748 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59750 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:59752 - "GET /api/v1/jobs/ca851231-f067-4609-ad3e-1aa65614eddd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59754 - "GET /api/v1/jobs/ca851231-f067-4609-ad3e-1aa65614eddd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59756 - "GET /api/v1/jobs/ca851231-f067-4609-ad3e-1aa65614eddd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59758 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59761 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59762 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59764 - "GET /api/v1/media/asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59772 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59774 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59773 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59775 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59776 - "POST /api/v1/media HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59777 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59779 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59781 - "POST /api/v1/media HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59783 - "GET /api/v1/media/asset_016961787cd78b7d1fb70cdd33eb90e9d09c6dc663bb89e984851860aefa0eb0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59785 - "GET /api/v1/media/asset_016961787cd78b7d1fb70cdd33eb90e9d09c6dc663bb89e984851860aefa0eb0/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59787 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:59789 - "GET /api/v1/jobs/8688a746-b98d-4362-b034-26a3e6ae0a7a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59791 - "GET /api/v1/jobs/8688a746-b98d-4362-b034-26a3e6ae0a7a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59793 - "GET /api/v1/jobs/8688a746-b98d-4362-b034-26a3e6ae0a7a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59795 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59798 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59799 - "GET /api/v1/cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59801 - "GET /api/v1/media/asset_4ccc86537102c3e6b620b7a235dee618efce760adc1630be0a4962ca9259f915?preview=true HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [827]
+INFO:     Finished server process [9787]

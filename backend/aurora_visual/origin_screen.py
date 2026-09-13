@@ -1,8 +1,10 @@
 """Local origin/provenance screening that never decides claim truth."""
 
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+import c2pa
 from PIL import ExifTags, Image
 
 GENERATOR_MARKERS = (
@@ -20,6 +22,14 @@ GENERATOR_MARKERS = (
     "openai",
 )
 C2PA_MARKERS = (b"c2pa", b"jumbf", b"content credentials")
+# Digital source types (IPTC NewsCodes CV) that state the media itself was
+# produced by a trained algorithm; only these flip the origin decision, and
+# only when the manifest signature validates.
+TRAINED_ALGORITHMIC_SOURCES = {
+    "trainedAlgorithmicMedia",
+    "compositeWithTrainedAlgorithmicMedia",
+}
+_MAX_C2PA_REPORT_BYTES = 4_000_000
 
 
 def _metadata(path: Path):
@@ -56,17 +66,189 @@ def _metadata(path: Path):
     }
 
 
-def _provenance(raw: bytes):
+def _digital_source_types(manifest: dict) -> list[str]:
+    """Extract IPTC digitalSourceType tokens from action assertions."""
+    found = []
+    for assertion in manifest.get("assertions", []):
+        if not isinstance(assertion, dict) or not str(assertion.get("label", "")).startswith("c2pa.actions"):
+            continue
+        data = assertion.get("data") if isinstance(assertion.get("data"), dict) else {}
+        for action in data.get("actions", []):
+            if not isinstance(action, dict):
+                continue
+            source = action.get("digitalSourceType")
+            if isinstance(source, str) and source:
+                token = source.rsplit("/", 1)[-1]
+                if token and token not in found:
+                    found.append(token)
+    return found[:10]
+
+
+def _claim_generator(manifest: dict) -> str | None:
+    infos = manifest.get("claim_generator_info")
+    if isinstance(infos, list) and infos and isinstance(infos[0], dict):
+        name = str(infos[0].get("name", ""))[:120]
+        version = str(infos[0].get("version", ""))[:60]
+        return " ".join(part for part in (name, version) if part) or None
+    return None
+
+
+def _signer(manifest: dict) -> dict | None:
+    info = manifest.get("signature_info")
+    if not isinstance(info, dict):
+        return None
+    return {
+        "alg": str(info.get("alg", ""))[:40] or None,
+        "issuer": str(info.get("issuer", ""))[:120] or None,
+    }
+
+
+def _load_trust_anchors(value: str) -> tuple[str | None, bool]:
+    """Resolve optional extra trust anchors: a PEM file path or inline PEM."""
+    value = value.strip()
+    if not value:
+        return None, True
+    if "BEGIN CERTIFICATE" in value:
+        return value, True
+    path = Path(value)
+    if path.is_file():
+        try:
+            pem = path.read_text()
+        except OSError:
+            return None, False
+        return (pem, True) if "BEGIN CERTIFICATE" in pem else (None, False)
+    return None, False
+
+
+def _read_manifest_store(path: Path, media_type: str, trust_anchors: str | None):
+    """Parse and validate the C2PA manifest store from original bytes.
+
+    Returns (store, status, validation_status) where status distinguishes a
+    missing manifest from an unreadable one. Validation runs against the SDK's
+    default trust store plus optional operator anchors; it never fetches
+    remote manifests.
+    """
+    try:
+        if trust_anchors:
+            settings = c2pa.Settings.from_dict({"trust": {"trust_anchors": trust_anchors}})
+            with c2pa.Context(settings) as ctx, open(path, "rb") as stream:
+                with c2pa.Reader(media_type, stream, context=ctx) as reader:
+                    report = reader.json()
+        else:
+            with open(path, "rb") as stream:
+                with c2pa.Reader(media_type, stream) as reader:
+                    report = reader.json()
+    except c2pa.C2paError.ManifestNotFound:
+        return None, "not_detected", []
+    except c2pa.C2paError as exc:
+        reason = str(exc)[:200]
+        return None, "unavailable", [{"code": "reader_error", "explanation": reason}]
+    if len(report) > _MAX_C2PA_REPORT_BYTES:
+        return None, "unavailable", [{"code": "report_too_large", "explanation": None}]
+    try:
+        store = json.loads(report)
+    except ValueError:
+        return None, "unavailable", [{"code": "reader_error", "explanation": "malformed manifest JSON"}]
+    if not isinstance(store, dict) or not isinstance(store.get("manifests", {}), dict):
+        return None, "unavailable", [{"code": "reader_error", "explanation": "unexpected manifest store"}]
+    raw = store.get("validation_status")
+    codes = []
+    if isinstance(raw, list):
+        for item in raw[:20]:
+            if isinstance(item, dict) and item.get("code"):
+                codes.append(
+                    {"code": str(item["code"])[:80], "explanation": _bounded(item.get("explanation"))}
+                )
+    return store, "manifest_present", codes
+
+
+def _bounded(value, limit=200):
+    return str(value)[:limit] if value is not None else None
+
+
+def _provenance(path: Path, media_type: str, trust_anchors_setting: str):
+    raw = path.read_bytes()
     markers = [marker.decode("ascii") for marker in C2PA_MARKERS if marker in raw.lower()]
-    c2pa_present = bool(markers)
+    anchors, anchors_ok = _load_trust_anchors(trust_anchors_setting)
+    store, status, codes = _read_manifest_store(path, media_type, anchors)
+    if not anchors_ok:
+        return {
+            "c2pa": {
+                "status": "unavailable",
+                "verification": "not_verified",
+                "validation_status": [{"code": "trust_anchors_misconfigured", "explanation": None}],
+                "claim_generator": None,
+                "signer": None,
+                "digital_source_types": [],
+                "manifest_count": 0,
+                "marker_presence": markers,
+                "message": "Konfigurasi trust anchor C2PA tidak valid; manifest tidak divalidasi.",
+            },
+            "watermark": {
+                "status": "unavailable",
+                "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi.",
+            },
+        }
+    if status == "not_detected":
+        return {
+            "c2pa": {
+                "status": "not_detected",
+                "verification": "not_applicable",
+                "validation_status": [],
+                "claim_generator": None,
+                "signer": None,
+                "digital_source_types": [],
+                "manifest_count": 0,
+                "marker_presence": markers,
+                "message": (
+                    "Penanda byte C2PA/JUMBF ditemukan tanpa manifest yang dapat diurai."
+                    if markers
+                    else "Tidak ada manifest C2PA pada byte unggahan."
+                ),
+            },
+            "watermark": {
+                "status": "unavailable",
+                "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi.",
+            },
+        }
+    if status == "unavailable":
+        return {
+            "c2pa": {
+                "status": "unavailable",
+                "verification": "not_verified",
+                "validation_status": codes,
+                "claim_generator": None,
+                "signer": None,
+                "digital_source_types": [],
+                "manifest_count": 0,
+                "marker_presence": markers,
+                "message": "Manifest C2PA tidak dapat dibaca/divalidasi pada byte unggahan.",
+            },
+            "watermark": {
+                "status": "unavailable",
+                "message": "Tidak ada detektor watermark tak terlihat yang dikonfigurasi.",
+            },
+        }
+    manifests = store.get("manifests", {})
+    active = manifests.get(store.get("active_manifest"), {})
+    active = active if isinstance(active, dict) else {}
+    signature_valid = not codes
     return {
         "c2pa": {
-            "status": "marker_present" if c2pa_present else "not_detected",
-            "verification": "not_verified",
+            "status": "verified" if signature_valid else "present_unverified",
+            "verification": "signature_validated" if signature_valid else "not_verified",
+            "validation_status": codes,
+            "claim_generator": _claim_generator(active),
+            "signer": _signer(active),
+            "digital_source_types": _digital_source_types(active),
+            "manifest_count": len(manifests),
+            "marker_presence": markers,
             "message": (
-                "Penanda C2PA/JUMBF ditemukan, tetapi manifest tidak diverifikasi secara kriptografis."
-                if c2pa_present
-                else "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+                "Manifest C2PA ditemukan dan tanda tangan tervalidasi terhadap trust store c2pa-python; "
+                "bukan audit rantai kepercayaan penuh dan tidak membuktikan kebenaran caption."
+                if signature_valid
+                else "Manifest C2PA ditemukan tetapi tidak lolos validasi tanda tangan/integritas; "
+                "klaim provenance di dalamnya tidak dipercaya."
             ),
         },
         "watermark": {
@@ -77,12 +259,21 @@ def _provenance(raw: bytes):
 
 
 def _decision(metadata, provenance, mode):
+    c2pa = provenance["c2pa"]
+    if c2pa["status"] == "verified" and set(c2pa["digital_source_types"]) & TRAINED_ALGORITHMIC_SOURCES:
+        return {
+            "label": "likely_ai_generated",
+            "rationale": (
+                "Manifest C2PA tervalidasi menyatakan digitalSourceType media algoritmik terlatih "
+                "(AI generatif)."
+            ),
+        }
     if metadata["software_classification"] == "known_generative_marker":
         return {
             "label": "likely_ai_generated",
             "rationale": "Metadata perangkat lunak berisi indikator alat generatif yang dikenal.",
         }
-    if metadata["camera_metadata_present"] and provenance["c2pa"]["status"] != "marker_present":
+    if metadata["camera_metadata_present"] and c2pa["status"] not in {"verified", "present_unverified"}:
         return {
             "label": "no_strong_ai_signal",
             "rationale": "Metadata kamera tersedia, tanpa indikator generatif kuat pada pemeriksaan lokal.",
@@ -98,15 +289,14 @@ def _decision(metadata, provenance, mode):
     }
 
 
-def screen_image(path, media, mode):
+def screen_image(path, media, mode, c2pa_trust_anchors: str = ""):
     """Return a bounded, privacy-preserving screen for one uploaded asset."""
     path = Path(path)
-    raw = path.read_bytes()
     metadata = _metadata(path)
-    provenance = _provenance(raw)
+    provenance = _provenance(path, media.media_type, c2pa_trust_anchors)
     decision = _decision(metadata, provenance, mode)
     return {
-        "version": "origin-screen-v1",
+        "version": "origin-screen-v2",
         "target": {"asset_id": media.asset_id, "sha256": media.sha256},
         "decision": {
             **decision,
@@ -133,7 +323,8 @@ def screen_image(path, media, mode):
         ],
         "limitations": [
             "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
-            "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+            "Validasi C2PA memeriksa tanda tangan manifest terhadap trust store bawaan c2pa-python; "
+            "rantai kepercayaan penuh, tanda waktu, dan kebijakan signer tidak diaudit.",
             "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
             "Hasil screening tidak mengubah status visual atau verdict faktual.",
         ],

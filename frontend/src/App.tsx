@@ -57,8 +57,26 @@ type Screening = {
     software_classification: string;
   };
   provenance: {
-    c2pa: { status: string; verification: string; message: string };
-    watermark: { status: string; message: string };
+    c2pa: {
+      status: string;
+      verification: string;
+      message: string;
+      validation_status?: { code: string; explanation: string | null }[];
+      claim_generator?: string | null;
+      signer?: { alg: string | null; issuer: string | null } | null;
+      digital_source_types?: string[];
+      manifest_count?: number;
+      marker_presence?: string[];
+    };
+    watermark: {
+      status: string;
+      message: string;
+      task?: string;
+      provider?: string;
+      assessment?: string;
+      score?: number | null;
+      model?: string | null;
+    };
   };
   detectors: {
     task: string;
@@ -106,6 +124,14 @@ type HiveExtension = {
     status: string;
     canonical_caption_unchanged: boolean;
   };
+};
+type SynthidExtension = {
+  mode: string;
+  egress?: { original_media_stage1?: boolean };
+  stage1?: {
+    provider: string;
+    status: string;
+  } | null;
 };
 type CaseItem = {
   case_id: string;
@@ -253,6 +279,25 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
         name: "hive_v2_translation_key",
         label: "V2 translation key (opsional)",
       },
+    ],
+  },
+  {
+    title: "SynthID Detector",
+    description:
+      "Deteksi watermark tak terlihat SynthID (Tahap 1) melalui gateway operator. Portal resmi Google DeepMind masih early access tanpa API publik terdokumentasi; aktifkan hanya bila endpoint gateway resmi + API key tersedia. Setiap analisis tetap memilih opt-in pernah/jalan.",
+    fields: [
+      { name: "synthid_enabled", label: "Aktifkan detektor SynthID" },
+      {
+        name: "synthid_endpoint",
+        label: "URL gateway",
+        hint: "mis. https://gateway-mitra.example/synthid",
+      },
+      {
+        name: "synthid_api_key",
+        label: "API key gateway",
+        hint: "hanya disimpan di server",
+      },
+      { name: "synthid_timeout", label: "Timeout (detik)", hint: "1–120" },
     ],
   },
   {
@@ -455,6 +500,7 @@ export default function App() {
   const [backbone, setBackbone] = useState("local-color-v1");
   const [alignment, setAlignment] = useState("uot");
   const [provider, setProvider] = useState<"local" | "hive">("local");
+  const [synthidDetector, setSynthidDetector] = useState(false);
   const [parser, setParser] = useState<"rules" | "llm">("rules");
   const [editing, setEditing] = useState<Atom[] | null>(null);
   const [reason, setReason] = useState("");
@@ -489,14 +535,20 @@ export default function App() {
         timing?: { total_ms: number };
         screening?: Screening;
         hive?: HiveExtension | null;
+        synthid?: SynthidExtension | null;
         correction?: { reason: string };
       }
     | undefined;
   const screening = extension?.screening;
   const hive = extension?.hive;
+  const synthid = extension?.synthid;
   const hiveV3Ready = capabilities.some(
     (capability) =>
       capability.provider === "hive-v3-vlm" && capability.status === "ok",
+  );
+  const synthidReady = capabilities.some(
+    (capability) =>
+      capability.provider === "synthid-detector" && capability.status === "ok",
   );
   const ollamaReady = capabilities.some(
     (capability) =>
@@ -873,6 +925,7 @@ export default function App() {
             top_k: 16,
             provider: mode === "demo" ? "local" : provider,
             translation_shadow: false,
+            synthid_detector: mode === "live" && synthidDetector,
           },
         },
       };
@@ -1378,6 +1431,36 @@ export default function App() {
                         </label>
                       </div>
                     )}
+                    {mode === "live" && (
+                      <div className="provider-choice synthid-choice">
+                        <span>Watermark SynthID (Tahap 1)</span>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={synthidDetector}
+                            onChange={(e) =>
+                              setSynthidDetector(e.target.checked)
+                            }
+                            disabled={!!running || !synthidReady}
+                          />
+                          {synthidReady
+                            ? "Kirim byte asli ke gateway SynthID Detector"
+                            : "Gateway belum dikonfigurasi di server"}
+                        </label>
+                      </div>
+                    )}
+                    {mode === "live" && synthidDetector && synthidReady && (
+                      <div className="egress-disclosure" role="note">
+                        <ShieldCheck size={16} />
+                        <span>
+                          Dengan mencentang watermark SynthID, byte gambar asli
+                          dikirim ke gateway SynthID Detector yang dikonfigurasi
+                          admin. Hasil deteksi adalah indikasi asal konten,
+                          bukan bukti autentisitas atau kebenaran caption;
+                          ketiadaan watermark bukan bukti gambar kamera.
+                        </span>
+                      </div>
+                    )}
                     {mode === "live" && provider === "local" && (
                       <div className="field-row">
                         <label>
@@ -1527,6 +1610,10 @@ export default function App() {
                           <strong>{screening.provenance.c2pa.status}</strong>
                           <small>
                             {screening.provenance.c2pa.verification}
+                            {screening.provenance.c2pa.digital_source_types
+                              ?.length
+                              ? ` · ${screening.provenance.c2pa.digital_source_types.join(", ")}`
+                              : ""}
                           </small>
                         </div>
                         <div>
@@ -1562,7 +1649,19 @@ export default function App() {
                             ? " tersedia"
                             : " tidak tersedia"}{" "}
                           · watermark: {screening.provenance.watermark.status}
+                          {screening.provenance.watermark.assessment
+                            ? ` (${screening.provenance.watermark.assessment})`
+                            : ""}
                         </p>
+                        {screening.provenance.c2pa.claim_generator && (
+                          <p>
+                            Claim generator:{" "}
+                            {screening.provenance.c2pa.claim_generator}
+                            {screening.provenance.c2pa.signer?.issuer
+                              ? ` · penerbit sertifikat: ${screening.provenance.c2pa.signer.issuer}`
+                              : ""}
+                          </p>
+                        )}
                         <ul>
                           {screening.limitations.map((item) => (
                             <li key={item}>{item}</li>

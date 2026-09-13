@@ -36,6 +36,10 @@ UI_FIELDS: dict[str, tuple[str, bool]] = {
     "hive_v2_logo_key": ("str", True),
     "hive_v2_celebrity_key": ("str", True),
     "hive_v2_translation_key": ("str", True),
+    "synthid_enabled": ("bool", False),
+    "synthid_endpoint": ("str", False),
+    "synthid_api_key": ("str", True),
+    "synthid_timeout": ("float", False),
 }
 UI_RANGES = {
     "max_upload_mb": (1, 50),
@@ -44,6 +48,7 @@ UI_RANGES = {
     "max_pending": (1, 100),
     "mafindo_timeout": (1, 60),
     "hive_timeout": (1, 120),
+    "synthid_timeout": (1, 120),
 }
 
 
@@ -80,6 +85,11 @@ def normalize_overlay(values: dict) -> dict:
         parsed = urlsplit(url)
         if parsed.scheme not in ("http", "https") or parsed.username or not parsed.netloc:
             raise ValueError("llm_url harus URL http(s) lengkap tanpa kredensial")
+    endpoint = result.get("synthid_endpoint")
+    if endpoint:
+        parsed = urlsplit(endpoint)
+        if parsed.scheme not in ("http", "https") or parsed.username or not parsed.netloc:
+            raise ValueError("synthid_endpoint harus URL http(s) lengkap tanpa kredensial")
     for origin in (o.strip() for o in result.get("llm_allowed_origins", "").split(",")):
         if origin and ("*" in origin or "@" in origin):
             raise ValueError("llm_allowed_origins harus origin eksplisit tanpa wildcard/kredensial")
@@ -96,6 +106,21 @@ def validate_hive_policy(values: dict):
         raise ValueError(
             "hive_enabled memerlukan hive_v3_secret: secret V3 wajib untuk provider Hive "
             "(atomizer + observasi multimodal); project key V2 bersifat opsional"
+        )
+
+
+def validate_synthid_policy(values: dict):
+    """SynthID Detector is opt-in; enabling it requires the full gateway config.
+
+    Raises ValueError when SynthID is enabled without an endpoint or API key so
+    no state can advertise watermark screening while unable to run it.
+    """
+    if values.get("synthid_enabled") and not (
+        values.get("synthid_endpoint") and values.get("synthid_api_key")
+    ):
+        raise ValueError(
+            "synthid_enabled memerlukan synthid_endpoint dan synthid_api_key: gateway SynthID "
+            "Detector wajib dikonfigurasi sebelum deteksi watermark diaktifkan"
         )
 
 
@@ -144,6 +169,15 @@ class Settings:
     hive_v2_translation_key: str = field(
         default_factory=lambda: os.getenv("AURORA_HIVE_V2_TRANSLATION_API_KEY", "")
     )
+    synthid_enabled: bool = field(
+        default_factory=lambda: os.getenv("AURORA_SYNTHID_ENABLED", "false").lower() == "true"
+    )
+    synthid_endpoint: str = field(default_factory=lambda: os.getenv("AURORA_SYNTHID_ENDPOINT", ""))
+    synthid_api_key: str = field(default_factory=lambda: os.getenv("AURORA_SYNTHID_API_KEY", ""))
+    synthid_timeout: float = field(
+        default_factory=lambda: float(os.getenv("AURORA_SYNTHID_TIMEOUT_SECONDS", "45"))
+    )
+    c2pa_trust_anchors: str = field(default_factory=lambda: os.getenv("AURORA_C2PA_TRUST_ANCHORS", ""))
     allowed_hosts: list[str] = field(
         default_factory=lambda: [
             item.strip()
@@ -191,6 +225,7 @@ class Settings:
         # Range/type validation for every UI field (covers env-provided values too).
         normalize_overlay(self.overlay_values())
         validate_hive_policy(self.overlay_values())
+        validate_synthid_policy(self.overlay_values())
         for name in ("media", "derived", "artifacts", "cache"):
             (self.data_dir / name).mkdir(parents=True, exist_ok=True)
 

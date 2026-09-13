@@ -31,6 +31,17 @@ from aurora_visual.hive import (
 )
 from aurora_visual.ocr.engine import recognize
 from aurora_visual.origin_screen import screen_image
+from aurora_visual.synthid import (
+    SynthIDClient,
+    SynthIDError,
+    stage1_watermark,
+)
+from aurora_visual.synthid import (
+    warning_for_error as synthid_warning_for_error,
+)
+from aurora_visual.synthid import (
+    watermark_for_error as synthid_watermark_for_error,
+)
 from aurora_visual.vision.features import extract_multi, feature_identity, model_inputs
 from PIL import Image
 from torch.nn import functional as F
@@ -67,7 +78,9 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
                 "preview_path": preview_path,
                 "image": Image.open(preview_path).convert("RGB"),
                 "transform": transform,
-                "screening": screen_image(source_path, stored, bundle.mode),
+                "screening": screen_image(
+                    source_path, stored, bundle.mode, c2pa_trust_anchors=settings.c2pa_trust_anchors
+                ),
             }
         )
     primary = assets[0]
@@ -249,6 +262,35 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
                 "status": stage1_status,
                 "representation": "original_bytes",
             }
+    # SynthID Detector watermark screening (stage 1): opt-in per analysis in
+    # live mode; original bytes only leave the server to the configured gateway
+    # when both the admin enablement and this request-level option are set.
+    synthid_requested = bundle.mode == "live" and bool(options.get("synthid_detector", False))
+    synthid_extension = None
+    if synthid_requested:
+        synthid_client = SynthIDClient(
+            settings.synthid_endpoint, settings.synthid_api_key, settings.synthid_timeout
+        )
+        synthid_extension = {
+            "mode": "external",
+            "egress": {"original_media_stage1": True},
+            "stage1": {"provider": "synthid-detector", "status": "unconfigured"},
+        }
+        if not (settings.synthid_enabled and synthid_client.configured):
+            warnings.append(synthid_warning_for_error("unconfigured"))
+            for asset in assets:
+                asset["screening"]["provenance"]["watermark"] = synthid_watermark_for_error("unconfigured")
+        else:
+            synthid_status = "ok"
+            for asset in assets:
+                try:
+                    detected = synthid_client.detect_watermark(asset["source_path"])
+                    asset["screening"]["provenance"]["watermark"] = stage1_watermark(detected)
+                except SynthIDError as exc:
+                    synthid_status = exc.code
+                    warnings.append(synthid_warning_for_error(exc.code))
+                    asset["screening"]["provenance"]["watermark"] = synthid_watermark_for_error(exc.code)
+            synthid_extension["stage1"]["status"] = synthid_status
     for asset in assets:
         label = asset["screening"]["decision"]["label"]
         if label == "likely_ai_generated":
@@ -567,6 +609,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         (
             w.code in ("OCR_UNAVAILABLE", "OCR_FAILED", "UOT_NONCONVERGENCE", "LLM_FALLBACK_RULES")
             or w.code.startswith("HIVE_")
+            or w.code.startswith("SYNTHID_")
         )
         and w.code not in review_only
         for w in warnings
@@ -613,6 +656,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             for asset in assets
         ],
         "hive": hive_extension,
+        "synthid": synthid_extension,
         "method": {
             "backbone": backbone,
             "alignment": method,

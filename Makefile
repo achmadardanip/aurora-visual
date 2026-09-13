@@ -1,4 +1,4 @@
-.PHONY: setup dev demo test lint schema smoke browser-test evaluate train experiments build backup verify-backup restore-backup mafindo-live-test
+.PHONY: setup dev demo test lint schema smoke browser-test evaluate train experiments build backup verify-backup restore-backup mafindo-live-test tune-smoke modal-smoke mafindo-corpus
 setup:
 	uv sync --frozen --python 3.12 --extra ml --extra dev
 	npm ci --prefix frontend
@@ -36,6 +36,15 @@ train:
 
 evaluate: train
 	uv run aurora evaluate --smoke --checkpoint artifacts/checkpoints/smoke.pt --output artifacts/reports/evaluation-smoke.json
+
+tune-smoke:
+	uv run aurora tune --smoke --trials 15 --epochs 3 --output artifacts/reports/tune-smoke.json --best-config artifacts/tuning/best-config-smoke.json
+
+modal-smoke:
+	uv run modal run scripts/modal_train.py --smoke --epochs 3 --tune --trials 3 --gpu T4 --output artifacts/reports/modal-run.json
+
+mafindo-corpus:
+	uv run aurora mafindo-corpus --limit 100000 --output data/mafindo/corpus.jsonl --summary artifacts/reports/mafindo-corpus.json
 
 experiments:
 	uv run aurora experiments --smoke --epochs 2 --output artifacts/reports/ablations-smoke.json

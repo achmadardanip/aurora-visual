@@ -15,7 +15,7 @@ def test_origin_screen_marks_generator_metadata_without_deciding_truth(tmp_path)
     Image.new("RGB", (20, 20), "red").save(path, pnginfo=metadata)
     result = screen_image(
         path,
-        SimpleNamespace(asset_id="asset_" + "a" * 64, sha256="a" * 64),
+        SimpleNamespace(asset_id="asset_" + "a" * 64, sha256="a" * 64, media_type="image/png"),
         "live",
     )
     assert result["decision"]["label"] == "likely_ai_generated"
@@ -24,18 +24,22 @@ def test_origin_screen_marks_generator_metadata_without_deciding_truth(tmp_path)
     assert result["detectors"][0]["status"] == "unavailable"
 
 
-def test_origin_screen_reports_c2pa_marker_as_unverified(tmp_path):
+def test_origin_screen_reports_marker_without_manifest_as_not_detected(tmp_path):
     path = tmp_path / "marker.png"
     raw = io.BytesIO()
     Image.new("RGB", (20, 20), "red").save(raw, "PNG")
     path.write_bytes(raw.getvalue() + b"c2pa")
     result = screen_image(
         path,
-        SimpleNamespace(asset_id="asset_" + "b" * 64, sha256="b" * 64),
+        SimpleNamespace(asset_id="asset_" + "b" * 64, sha256="b" * 64, media_type="image/png"),
         "live",
     )
-    assert result["provenance"]["c2pa"]["status"] == "marker_present"
-    assert result["provenance"]["c2pa"]["verification"] == "not_verified"
+    # Real manifest validation via c2pa-python: stray marker bytes without a
+    # parseable JUMBF manifest store are reported, never treated as provenance.
+    assert result["provenance"]["c2pa"]["status"] == "not_detected"
+    assert result["provenance"]["c2pa"]["verification"] == "not_applicable"
+    assert result["provenance"]["c2pa"]["marker_presence"] == ["c2pa"]
+    assert "Penanda byte" in result["provenance"]["c2pa"]["message"]
 
 
 def test_origin_screen_camera_metadata_is_not_a_negative_detector_result(tmp_path):
@@ -46,7 +50,7 @@ def test_origin_screen_camera_metadata_is_not_a_negative_detector_result(tmp_pat
     Image.new("RGB", (20, 20), "red").save(path, exif=exif)
     result = screen_image(
         path,
-        SimpleNamespace(asset_id="asset_" + "c" * 64, sha256="c" * 64),
+        SimpleNamespace(asset_id="asset_" + "c" * 64, sha256="c" * 64, media_type="image/jpeg"),
         "live",
     )
     assert result["decision"]["label"] == "no_strong_ai_signal"
@@ -60,7 +64,7 @@ def test_origin_screen_invalid_file_is_bounded(tmp_path):
     path.write_bytes(b"not an image")
     result = screen_image(
         path,
-        SimpleNamespace(asset_id="asset_" + "d" * 64, sha256="d" * 64),
+        SimpleNamespace(asset_id="asset_" + "d" * 64, sha256="d" * 64, media_type="image/png"),
         "live",
     )
     assert result["metadata"]["status"] == "unavailable"

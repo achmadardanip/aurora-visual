@@ -1,0 +1,25 @@
+{
+  "device": "cuda",
+  "gpu": "Tesla T4",
+  "torch": "2.14.0+cu130",
+  "samples": 8,
+  "data_kind": "fixture",
+  "research_evaluated": false,
+  "mode": "tune",
+  "best_config": {
+    "learning_rate": 0.0020176100426360557,
+    "hidden": 32,
+    "method": "attention",
+    "use_unmatched": true,
+    "cosine_only": false,
+    "loss_weights": {
+      "ce": 1.0,
+      "contrastive": 0.1,
+      "margin": 0.05,
+      "consistency": 0.2,
+      "entropy": 0.001
+    }
+  },
+  "best_validation_macro_f1": 1.0,
+  "trials": 3
+}

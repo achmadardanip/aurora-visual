@@ -12,6 +12,13 @@ frontend/test-results/
 .DS_Store
 artifacts/checkpoints/
 artifacts/cache/
+# MAFINDO curation corpus and title-level triage outputs stay local: the API
+# grants no redistribution license. Re-pull with `make mafindo-corpus`.
+data/mafindo/
+data/benchmarks/mafindo-candidates.jsonl
+artifacts/reports/mafindo-triage.json
+artifacts/reports/mafindo-triage-visual.json
+artifacts/tuning/
 playwright-report/
 test-results/
 backups/

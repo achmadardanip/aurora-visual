@@ -1,0 +1,11 @@
+{
+  "version": "mafindo-corpus-v1",
+  "output": "data/mafindo/corpus.jsonl",
+  "provider_total": 36129,
+  "unique_records": 36127,
+  "duplicates_skipped": 2,
+  "requests": 181,
+  "finished": true,
+  "corpus_sha256": "3382b42e45459ff26392aff80b519bcf4f0bf9c14f3724fcf4074b8d5dc62504",
+  "usage": "Curation corpus only: caption candidates for the parser benchmark and weak-supervision text pairs. Not a visual dataset: no image-caption ground truth, no S/C/U labels, no training/redistribution license. Media URLs are metadata references and are not downloaded."
+}

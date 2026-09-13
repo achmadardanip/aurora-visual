@@ -5,7 +5,7 @@ Aplikasi memakai FastAPI/Pydantic v2, SQLAlchemy/SQLite WAL, worker persisten, P
 ```
 PNG/JPEG/WebP + caption asli
    → hash byte asli / EXIF transpose / RGB turunan
-   → screening asal media lokal (field metadata + marker C2PA/JUMBF)
+   → screening asal media lokal (field metadata + validasi manifest/tanda tangan C2PA)
    → Atomizer ID/EN atau atom hasil koreksi
    → grid + global token / frozen features / Tesseract
    → global/max/mean/attention/balanced OT/UOT
@@ -16,7 +16,7 @@ PNG/JPEG/WebP + caption asli
 
 ### Tahap 0–3
 
-Tahap 0 menerima caption asli dan byte media. Tahap 1 menjalankan `aurora_visual.origin_screen.screen_image` terhadap byte asli sebelum preview RGB; outputnya hanya memakai nama field metadata, klasifikasi perangkat lunak, dan marker byte C2PA/JUMBF. Hasil tersimpan pada `extensions.aurora_visual.screening`, bersama target `asset_id`/SHA-256, keterbatasan, dan penanda tegas bahwa hasil tidak memengaruhi assessment visual atau kebenaran klaim. Tidak ada parsing manifest, verifikasi signature/trust store C2PA, detektor AI-image/deepfake, atau detektor watermark tak terlihat yang diklaim tersedia.
+Tahap 0 menerima caption asli dan byte media. Tahap 1 menjalankan `aurora_visual.origin_screen.screen_image` terhadap byte asli sebelum preview RGB; outputnya memakai nama field metadata, klasifikasi perangkat lunak, dan — melalui c2pa-python — penguraian manifest C2PA beserta validasi tanda tangan terhadap trust store bawaan SDK (trust anchor tambahan via `AURORA_C2PA_TRUST_ANCHORS`). Hanya manifest tervalidasi dengan digitalSourceType algoritmik terlatih yang dapat menaikkan label `likely_ai_generated`; manifest tidak tervalidasi tidak dipercaya. Hasil tersimpan pada `extensions.aurora_visual.screening`, bersama target `asset_id`/SHA-256, keterbatasan, dan penanda tegas bahwa hasil tidak memengaruhi assessment visual atau kebenaran klaim. Deteksi AI-image/deepfake Hive V3 (opt-in, mode live) dan deteksi watermark SynthID (`aurora_visual.synthid`, gateway operator, opt-in per analisis) dilaporkan terpisah dan tidak pernah menjadi validator autentisitas.
 
 Tahap 2 mengurai caption menjadi atom. Tahap 3 menjalankan OCR, region grid, fitur visual, alignment, dan assessment konservatif. `screening` tidak dimasukkan ke `Retrieval.forensic_signals`, `retrieval`, atau `decision`; rerun analysis juga tetap mengosongkan retrieval/decision seperti sebelumnya.
 

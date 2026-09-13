@@ -1,0 +1,112 @@
+{
+  "trials": 5,
+  "best_value_validation_macro_f1": 1.0,
+  "best_trial_number": 0,
+  "best_config": {
+    "learning_rate": 0.002017610042636054,
+    "hidden": 32,
+    "method": "attention",
+    "use_unmatched": true,
+    "cosine_only": false,
+    "loss_weights": {
+      "ce": 1.0,
+      "contrastive": 0.1,
+      "margin": 0.05,
+      "consistency": 0.2,
+      "entropy": 0.001
+    }
+  },
+  "data_kind": "fixture",
+  "tuning_split": "validation",
+  "research_evaluated": false,
+  "note": "Tuning selects on the validation split only. Fixture tuning verifies the search wiring; it is not a research result and must not be reported as one.",
+  "trials_summary": [
+    {
+      "number": 0,
+      "value": 1.0,
+      "params": {
+        "loss_ce": 1.0,
+        "loss_contrastive": 0.1,
+        "loss_margin": 0.05,
+        "loss_consistency": 0.2,
+        "loss_entropy": 0.001,
+        "learning_rate": 0.002017610042636054,
+        "hidden": 32,
+        "method": "attention",
+        "use_unmatched": true,
+        "cosine_only": false
+      },
+      "state": "COMPLETE"
+    },
+    {
+      "number": 1,
+      "value": 1.0,
+      "params": {
+        "loss_ce": 1.0,
+        "loss_contrastive": 0.05,
+        "loss_margin": 0.05,
+        "loss_consistency": 0.5,
+        "loss_entropy": 0.005,
+        "learning_rate": 0.0039312934246863865,
+        "hidden": 32,
+        "method": "attention",
+        "use_unmatched": false,
+        "cosine_only": false
+      },
+      "state": "COMPLETE"
+    },
+    {
+      "number": 2,
+      "value": 0.16666666666666666,
+      "params": {
+        "loss_ce": 0.5,
+        "loss_contrastive": 0.1,
+        "loss_margin": 0.1,
+        "loss_consistency": 0.5,
+        "loss_entropy": 0.005,
+        "learning_rate": 0.00010749602023356394,
+        "hidden": 64,
+        "method": "uot",
+        "use_unmatched": true,
+        "cosine_only": false
+      },
+      "state": "COMPLETE"
+    },
+    {
+      "number": 3,
+      "value": 1.0,
+      "params": {
+        "loss_ce": 1.0,
+        "loss_contrastive": 0.05,
+        "loss_margin": 0.1,
+        "loss_consistency": 0.5,
+        "loss_entropy": 0.005,
+        "learning_rate": 0.0010748829161350325,
+        "hidden": 32,
+        "method": "attention",
+        "use_unmatched": false,
+        "cosine_only": false
+      },
+      "state": "COMPLETE"
+    },
+    {
+      "number": 4,
+      "value": 0.16666666666666666,
+      "params": {
+        "loss_ce": 0.5,
+        "loss_contrastive": 0.1,
+        "loss_margin": 0.1,
+        "loss_consistency": 0.1,
+        "loss_entropy": 0.005,
+        "learning_rate": 0.00018198266729998013,
+        "hidden": 16,
+        "method": "uot",
+        "use_unmatched": true,
+        "cosine_only": false
+      },
+      "state": "COMPLETE"
+    }
+  ],
+  "data_hash": "5e6433cb391cf45ca3d36175d5fade6441adbc0f8e888de045f1feea8f250b17",
+  "best_config_path": "artifacts/tuning/best-config-smoke.json"
+}

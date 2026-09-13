@@ -5,8 +5,8 @@
   "results": [
     {
       "fixture": "supported",
-      "case_id": "a35db43b-104a-4c2c-b77c-ffdbf7c7a936",
-      "job_id": "39356556-1151-4bc0-9a4a-282f9c646f4f",
+      "case_id": "3284d325-4f29-46a8-ac6c-d44fa0980cba",
+      "job_id": "10706aad-fe8f-4c6a-a688-d97eb967da23",
       "status": "succeeded",
       "labels": [
         "Supported"
@@ -14,8 +14,8 @@
     },
     {
       "fixture": "contradicted",
-      "case_id": "b8761099-1c2e-4256-8b8e-b47d281e9545",
-      "job_id": "dbd1dfc5-cc47-426b-a6be-b726fe5dbc4f",
+      "case_id": "c32c0ac5-e2db-42ed-b402-e2773a77b3ab",
+      "job_id": "eb591bb6-6358-4f44-8234-38189d8e1034",
       "status": "succeeded",
       "labels": [
         "Contradicted"
@@ -23,8 +23,8 @@
     },
     {
       "fixture": "unobservable",
-      "case_id": "7659f10e-7c3f-4c6e-b962-4d5d94fabb75",
-      "job_id": "016b10de-bd2c-43c8-9374-fa238812791d",
+      "case_id": "a4d3b89d-c638-4967-8660-01139e8cd31a",
+      "job_id": "885b828f-c84f-499e-b859-a50dadcb1b9e",
       "status": "succeeded",
       "labels": [
         "Unobservable",

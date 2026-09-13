@@ -13,7 +13,14 @@ import os
 import sys
 from pathlib import Path
 
-from app.config import UI_FIELDS, ServiceError, Settings, normalize_overlay, validate_hive_policy
+from app.config import (
+    UI_FIELDS,
+    ServiceError,
+    Settings,
+    normalize_overlay,
+    validate_hive_policy,
+    validate_synthid_policy,
+)
 
 MASKED = "__CONFIGURED__"
 
@@ -31,6 +38,7 @@ class SettingsStore:
             if isinstance(data, dict):
                 overlay = normalize_overlay(data)
                 validate_hive_policy(overlay)
+                validate_synthid_policy(overlay)
                 self.settings.apply_overlay(overlay)
         except (ValueError, OSError, json.JSONDecodeError) as exc:
             print(f"Settings overlay ignored: {type(exc).__name__}", file=sys.stderr)
@@ -57,6 +65,7 @@ class SettingsStore:
         try:
             merged = normalize_overlay({**self.settings.overlay_values(), **kept})
             validate_hive_policy(merged)
+            validate_synthid_policy(merged)
         except ValueError as exc:
             raise ServiceError("INVALID_SETTING", str(exc), 422) from exc
         self._write(merged)

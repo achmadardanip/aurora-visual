@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
-  "case_id": "7659f10e-7c3f-4c6e-b962-4d5d94fabb75",
+  "case_id": "a4d3b89d-c638-4967-8660-01139e8cd31a",
   "claim_revision": 1,
   "mode": "demo",
-  "created_at": "2026-09-13T07:54:22.786184Z",
+  "created_at": "2026-09-13T15:34:04.864022Z",
   "input": {
     "claim_text": "Mahasiswa melakukan aksi di Monas pada September 2026",
     "language": "id",
@@ -21,10 +21,10 @@
   },
   "analysis": {
     "run": {
-      "run_id": "aa05f76e-d165-41bf-8207-9d16ba7e52b3",
+      "run_id": "c59e3f6d-a10a-4656-bb63-a5821300437f",
       "mode": "demo",
-      "started_at": "2026-09-13T07:54:23.665604Z",
-      "finished_at": "2026-09-13T07:54:23.787290Z",
+      "started_at": "2026-09-13T15:34:05.714763Z",
+      "finished_at": "2026-09-13T15:34:05.828348Z",
       "status": "completed",
       "versions": {
         "service": "1.0.0",
@@ -52,7 +52,7 @@
         }
       ]
     },
-    "atom_set_id": "aset_e36388e036a8aa9fd62d3ff3362a43723228ec8aba7febd6167f3178fcfee847",
+    "atom_set_id": "aset_40c71701b164cae792c85dd65b3653bbf1d6beb2cc2abf04e4e1b8aed60f572f",
     "atomic_claims": [
       {
         "atom_id": "a000001",
@@ -236,7 +236,7 @@
         "operation": "EXIF transpose to RGB; bbox normalized after transpose"
       },
       "screening": {
-        "version": "origin-screen-v1",
+        "version": "origin-screen-v2",
         "target": {
           "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
           "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
@@ -258,8 +258,14 @@
         "provenance": {
           "c2pa": {
             "status": "not_detected",
-            "verification": "not_verified",
-            "message": "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+            "verification": "not_applicable",
+            "validation_status": [],
+            "claim_generator": null,
+            "signer": null,
+            "digital_source_types": [],
+            "manifest_count": 0,
+            "marker_presence": [],
+            "message": "Tidak ada manifest C2PA pada byte unggahan."
           },
           "watermark": {
             "status": "unavailable",
@@ -284,11 +290,11 @@
         ],
         "limitations": [
           "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
-          "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+          "Validasi C2PA memeriksa tanda tangan manifest terhadap trust store bawaan c2pa-python; rantai kepercayaan penuh, tanda waktu, dan kebijakan signer tidak diaudit.",
           "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
           "Hasil screening tidak mengubah status visual atau verdict faktual."
         ],
-        "analyzed_at": "2026-09-13T07:54:23.670102+00:00"
+        "analyzed_at": "2026-09-13T15:34:05.720548+00:00"
       },
       "images": [
         {
@@ -306,7 +312,7 @@
             "operation": "EXIF transpose to RGB; bbox normalized after transpose"
           },
           "screening": {
-            "version": "origin-screen-v1",
+            "version": "origin-screen-v2",
             "target": {
               "asset_id": "asset_fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0",
               "sha256": "fb91dfa864daf1e1d49eeb8e8aab672bf30c17cb6ff0aeb8ff85037bcbcddde0"
@@ -328,8 +334,14 @@
             "provenance": {
               "c2pa": {
                 "status": "not_detected",
-                "verification": "not_verified",
-                "message": "Tidak ada penanda C2PA/JUMBF yang ditemukan pada byte unggahan."
+                "verification": "not_applicable",
+                "validation_status": [],
+                "claim_generator": null,
+                "signer": null,
+                "digital_source_types": [],
+                "manifest_count": 0,
+                "marker_presence": [],
+                "message": "Tidak ada manifest C2PA pada byte unggahan."
               },
               "watermark": {
                 "status": "unavailable",
@@ -354,16 +366,17 @@
             ],
             "limitations": [
               "Metadata dapat dihapus atau diubah dan bukan bukti asal media.",
-              "Marker C2PA tidak diverifikasi tanpa validator manifest dan rantai kepercayaan.",
+              "Validasi C2PA memeriksa tanda tangan manifest terhadap trust store bawaan c2pa-python; rantai kepercayaan penuh, tanda waktu, dan kebijakan signer tidak diaudit.",
               "Tidak adanya sinyal AI bukan bukti bahwa gambar berasal dari kamera.",
               "Hasil screening tidak mengubah status visual atau verdict faktual."
             ],
-            "analyzed_at": "2026-09-13T07:54:23.670102+00:00"
+            "analyzed_at": "2026-09-13T15:34:05.720548+00:00"
           },
           "stage1": null
         }
       ],
       "hive": null,
+      "synthid": null,
       "method": {
         "backbone": "local-color-v1",
         "alignment": "uot",
@@ -390,28 +403,28 @@
         "hit": false
       },
       "timing": {
-        "parse_ms": 5.196625003009103,
-        "total_ms": 121.67370801034849,
-        "peak_rss_platform_units": 247939072,
+        "parse_ms": 6.536583008710295,
+        "total_ms": 113.57016599504277,
+        "peak_rss_platform_units": 251265024,
         "peak_rss_note": "bytes on macOS, KiB on Linux; entire job process",
         "cuda_peak_bytes": null
       },
-      "config_sha256": "27acb3fd95f622fbc899db76da896029c46238cc9d6d4c36ce0a9c948bdd3ffc",
+      "config_sha256": "252b883f1077dfac342b00dada5d173b9e069c3d58db9db1e0098ea1b1319bb3",
       "artifacts": [
         {
-          "path": "artifacts/aa05f76e-d165-41bf-8207-9d16ba7e52b3/transport.json",
-          "sha256": "e787ebcfc29a2bb071123a6493d9cb2f1e9a2d9ed68237265c3203b8267dcbfb"
+          "path": "artifacts/c59e3f6d-a10a-4656-bb63-a5821300437f/transport.json",
+          "sha256": "336aa9fde45a88486a57316ceb315a41929a3a4c076e125bdb10e844c54f9372"
         },
         {
-          "path": "artifacts/aa05f76e-d165-41bf-8207-9d16ba7e52b3/features.npz",
+          "path": "artifacts/c59e3f6d-a10a-4656-bb63-a5821300437f/features.npz",
           "sha256": "b296338ab5e85e0cc3170b5f1c04e11ec12523505a9260283b9be0d83305da0e"
         }
       ]
     },
     "aurora_contract": {
       "run_inputs": {
-        "aa05f76e-d165-41bf-8207-9d16ba7e52b3": {
-          "snapshot_sha256": "1960dc8201a3f2c76c11b23b9a4437ed260c5c0e853d2a3ac1cd9d2815f482fc",
+        "c59e3f6d-a10a-4656-bb63-a5821300437f": {
+          "snapshot_sha256": "ace453a01d0c434582e3e4645760db55750473705dbf09f76b8de07aaceab190",
           "parent_run_ids": {}
         }
       }
