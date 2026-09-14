@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from app.config import ServiceError
 from app.models.contract import Analysis, Atom, AuroraBundle, RunInfo, atom_set_id, canonical, sha
 from app.models.db import Audit, Case, Job, Snapshot
-from app.services.pipeline import now
+from app.services.pipeline import now, provider_flags
 
 
 def dump(value):
@@ -74,15 +74,19 @@ class CaseService:
             "provider",
             "translation_shadow",
             "synthid_detector",
+            "region_method",
+            "hive",
+            "deepseek",
         }:
             raise ServiceError("INVALID_OPTIONS", "Opsi analisis tidak dikenal.")
         if (
             options.get("alignment", "uot")
             not in ("uot", "balanced-ot", "attention", "max-region", "mean-region", "global")
             or options.get("backbone", self.settings.backbone) not in ("local-color-v1", "openclip")
-            or options.get("parser", "rules") not in ("rules", "llm", "hive-vlm")
             or options.get("head", "heuristic") not in ("heuristic", "trained")
-            or options.get("provider", "local") not in ("local", "hive")
+            or options.get("provider", "local") not in ("local", "hive", "deepseek")
+            or options.get("parser", "rules") not in ("rules", "llm", "hive-vlm", "deepseek-vlm")
+            or options.get("region_method", "grid") not in ("grid", "segmentation")
             or type(options.get("translation_shadow", False)) is not bool
             or type(options.get("synthid_detector", False)) is not bool
         ):
@@ -91,18 +95,51 @@ class CaseService:
         parser = options.get("parser", "rules")
         translation_shadow = options.get("translation_shadow", False)
         synthid_detector = options.get("synthid_detector", False)
+        region_method = options.get("region_method", "grid")
+        if "provider" in options and ("hive" in options or "deepseek" in options):
+            raise ServiceError(
+                "INVALID_OPTIONS", "Gunakan opsi 'hive'/'deepseek' atau 'provider', tidak keduanya."
+            )
+        if type(options.get("hive", False)) is not bool or type(options.get("deepseek", False)) is not bool:
+            raise ServiceError("INVALID_OPTIONS", "Opsi hive/deepseek harus boolean.")
+        hive_selected, deepseek_selected = provider_flags(options)
         if bundle.mode == "demo" and (
-            provider != "local" or parser == "hive-vlm" or translation_shadow or synthid_detector
+            provider != "local"
+            or hive_selected
+            or deepseek_selected
+            or parser in ("hive-vlm", "deepseek-vlm")
+            or translation_shadow
+            or synthid_detector
+            or region_method == "segmentation"
         ):
             raise ServiceError("INVALID_OPTIONS", "Mode demo hanya boleh memakai pemrosesan lokal.")
-        if provider != "hive" and (parser == "hive-vlm" or translation_shadow):
+        if not hive_selected and (parser == "hive-vlm" or translation_shadow):
             raise ServiceError(
                 "HIVE_PROVIDER_REQUIRED",
                 "Parser dan terjemahan Hive memerlukan pemilihan pemrosesan eksternal Hive.",
             )
-        if provider == "hive" and not self.settings.hive_enabled:
+        if not deepseek_selected and parser == "deepseek-vlm":
+            raise ServiceError(
+                "DEEPSEEK_PROVIDER_REQUIRED",
+                "Parser DeepSeek memerlukan pemilihan pemrosesan eksternal DeepSeek.",
+            )
+        if region_method == "segmentation":
+            from aurora_visual.vision.segmentation import weights_available
+
+            if not weights_available(self.settings):
+                raise ServiceError(
+                    "SEGMENTATION_UNCONFIGURED",
+                    "Bobot Mask R-CNN belum diunduh; jalankan 'aurora models --download segmentation'.",
+                )
+        if hive_selected and not self.settings.hive_enabled:
             raise ServiceError("HIVE_DISABLED", "Pemrosesan eksternal Hive belum diaktifkan pada server.")
-        if provider == "hive" and not self.settings.hive_v3_secret:
+        if deepseek_selected and not self.settings.deepseek_enabled:
+            raise ServiceError("DEEPSEEK_DISABLED", "Provider DeepSeek belum diaktifkan pada server.")
+        if deepseek_selected and not self.settings.deepseek_api_key:
+            raise ServiceError(
+                "DEEPSEEK_KEY_REQUIRED", "Provider DeepSeek memerlukan API key pada konfigurasi server."
+            )
+        if hive_selected and not self.settings.hive_v3_secret:
             raise ServiceError(
                 "HIVE_V3_UNCONFIGURED",
                 "Hive V3 VLM wajib dikonfigurasi untuk atomisasi dan observasi multimodal.",

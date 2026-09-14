@@ -101,6 +101,12 @@ def main():
     p.add_argument("--output", default="artifacts/reports/llm-judge.json")
     p.add_argument("--url")
     p.add_argument("--model")
+    p = sub.add_parser("deepseek-test")
+    p.add_argument("--no-vision", action="store_true")
+    p.add_argument("--url", help="Override base URL (defaults to settings/env)")
+    p.add_argument("--model", help="Override model (defaults to settings/env)")
+    p.add_argument("--timeout", type=float, default=None)
+    p.add_argument("--output", default="artifacts/reports/deepseek-test.json")
     p = sub.add_parser("tune")
     p.add_argument("--manifest")
     p.add_argument("--smoke", action="store_true")
@@ -111,6 +117,11 @@ def main():
     p.add_argument("--storage", default="sqlite:///artifacts/tuning/optuna.db")
     p.add_argument("--output", default="artifacts/reports/tune.json")
     p.add_argument("--best-config", default="artifacts/tuning/best-config.json")
+    p = sub.add_parser("models")
+    p.add_argument("--download", action="append", default=[])
+    p.add_argument("--download-all", action="store_true")
+    p.add_argument("--status", action="store_true")
+    p.add_argument("--output", default="artifacts/reports/pretrained-models.json")
     args = parser.parse_args()
     if args.command == "evaluate-parser":
         from aurora_visual.evaluation.parser_benchmark import evaluate_parser
@@ -285,6 +296,26 @@ def main():
                     continue
         write(args.output, {"judge": judge.model, "records": triage_corpus(judge, records, args.limit)})
         return
+    if args.command == "deepseek-test":
+        from app.config import Settings
+        from app.services.settings_store import SettingsStore
+
+        from aurora_visual.deepseek import DeepSeekClient
+        from aurora_visual.deepseek import test_connection as test_deepseek_connection
+
+        settings = Settings()
+        # Use the same runtime overlay as the server (UI-configured values win).
+        SettingsStore(settings, settings.data_dir / "settings.json").load()
+        client = DeepSeekClient(
+            settings.deepseek_api_key,
+            args.url or settings.deepseek_base_url,
+            args.model or settings.deepseek_model,
+            args.timeout or settings.deepseek_timeout,
+            disable_thinking=settings.deepseek_disable_thinking,
+        )
+        report = test_deepseek_connection(client, vision=not args.no_vision)
+        write(args.output, report)
+        return
     if args.command == "tune":
         from aurora_visual.training.tuning import tune
 
@@ -309,6 +340,30 @@ def main():
         print(str(best_path.resolve()))
         summary["best_config_path"] = str(best_path)
         write(args.output, summary)
+        return
+    if args.command == "models":
+        from aurora_visual.pretrained import REGISTRY, download, status
+
+        data_dir = Path(os.environ.get("AURORA_DATA_DIR", "var")).resolve()
+        requested = list(args.download)
+        if args.download_all:
+            requested.extend(REGISTRY)
+        downloads = []
+        for capability in requested:
+            manifest = download(data_dir, capability, progress=print)
+            downloads.append(
+                {
+                    "capability": capability,
+                    "model_id": manifest["model_id"],
+                    "bytes": sum(item["bytes"] for item in manifest["files"]),
+                    "license": manifest["license"],
+                }
+            )
+        report = {
+            "downloads": downloads,
+            "status": status(data_dir),
+        }
+        write(args.output, report)
         return
     if args.command == "export-checkpoint":
         model, meta, _ = load_checkpoint(args.checkpoint)

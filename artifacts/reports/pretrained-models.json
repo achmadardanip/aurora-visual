@@ -1,0 +1,252 @@
+{
+  "downloads": [
+    {
+      "capability": "segmentation",
+      "model_id": "torchvision/maskrcnn-resnet50-fpn-coco",
+      "bytes": 178090079,
+      "license": "torchvision BSD-3-Clause; weights trained on COCO (annotations CC-BY 4.0; image licenses remain with original owners)"
+    },
+    {
+      "capability": "segmentation-advanced",
+      "model_id": "facebook/sam2.1-hiera-tiny",
+      "bytes": 156014119,
+      "license": "Apache-2.0"
+    },
+    {
+      "capability": "geolocation",
+      "model_id": "osv5m/baseline",
+      "bytes": 1296334649,
+      "license": "MIT"
+    },
+    {
+      "capability": "identity",
+      "model_id": "immich-app/buffalo_l (InsightFace)",
+      "bytes": 191313427,
+      "license": "InsightFace pretrained models are for non-commercial research use only; identity workflows also require consent under applicable law (UU PDP)"
+    }
+  ],
+  "status": {
+    "version": "pretrained-models-v1",
+    "capabilities": [
+      {
+        "capability": "segmentation",
+        "model_id": "torchvision/maskrcnn-resnet50-fpn-coco",
+        "source": "torchvision",
+        "license": "torchvision BSD-3-Clause; weights trained on COCO (annotations CC-BY 4.0; image licenses remain with original owners)",
+        "inference": "ready",
+        "available": true,
+        "files": [
+          {
+            "name": "maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth",
+            "sha256": "bf2d0c1efbc936eeee2bc95a48e80ebc86b891f61b0106485937fc29f9315fc0",
+            "bytes": 178090079
+          }
+        ],
+        "downloaded_at": "2026-09-14T08:08:40.305819+00:00"
+      },
+      {
+        "capability": "segmentation-advanced",
+        "model_id": "facebook/sam2.1-hiera-tiny",
+        "source": "hf",
+        "license": "Apache-2.0",
+        "inference": "not_wired",
+        "available": true,
+        "files": [
+          {
+            "name": ".cache/huggingface/.gitignore",
+            "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+            "bytes": 1
+          },
+          {
+            "name": ".cache/huggingface/CACHEDIR.TAG",
+            "sha256": "f6572428f6d5e1575e73a1502895a8731f10757dfbb634909c6e154b849af91d",
+            "bytes": 191
+          },
+          {
+            "name": ".cache/huggingface/download/sam2.1_hiera_t.yaml.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/sam2.1_hiera_t.yaml.metadata",
+            "sha256": "544695510f16e1921ebde6f436841ee5dce903e870e6abf5bdd5134897b1dd1f",
+            "bytes": 100
+          },
+          {
+            "name": ".cache/huggingface/download/sam2.1_hiera_tiny.pt.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/sam2.1_hiera_tiny.pt.metadata",
+            "sha256": "28b3c4ecb920bb95452f4ae23889b7cface45c3bec79f5ef528973edb1f942ad",
+            "bytes": 124
+          },
+          {
+            "name": ".cache/huggingface/trees/de431c4043854a71d8101e17995dfe596bf101a5.json",
+            "sha256": "82112f7e9a85b7147190b640fb63b4fb19cc820edce55f9cabcded489e385353",
+            "bytes": 1382
+          },
+          {
+            "name": "sam2.1_hiera_t.yaml",
+            "sha256": "43e114f609a1af7efede061f5c186119d498acd31f118f300c07acf57d4a5eca",
+            "bytes": 3855
+          },
+          {
+            "name": "sam2.1_hiera_tiny.pt",
+            "sha256": "7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69",
+            "bytes": 156008466
+          }
+        ],
+        "downloaded_at": "2026-09-14T08:09:00.942605+00:00"
+      },
+      {
+        "capability": "geolocation",
+        "model_id": "osv5m/baseline",
+        "source": "hf",
+        "license": "MIT",
+        "inference": "not_wired",
+        "available": true,
+        "files": [
+          {
+            "name": ".cache/huggingface/.gitignore",
+            "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+            "bytes": 1
+          },
+          {
+            "name": ".cache/huggingface/CACHEDIR.TAG",
+            "sha256": "f6572428f6d5e1575e73a1502895a8731f10757dfbb634909c6e154b849af91d",
+            "bytes": 191
+          },
+          {
+            "name": ".cache/huggingface/download/README.md.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/README.md.metadata",
+            "sha256": "6769f02b219610dc065b5e3fd5e6f76b57d6ea8d436236a0a475016f868b9131",
+            "bytes": 100
+          },
+          {
+            "name": ".cache/huggingface/download/config.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/config.json.metadata",
+            "sha256": "0a85cad69ff24e21477d575496339abd8c85897b5445b1f43aa069de0388ae66",
+            "bytes": 100
+          },
+          {
+            "name": ".cache/huggingface/download/pytorch_model.bin.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/pytorch_model.bin.metadata",
+            "sha256": "95546c5d694c0a98eab3b37bb3587bd08144f16a1f4d4ff8c4e803d22ef9fbf7",
+            "bytes": 124
+          },
+          {
+            "name": ".cache/huggingface/trees/71548b90ac4a1aa7c37839841f411a06da82b1a6.json",
+            "sha256": "9c0ab14a1044a58ff987de7b0ee378e11a982bae55251004db893629f77bff17",
+            "bytes": 639
+          },
+          {
+            "name": "README.md",
+            "sha256": "8cf03b2ce81e21d2e83c5fbee4841745ea6a992f0553cc19a00510cd3673d246",
+            "bytes": 3787
+          },
+          {
+            "name": "config.json",
+            "sha256": "e7bab062305f367d9539a33feabdfdb9aed05c157c1fe8a3423eec49898a1e18",
+            "bytes": 1302
+          },
+          {
+            "name": "pytorch_model.bin",
+            "sha256": "5fe92c356befa4a42e1c4daee8814aa3ee8e96a84028fd8d40c3a4fd27ffd7e1",
+            "bytes": 1296328405
+          }
+        ],
+        "downloaded_at": "2026-09-14T08:11:36.335934+00:00"
+      },
+      {
+        "capability": "identity",
+        "model_id": "immich-app/buffalo_l (InsightFace)",
+        "source": "hf",
+        "license": "InsightFace pretrained models are for non-commercial research use only; identity workflows also require consent under applicable law (UU PDP)",
+        "inference": "not_wired",
+        "available": true,
+        "files": [
+          {
+            "name": ".cache/huggingface/.gitignore",
+            "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+            "bytes": 1
+          },
+          {
+            "name": ".cache/huggingface/CACHEDIR.TAG",
+            "sha256": "f6572428f6d5e1575e73a1502895a8731f10757dfbb634909c6e154b849af91d",
+            "bytes": 191
+          },
+          {
+            "name": ".cache/huggingface/download/README.md.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/README.md.metadata",
+            "sha256": "4c1f02d2e4d12235eeedbf4065d581ec8b2104773ad9eb0a13b60b5d189d7b3e",
+            "bytes": 101
+          },
+          {
+            "name": ".cache/huggingface/download/detection/model.onnx.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/detection/model.onnx.metadata",
+            "sha256": "1de9b17d882cbe5a79052cdc8a95d03a55d310ce344c99d9a4b1609e3877c8ad",
+            "bytes": 124
+          },
+          {
+            "name": ".cache/huggingface/download/recognition/model.onnx.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "name": ".cache/huggingface/download/recognition/model.onnx.metadata",
+            "sha256": "2677b737482886b425eded058f0b059aec350127b2e88b0e5a3b7c8da59da959",
+            "bytes": 124
+          },
+          {
+            "name": ".cache/huggingface/trees/d09715916a0778919a770c343533641e250b8699.json",
+            "sha256": "cb2bd75768f8608773b7559155e99b71a22b7f408473b99c38f5961be8dd924d",
+            "bytes": 4617
+          },
+          {
+            "name": "README.md",
+            "sha256": "9a133eb2022cdbfc1fceb70d317668fda5c90edec600c6c775a237d3ee1c4476",
+            "bytes": 582
+          },
+          {
+            "name": "detection/model.onnx",
+            "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+            "bytes": 16923827
+          },
+          {
+            "name": "recognition/model.onnx",
+            "sha256": "4c06341c33c2ca1f86781dab0e829f88ad5b64be9fba56e56bc9ebdefc619e43",
+            "bytes": 174383860
+          }
+        ],
+        "downloaded_at": "2026-09-14T08:12:02.666596+00:00"
+      }
+    ],
+    "model_free": {
+      "relations-attributes": "Uses the project's configured OpenCLIP backbone (already integrated) with VL-CheckList-style probes; no separate checkpoint.",
+      "photo-date-validation": "No established pretrained checkpoint; combination of EXIF metadata inspection (local) and DeepSeek/Hive VLM reasoning over visible cues, evaluated against a human-annotated corpus.",
+      "three-state-head": "Excluded by design: the S/C/U head is the project's own trained component (aurora train/tune), not a pretrained model."
+    }
+  }
+}

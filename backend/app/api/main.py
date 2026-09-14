@@ -5,8 +5,11 @@ import time
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
+from aurora_visual.deepseek import DeepSeekClient
+from aurora_visual.deepseek import test_connection as test_deepseek_connection
 from aurora_visual.mafindo import MafindoClient
 from aurora_visual.ocr.engine import capability as ocr_capability
+from aurora_visual.vision.segmentation import weights_available as segmentation_available
 from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -183,6 +186,31 @@ def create_app(settings=None, embedded_worker=True):
                 "message": "Metadata diperiksa lokal; manifest C2PA diurai dan tanda tangannya divalidasi c2pa-python; detektor Hive/SynthID opsional dilaporkan terpisah bila dikonfigurasi",
             },
             {
+                "provider": "deepseek-flash",
+                "mode": "external opt-in",
+                "capability": "atomizer and multimodal observations (stage 2-3)",
+                "status": (
+                    "ok" if settings.deepseek_enabled and settings.deepseek_api_key else "unconfigured"
+                ),
+                "message": (
+                    "DeepSeek Flash (vision + json_object) siap; hasil selalu divalidasi ulang "
+                    "terhadap kontrak dan bukan kebenaran faktual"
+                    if settings.deepseek_enabled and settings.deepseek_api_key
+                    else "Setel AURORA_DEEPSEEK_API_KEY server-side untuk mengaktifkan DeepSeek Flash"
+                ),
+            },
+            {
+                "provider": "torchvision-maskrcnn",
+                "mode": "live",
+                "capability": "pretrained segmentation proposals and object counting",
+                "status": ("ok" if segmentation_available(settings) else "unconfigured"),
+                "message": (
+                    "Mask R-CNN COCO terunduh; dipakai sebagai proposal region (bukan klaim)"
+                    if segmentation_available(settings)
+                    else "Jalankan 'aurora models --download segmentation' untuk mengunduh bobot"
+                ),
+            },
+            {
                 "provider": "synthid-detector",
                 "mode": "external opt-in",
                 "capability": "SynthID invisible watermark detection (stage 1)",
@@ -337,6 +365,41 @@ def create_app(settings=None, embedded_worker=True):
             },
             "applied": True,
         }
+
+    @app.post("/api/v1/providers/deepseek/test")
+    async def deepseek_test(request: Request):
+        """Local-only connectivity diagnostic for the DeepSeek provider.
+
+        Sends one minimal JSON-mode request and one tiny inline image; the
+        response contains status codes, latencies, and the base URL host only.
+        Never returns or logs the API key.
+        """
+        if settings.public:
+            raise ServiceError(
+                "DIAGNOSTIC_DISABLED",
+                "Diagnostik provider hanya tersedia pada instance lokal tepercaya.",
+                404,
+            )
+        body = {}
+        raw = await request.body()
+        if raw:
+            try:
+                body = strict_json(raw)
+            except ValueError:
+                body = {}
+            if not isinstance(body, dict) or set(body) - {"vision"}:
+                raise ServiceError("INVALID_DIAGNOSTIC", "Body diagnostik tidak dikenal.", 422)
+        vision = body.get("vision", True)
+        if not isinstance(vision, bool):
+            raise ServiceError("INVALID_DIAGNOSTIC", "vision harus boolean.", 422)
+        client = DeepSeekClient(
+            settings.deepseek_api_key,
+            settings.deepseek_base_url,
+            settings.deepseek_model,
+            settings.deepseek_timeout,
+            disable_thinking=settings.deepseek_disable_thinking,
+        )
+        return test_deepseek_connection(client, vision=vision)
 
     @app.get("/api/v1/providers/mafindo/latest")
     def mafindo_latest(request: Request, limit: int = 1):

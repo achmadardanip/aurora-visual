@@ -1,0 +1,9 @@
+downloading torchvision/maskrcnn-resnet50-fpn-coco
+downloading facebook/sam2.1-hiera-tiny
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 2 files:  50%|█████     | 1/2 [00:00<00:00,  1.19it/s]Fetching 2 files: 100%|██████████| 2/2 [00:18<00:00, 10.90s/it]Fetching 2 files: 100%|██████████| 2/2 [00:18<00:00,  9.39s/it]
+downloading osv5m/baseline
+Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Fetching 3 files:  33%|███▎      | 1/3 [00:00<00:01,  1.23it/s]Fetching 3 files:  67%|██████▋   | 2/3 [00:00<00:00,  2.25it/s]Fetching 3 files: 100%|██████████| 3/3 [02:34<00:00, 70.19s/it]Fetching 3 files: 100%|██████████| 3/3 [02:34<00:00, 51.40s/it]
+downloading immich-app/buffalo_l
+Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Fetching 3 files:  33%|███▎      | 1/3 [00:00<00:00,  3.08it/s]Fetching 3 files:  67%|██████▋   | 2/3 [00:09<00:05,  5.68s/it]Fetching 3 files: 100%|██████████| 3/3 [00:25<00:00, 10.34s/it]Fetching 3 files: 100%|██████████| 3/3 [00:25<00:00,  8.55s/it]
+/Users/ardan/Developer/aurora-visual/artifacts/reports/pretrained-models.json

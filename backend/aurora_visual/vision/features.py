@@ -82,6 +82,49 @@ def grid_regions(image, asset_id, run_id, top_k=16, start=0):
     return result, crops
 
 
+def segmentation_regions(image, asset_id, run_id, top_k=16, start=0, proposer=None, settings=None):
+    """Pretrained Mask R-CNN proposals replacing the grid; never a semantic claim."""
+    if proposer is None:
+        from aurora_visual.vision.segmentation import InstanceSegmenter
+
+        proposer = InstanceSegmenter.load(settings)
+    detections = proposer.propose(image, top_k=max(1, min(32, top_k)))
+    if not detections:
+        # No confident instance: fall back to the covering grid rather than an
+        # empty region set (absence of detection is not evidence).
+        return grid_regions(image, asset_id, run_id, top_k, start)
+    result, crops = [], []
+    for detection in detections:
+        x1, y1, x2, y2 = detection["bbox"]
+        box = (x1, y1, x2, y2)
+        label = str(detection.get("label", "object"))[:100]
+        score = detection.get("score")
+        result.append(
+            Region(
+                region_id=f"rg_{run_id.replace('-', '')}_{start + len(result) + 1:06d}",
+                asset_id=asset_id,
+                bbox=box,
+                score=float(score) if score is not None else None,
+                description=f"Mask R-CNN: {label} ({float(score):.2f}); proposal, bukan klaim".replace(
+                    " (nan)", ""
+                )[:500]
+                if score is not None
+                else f"Mask R-CNN: {label}; proposal, bukan klaim",
+            )
+        )
+        crops.append(
+            image.crop(
+                (
+                    round(x1 * image.width),
+                    round(y1 * image.height),
+                    round(x2 * image.width),
+                    round(y2 * image.height),
+                )
+            )
+        )
+    return result, crops
+
+
 def openclip_config(model=None, pretrained=None):
     """Resolve OpenCLIP config from explicit runtime settings, falling back to env."""
     model = model if model is not None else os.getenv("AURORA_OPENCLIP_MODEL", "ViT-B-32")
@@ -126,14 +169,25 @@ def extract(
     caption=None,
     openclip_model=None,
     openclip_pretrained=None,
+    region_method="grid",
+    region_proposer=None,
 ):
-    regions, crops = grid_regions(image, media.asset_id, run_id, top_k)
+    if region_method == "segmentation":
+        regions, crops = segmentation_regions(image, media.asset_id, run_id, top_k, 0, region_proposer)
+    elif region_method == "grid":
+        regions, crops = grid_regions(image, media.asset_id, run_id, top_k)
+    else:
+        raise ValueError("Unknown region method")
     descriptions = [a.statement for a in atoms] + [
         caption if caption is not None else " ".join(a.statement for a in atoms)
     ]
     config = {
         "backbone": backbone,
-        "preprocessing": "exif-rgb-covering-grid-global-caption-v3",
+        "preprocessing": (
+            "exif-rgb-covering-grid-global-caption-v3"
+            if region_method == "grid"
+            else "exif-rgb-covering-maskrcnn-global-caption-v3"
+        ),
         "top_k": top_k,
         "language": language,
         "library_version": version("open-clip-torch") if backbone == "openclip" else "local-color-v1",
@@ -191,6 +245,9 @@ def extract_multi(
     caption=None,
     openclip_model=None,
     openclip_pretrained=None,
+    region_method="grid",
+    region_proposer=None,
+    region_settings=None,
 ):
     """Extract merged features for several images: regions and crops from every asset.
 
@@ -200,7 +257,14 @@ def extract_multi(
     """
     all_regions, groups = [], []
     for image, media in zip(images, medias):
-        regions, crops = grid_regions(image, media.asset_id, run_id, top_k, start=len(all_regions))
+        if region_method == "segmentation":
+            regions, crops = segmentation_regions(
+                image, media.asset_id, run_id, top_k, len(all_regions), region_proposer, region_settings
+            )
+        elif region_method == "grid":
+            regions, crops = grid_regions(image, media.asset_id, run_id, top_k, start=len(all_regions))
+        else:
+            raise ValueError("Unknown region method")
         all_regions.extend(regions)
         groups.append((image, crops))
     descriptions = [a.statement for a in atoms] + [
@@ -208,7 +272,11 @@ def extract_multi(
     ]
     config = {
         "backbone": backbone,
-        "preprocessing": "exif-rgb-covering-grid-global-caption-v3",
+        "preprocessing": (
+            "exif-rgb-covering-grid-global-caption-v3"
+            if region_method == "grid"
+            else "exif-rgb-covering-maskrcnn-global-caption-v3"
+        ),
         "top_k": top_k,
         "language": language,
         "library_version": version("open-clip-torch") if backbone == "openclip" else "local-color-v1",

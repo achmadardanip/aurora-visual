@@ -125,6 +125,24 @@ type HiveExtension = {
     canonical_caption_unchanged: boolean;
   };
 };
+type DeepseekExtension = {
+  mode: string;
+  egress?: { caption_stage2?: boolean; normalized_preview_stage3?: boolean };
+  stage2?: {
+    provider: string;
+    model?: string;
+    status: string;
+    atom_count?: number;
+    error_code?: string;
+  } | null;
+  stage3?: {
+    provider: string;
+    model?: string;
+    status: string;
+    observations?: unknown[];
+    interpretation?: string;
+  } | null;
+};
 type SynthidExtension = {
   mode: string;
   egress?: { original_media_stage1?: boolean };
@@ -278,6 +296,35 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
       {
         name: "hive_v2_translation_key",
         label: "V2 translation key (opsional)",
+      },
+    ],
+  },
+  {
+    title: "DeepSeek Flash (vision)",
+    description:
+      "Provider eksternal opt-in untuk atomizer Tahap 2 dan observasi multimodal Tahap 3. Model deepseek-flash (vision + JSON output) dari api.deepseek.com; respons selalu divalidasi ulang terhadap kontrak AURORA. Aktifkan hanya dengan API key server-side.",
+    fields: [
+      { name: "deepseek_enabled", label: "Aktifkan provider DeepSeek" },
+      {
+        name: "deepseek_base_url",
+        label: "Base URL API",
+        hint: "harus https; gateway New API/one-api sertakan /v1 (mis. https://seekai.cc/v1)",
+      },
+      {
+        name: "deepseek_model",
+        label: "Nama model",
+        hint: "default deepseek-flash (V4.1 Flash, vision)",
+      },
+      {
+        name: "deepseek_api_key",
+        label: "API key (wajib saat aktif)",
+        hint: "hanya disimpan di server",
+      },
+      { name: "deepseek_timeout", label: "Timeout (detik)", hint: "1–120" },
+      {
+        name: "deepseek_disable_thinking",
+        label:
+          "Kirim thinking=disabled (API resmi DeepSeek; gateway tertentu menolak)",
       },
     ],
   },
@@ -499,8 +546,11 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [backbone, setBackbone] = useState("local-color-v1");
   const [alignment, setAlignment] = useState("uot");
-  const [provider, setProvider] = useState<"local" | "hive">("local");
-  const [synthidDetector, setSynthidDetector] = useState(false);
+  const [hiveProvider, setHiveProvider] = useState(false);
+  const [deepseekProvider, setDeepseekProvider] = useState(false);
+  const [regionMethod, setRegionMethod] = useState<"grid" | "segmentation">(
+    "grid",
+  );
   const [parser, setParser] = useState<"rules" | "llm">("rules");
   const [editing, setEditing] = useState<Atom[] | null>(null);
   const [reason, setReason] = useState("");
@@ -512,6 +562,19 @@ export default function App() {
   const [settingsDraft, setSettingsDraft] = useState<
     Record<string, string | boolean>
   >({});
+  const [deepseekTest, setDeepseekTest] = useState<{
+    status: string;
+    message?: string;
+    base_url_host?: string;
+    model?: string;
+    checks?: {
+      name: string;
+      status: string;
+      duration_ms?: number;
+      http_status?: number;
+    }[];
+  } | null>(null);
+  const [deepseekTesting, setDeepseekTesting] = useState(false);
   const lastRequest = useRef<{ payload: AuroraBundle; key: string } | null>(
     null,
   );
@@ -535,27 +598,39 @@ export default function App() {
         timing?: { total_ms: number };
         screening?: Screening;
         hive?: HiveExtension | null;
+        deepseek?: DeepseekExtension | null;
         synthid?: SynthidExtension | null;
         correction?: { reason: string };
       }
     | undefined;
   const screening = extension?.screening;
   const hive = extension?.hive;
-  const synthid = extension?.synthid;
+  const deepseek = extension?.deepseek;
   const hiveV3Ready = capabilities.some(
     (capability) =>
       capability.provider === "hive-v3-vlm" && capability.status === "ok",
   );
-  const synthidReady = capabilities.some(
+  const deepseekReady = capabilities.some(
     (capability) =>
-      capability.provider === "synthid-detector" && capability.status === "ok",
+      capability.provider === "deepseek-flash" && capability.status === "ok",
+  );
+  const segmentationReady = capabilities.some(
+    (capability) =>
+      capability.provider === "torchvision-maskrcnn" &&
+      capability.status === "ok",
   );
   const ollamaReady = capabilities.some(
     (capability) =>
       capability.provider === "ollama" && capability.status === "ok",
   );
   const activeProvider =
-    mode === "live" && provider === "hive" ? "Hive eksternal" : "Lokal";
+    mode === "live" && hiveProvider && deepseekProvider
+      ? "Hive + DeepSeek"
+      : mode === "live" && hiveProvider
+        ? "Hive eksternal"
+        : mode === "live" && deepseekProvider
+          ? "DeepSeek Flash"
+          : "Lokal";
   const detectorSummary = screening?.detectors
     .map((detector) => statusLabel(detector.status))
     .filter((value, index, values) => values.indexOf(value) === index)
@@ -630,6 +705,29 @@ export default function App() {
       setError((e as Error).message);
     }
   }
+  async function runDeepseekTest() {
+    setDeepseekTesting(true);
+    try {
+      const result = await api<NonNullable<typeof deepseekTest>>(
+        "/api/v1/providers/deepseek/test",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vision: true }),
+        },
+      );
+      setDeepseekTest(result);
+    } catch (err) {
+      setDeepseekTest({
+        status: "failed",
+        message: err instanceof Error ? err.message : String(err),
+        checks: [],
+      });
+    } finally {
+      setDeepseekTesting(false);
+    }
+  }
+
   async function saveSettings() {
     if (!settingsData || !Object.keys(settingsDraft).length) return;
     await guard(async () => {
@@ -724,11 +822,25 @@ export default function App() {
     setMode(data.mode);
     const savedOptions = (
       data.extensions.aurora_visual as
-        | { options?: { provider?: "local" | "hive"; parser?: string } }
+        | {
+            options?: {
+              provider?: "local" | "hive" | "deepseek";
+              hive?: boolean;
+              deepseek?: boolean;
+              parser?: string;
+            };
+          }
         | undefined
     )?.options;
-    setProvider(
-      data.mode === "demo" ? "local" : savedOptions?.provider || "local",
+    setHiveProvider(
+      data.mode === "demo"
+        ? false
+        : (savedOptions?.hive ?? savedOptions?.provider === "hive"),
+    );
+    setDeepseekProvider(
+      data.mode === "demo"
+        ? false
+        : (savedOptions?.deepseek ?? savedOptions?.provider === "deepseek"),
     );
     setParser(savedOptions?.parser === "llm" ? "llm" : "rules");
     setSelected(data.analysis?.atomic_claims[0]?.atom_id || null);
@@ -918,14 +1030,17 @@ export default function App() {
             parser:
               mode === "demo"
                 ? "rules"
-                : provider === "hive"
-                  ? "hive-vlm"
-                  : parser,
+                : deepseekProvider
+                  ? "deepseek-vlm"
+                  : hiveProvider
+                    ? "hive-vlm"
+                    : parser,
             head: "heuristic",
             top_k: 16,
-            provider: mode === "demo" ? "local" : provider,
+            hive: mode === "live" && hiveProvider,
+            deepseek: mode === "live" && deepseekProvider,
+            region_method: mode === "demo" ? "grid" : regionMethod,
             translation_shadow: false,
-            synthid_detector: mode === "live" && synthidDetector,
           },
         },
       };
@@ -1097,7 +1212,7 @@ export default function App() {
             </strong>
           </div>
           <span
-            className={`local-pill ${provider === "hive" && mode === "live" ? "external" : ""}`}
+            className={`local-pill ${mode === "live" && (hiveProvider || deepseekProvider) ? "external" : ""}`}
           >
             <span className="online-dot" /> {activeProvider}
           </span>
@@ -1187,7 +1302,8 @@ export default function App() {
                       className={mode === "demo" ? "active" : ""}
                       onClick={() => {
                         setMode("demo");
-                        setProvider("local");
+                        setHiveProvider(false);
+                        setDeepseekProvider(false);
                       }}
                     >
                       <FlaskConical size={14} /> Demo
@@ -1331,8 +1447,8 @@ export default function App() {
                         </span>
                         <strong>Pilih atau letakkan beberapa gambar</strong>
                         <span>
-                          {mode === "live" && provider === "hive"
-                            ? "Unggahan disimpan di AURORA; analisis Hive hanya setelah persetujuan"
+                          {mode === "live" && (hiveProvider || deepseekProvider)
+                            ? "Unggahan disimpan di AURORA; pemrosesan eksternal hanya setelah persetujuan"
                             : "Gambar akan diproses di workspace lokal"}
                         </span>
                         <em>
@@ -1406,62 +1522,30 @@ export default function App() {
                     </div>
                     {mode === "live" && (
                       <div className="provider-choice">
-                        <span>Pemrosesan</span>
-                        <label>
-                          <input
-                            type="radio"
-                            name="provider"
-                            value="local"
-                            checked={provider === "local"}
-                            onChange={() => setProvider("local")}
-                            disabled={!!running}
-                          />
-                          Lokal
-                        </label>
-                        <label>
-                          <input
-                            type="radio"
-                            name="provider"
-                            value="hive"
-                            checked={provider === "hive"}
-                            onChange={() => setProvider("hive")}
-                            disabled={!!running || !hiveV3Ready}
-                          />
-                          Hive eksternal
-                        </label>
-                      </div>
-                    )}
-                    {mode === "live" && (
-                      <div className="provider-choice synthid-choice">
-                        <span>Watermark SynthID (Tahap 1)</span>
+                        <span>Pemrosesan eksternal (boleh keduanya)</span>
                         <label>
                           <input
                             type="checkbox"
-                            checked={synthidDetector}
-                            onChange={(e) =>
-                              setSynthidDetector(e.target.checked)
-                            }
-                            disabled={!!running || !synthidReady}
+                            checked={hiveProvider}
+                            onChange={(e) => setHiveProvider(e.target.checked)}
+                            disabled={!!running || !hiveV3Ready}
                           />
-                          {synthidReady
-                            ? "Kirim byte asli ke gateway SynthID Detector"
-                            : "Gateway belum dikonfigurasi di server"}
+                          Hive · deteksi AI &amp; deepfake (Tahap 1)
+                        </label>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={deepseekProvider}
+                            onChange={(e) =>
+                              setDeepseekProvider(e.target.checked)
+                            }
+                            disabled={!!running || !deepseekReady}
+                          />
+                          DeepSeek Flash · multimodal (Tahap 2–3)
                         </label>
                       </div>
                     )}
-                    {mode === "live" && synthidDetector && synthidReady && (
-                      <div className="egress-disclosure" role="note">
-                        <ShieldCheck size={16} />
-                        <span>
-                          Dengan mencentang watermark SynthID, byte gambar asli
-                          dikirim ke gateway SynthID Detector yang dikonfigurasi
-                          admin. Hasil deteksi adalah indikasi asal konten,
-                          bukan bukti autentisitas atau kebenaran caption;
-                          ketiadaan watermark bukan bukti gambar kamera.
-                        </span>
-                      </div>
-                    )}
-                    {mode === "live" && provider === "local" && (
+                    {mode === "live" && !hiveProvider && !deepseekProvider && (
                       <div className="field-row">
                         <label>
                           Parser klaim (Tahap 2)
@@ -1482,6 +1566,38 @@ export default function App() {
                         </label>
                       </div>
                     )}
+                    {mode === "live" && (
+                      <div className="field-row">
+                        <label>
+                          Wilayah visual (Tahap 3)
+                          <select
+                            value={regionMethod}
+                            onChange={(e) =>
+                              setRegionMethod(
+                                e.target.value as "grid" | "segmentation",
+                              )
+                            }
+                            disabled={!!running}
+                          >
+                            <option value="grid">Grid penutup (default)</option>
+                            <option
+                              value="segmentation"
+                              disabled={!segmentationReady}
+                            >
+                              Mask R-CNN pretrained (proposal objek)
+                              {segmentationReady
+                                ? ""
+                                : " · bobot belum diunduh"}
+                            </option>
+                          </select>
+                        </label>
+                        <p className="field-hint">
+                          Segmentasi adalah proposal objek pretrained (COCO),
+                          bukan klaim semantik; tanpa deteksi yang cukup, gambar
+                          memakai grid dan hasil diberi peringatan.
+                        </p>
+                      </div>
+                    )}
                     {mode === "live" && !hiveV3Ready && (
                       <p className="provider-unavailable">
                         Hive belum dapat dipilih: secret V3 (wajib) belum
@@ -1489,16 +1605,33 @@ export default function App() {
                         Tahap 1–3 tetap berfungsi hanya dengan V3.
                       </p>
                     )}
-                    {mode === "live" && provider === "hive" && (
+                    {mode === "live" && deepseekProvider && (
                       <div className="egress-disclosure" role="note">
                         <ShieldCheck size={16} />
                         <span>
-                          Dengan menjalankan analisis, byte gambar asli dikirim
-                          ke Hive untuk deteksi AI/deepfake Tahap 1 (model
-                          deteksi V3; project V2 enterprise dipakai bila
-                          dikonfigurasi); preview ternormalisasi dan caption
-                          dikirim untuk Tahap 2–3 (VLM V3). Kredensial tetap di
-                          server. Kebijakan retensi provider berlaku.
+                          Dengan memilih DeepSeek Flash, caption kanonis dikirim
+                          untuk atomisasi Tahap 2 dan preview gambar
+                          ternormalisasi dikirim untuk observasi multimodal
+                          Tahap 3 (byte asli tidak dikirim). Model adalah
+                          deepseek-flash dengan mode vision + json_object;
+                          setiap respons divalidasi ulang terhadap kontrak
+                          AURORA dan tetap bukan kebenaran faktual.
+                        </span>
+                      </div>
+                    )}
+                    {mode === "live" && !deepseekReady && (
+                      <p className="provider-unavailable">
+                        DeepSeek Flash belum dapat dipilih: API key server-side
+                        belum dikonfigurasi (AURORA_DEEPSEEK_API_KEY).
+                      </p>
+                    )}
+                    {mode === "live" && hiveProvider && (
+                      <div className="egress-disclosure" role="note">
+                        <ShieldCheck size={16} />
+                        <span>
+                          {deepseekProvider
+                            ? "Hive menerima byte gambar asli hanya untuk deteksi AI/deepfake Tahap 1 (model V3). Caption dan preview untuk analisis multimodal Tahap 2–3 dikirim ke DeepSeek Flash. Kredensial tetap di server; kebijakan retensi provider berlaku."
+                            : "Dengan menjalankan analisis, byte gambar asli dikirim ke Hive untuk deteksi AI/deepfake Tahap 1 (model deteksi V3; project V2 enterprise dipakai bila dikonfigurasi); preview ternormalisasi dan caption dikirim untuk Tahap 2–3 (VLM V3). Kredensial tetap di server. Kebijakan retensi provider berlaku."}
                         </span>
                       </div>
                     )}
@@ -1508,7 +1641,7 @@ export default function App() {
                   <span>
                     <ShieldCheck size={15} />{" "}
                     {mode === "live"
-                      ? provider === "hive"
+                      ? hiveProvider || deepseekProvider
                         ? "Pemrosesan eksternal dipilih · hasil probabilistik dan jalur lokal tetap diaudit"
                         : "Komputasi lokal nyata · hasil heuristik konservatif"
                       : "Fixture berlabel jelas, tanpa klaim akurasi"}
@@ -1668,6 +1801,48 @@ export default function App() {
                           ))}
                         </ul>
                       </details>
+                    </section>
+                  )}
+                  {deepseek && (
+                    <section
+                      className="hive-provenance"
+                      aria-labelledby="deepseek-title"
+                    >
+                      <div className="hive-provenance-title">
+                        <ShieldCheck size={17} />
+                        <div>
+                          <h3 id="deepseek-title">Jejak pemrosesan DeepSeek</h3>
+                          <p>
+                            {deepseek.stage2?.model || "deepseek-flash"} ·
+                            egress caption Tahap 2 dan preview ternormalisasi
+                            Tahap 3; byte asli tidak dikirim. Hasil selalu
+                            divalidasi ulang dan bukan kebenaran faktual.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hive-stage-grid">
+                        <div>
+                          <span>Tahap 2 · atomizer</span>
+                          <strong>
+                            {statusLabel(deepseek.stage2?.status)}
+                          </strong>
+                          <small>
+                            {deepseek.stage2?.error_code
+                              ? `kode: ${deepseek.stage2.error_code}`
+                              : "Atom divalidasi terhadap kontrak kanonis"}
+                          </small>
+                        </div>
+                        <div>
+                          <span>Tahap 3 · observasi VLM</span>
+                          <strong>
+                            {statusLabel(deepseek.stage3?.status)}
+                          </strong>
+                          <small>
+                            Observasi probabilistik berregion; konflik dengan
+                            jalur lokal ditahan sebagai Tidak teramati.
+                          </small>
+                        </div>
+                      </div>
                     </section>
                   )}
                   {hive && (
@@ -2324,6 +2499,61 @@ export default function App() {
                         </label>
                       );
                     })}
+                    {group.title === "DeepSeek Flash (vision)" && (
+                      <div className="deepseek-test">
+                        <button
+                          className="button"
+                          type="button"
+                          disabled={busy || deepseekTesting}
+                          onClick={() => void runDeepseekTest()}
+                        >
+                          {deepseekTesting ? (
+                            <LoaderCircle className="spin" size={16} />
+                          ) : (
+                            <Activity size={16} />
+                          )}{" "}
+                          Tes koneksi + vision
+                        </button>
+                        <small>
+                          Uji memakai konfigurasi tersimpan di server (simpan
+                          dulu jika baru diubah). Mengirim satu permintaan JSON
+                          kecil + satu gambar uji 16×16; API key tidak pernah
+                          dikembalikan.
+                        </small>
+                        {deepseekTest && (
+                          <div
+                            className={`deepseek-test-result ${deepseekTest.status}`}
+                            role="status"
+                          >
+                            <strong>{deepseekTest.status}</strong>
+                            {deepseekTest.model
+                              ? ` · ${deepseekTest.model}`
+                              : ""}
+                            {deepseekTest.base_url_host
+                              ? ` · ${deepseekTest.base_url_host}`
+                              : ""}
+                            {deepseekTest.message
+                              ? ` — ${deepseekTest.message}`
+                              : ""}
+                            {deepseekTest.checks?.length ? (
+                              <ul>
+                                {deepseekTest.checks.map((check) => (
+                                  <li key={check.name}>
+                                    {check.name}: {check.status}
+                                    {typeof check.duration_ms === "number"
+                                      ? ` (${Math.round(check.duration_ms)} ms)`
+                                      : ""}
+                                    {check.http_status
+                                      ? ` · HTTP ${check.http_status}`
+                                      : ""}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </section>
                 ))}
               </div>

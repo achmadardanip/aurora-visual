@@ -1,0 +1,21 @@
+{
+  "provider": "deepseek-flash",
+  "base_url_host": "seekai.cc",
+  "model": "deepseek-v4.1-flash",
+  "status": "ok",
+  "vision_requested": true,
+  "checks": [
+    {
+      "name": "chat-json",
+      "status": "ok",
+      "duration_ms": 2889.01
+    },
+    {
+      "name": "vision-json",
+      "status": "ok",
+      "duration_ms": 1612.651,
+      "observed_color": "red"
+    }
+  ],
+  "message": "Koneksi, autentikasi, json_object, dan input gambar (vision) berhasil. Diagnostik konektivitas; bukan penilaian mutu model."
+}

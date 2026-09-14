@@ -44,6 +44,7 @@ Perintah tersebut meminta endpoint `latest(1)`, menyembunyikan URL/credential da
 | `make browser-test` | Instal browser pengujian bila belum tersedia, lalu uji desktop/ponsel dengan database terpisah |
 | `make evaluate` | Training CPU fixture 3 epoch dan metrik/intervensi fitur pada test fixture |
 | `make experiments` | Training ulang 11 baseline/ablation/probe pada satu seed smoke |
+| `make deepseek-live-test` | Tes koneksi provider DeepSeek (auth + json_object + vision) dengan laporan kode kegagalan |
 | `make tune-smoke` | Optuna TPE tuning fixture (15 trial) + ekspor best config |
 | `make modal-smoke` | Smoke training+tuning fixture pada GPU serverless Modal (T4) |
 | `make build` | Build frontend produksi |
@@ -54,7 +55,7 @@ Perintah tersebut meminta endpoint `latest(1)`, menyembunyikan URL/credential da
 
 Hasil aktual disimpan di `artifacts/reports/`; JSON/ZIP/CSV/overlay untuk serah terima di `artifacts/handoff/`. Screenshot browser desktop/ponsel dan catatan smoke browser disertakan. Metrik fixture adalah pemeriksaan perangkat lunak, **bukan hasil penelitian**. Lihat [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 
-CLI tambahan: `uv run aurora --help` menyediakan `train`, `resume`, `predict`, `evaluate`, `cache-features`, `export-checkpoint`, `experiments`, `validate`, `schema`, `weak-supervision`, `import-dataset`, `mafindo-corpus`, `judge`, dan `tune`. Contoh:
+CLI tambahan: `uv run aurora --help` menyediakan `train`, `resume`, `predict`, `evaluate`, `cache-features`, `export-checkpoint`, `experiments`, `validate`, `schema`, `weak-supervision`, `import-dataset`, `mafindo-corpus`, `judge`, `tune`, dan `models`. Contoh:
 
 ```sh
 uv run aurora resume --smoke --epochs 5 --checkpoint artifacts/checkpoints/smoke.pt --output artifacts/checkpoints/resumed.pt
@@ -69,6 +70,9 @@ uv run aurora judge --task triage --input data/mafindo/corpus.jsonl --limit 200 
 uv run aurora judge --task weak-pairs --caption "Dua mahasiswa berunjuk rasa di depan rektorat" --output artifacts/reports/llm-judge-weak.json
 # Tuning hyperparameter Optuna (TPE); fixture = smoke engineering saja.
 uv run aurora tune --smoke --trials 20 --epochs 5 --best-config artifacts/tuning/best-config.json
+# Model pretrained kapabilitas (kecuali head S/C/U): unduh eksplisit + lisensi + sha256.
+uv run aurora models --download segmentation --download geolocation --download identity
+uv run aurora models --status --output artifacts/reports/pretrained-models.json
 # Importer dataset kapabilitas (file lokal sah + license-note; tanpa unduhan otomatis).
 uv run aurora import-dataset --source snli-ve --input /data/snli-ve/train.jsonl --image-root /data/flickr30k --split train --license-note '...' --output data/manifests/snli-ve-train.jsonl
 uv run aurora import-dataset --source sa1b --input /data/sa1b/sa_1.json --image-root /data/sa1b/images --split train --license-note '...' --output data/manifests/sa1b.jsonl
@@ -80,9 +84,13 @@ uv run aurora import-dataset --source sa1b --input /data/sa1b/sa_1.json --image-
 
 Salin `.env.example` menjadi `.env` jika diperlukan; jangan masukkan secret ke frontend. `var/aurora.db` menyimpan kasus, snapshot revisi, audit dan job; `var/media`, `var/derived`, `var/cache`, `var/artifacts` menyimpan berkas. Jangan menghapus folder ini untuk melakukan restart.
 
+Model pretrained kapabilitas dikelola registri `aurora models` (unduh eksplisit ke `var/models`, manifest lisensi + sha256; head S/C/U dikecualikan karena dilatih proyek). Segmentasi objek memakai Mask R-CNN COCO beku: `uv run aurora models --download segmentation`, lalu pilih **Wilayah visual → Mask R-CNN pretrained** pada analisis live (opsi `region_method=segmentation`); tanpa deteksi yang cukup gambar memakai grid dengan warning. SAM 2.1, OSV-5M baseline, dan InsightFace buffalo_l (non-komersial riset) juga dapat diunduh dari registri namun adapter inference-nya belum diaktifkan. `AURORA_SEGMENTATION_WEIGHTS` menunjuk file bobot khusus; detail per kapabilitas ada di [docs/data.md](docs/data.md).
+
 `AURORA_OPENCLIP_PRETRAINED` menerima checkpoint lokal atau nama pretrained yang didukung OpenCLIP. Nama remote mengizinkan unduhan bobot saat fitur dipilih; verifikasi lisensi bobot dan ruang disk sebelum mengaktifkannya. `AURORA_OPENCLIP_MODEL` default `ViT-B-32`; untuk tag `openai` gunakan `ViT-B-32-quickgelu` agar aktivasi QuickGELU cocok. Model beku, tidak menggunakan random weights sebagai hasil. `AURORA_CHECKPOINT` hanya untuk checkpoint head dengan metadata lengkap dan `data_kind=research`; checkpoint smoke ditolak pada live. Dukungan Indonesia OpenCLIP standar belum divalidasi.
 
-Hive adalah provider eksternal opt-in per analisis (mode live): secret **V3 wajib** saat `AURORA_HIVE_ENABLED=true` dan mengaktifkan tiga jalur — deteksi **AI-generated & deepfake** pada byte asli (Tahap 1, model `hive/ai-generated-and-deepfake-content-detection`, ambang provider 0.9), **atomizer VLM** (Tahap 2), dan **observasi multimodal** (Tahap 3). Project key **V2 bersifat opsional** (enterprise; origin/OCR/objek/scene/orang/logo/selebriti/terjemahan) — tanpa kunci V2 seluruh tahap tetap berfungsi. Kredensial hanya disimpan server-side. Deteksi watermark SynthID adalah jalur terpisah: `AURORA_SYNTHID_ENABLED=true` mewajibkan `AURORA_SYNTHID_ENDPOINT` (gateway operator) + `AURORA_SYNTHID_API_KEY`, dan pengguna tetap memilih opt-in per analisis pada UI.
+Hive dan DeepSeek Flash adalah pemrosesan eksternal opt-in **per analisis** (mode live) yang **dapat dicentang bersamaan**: Hive untuk deteksi AI-generated & deepfake Tahap 1 (byte asli), DeepSeek Flash untuk atomizer + observasi multimodal Tahap 2–3 (caption + preview). Bila keduanya dipilih, Hive hanya menjalankan Tahap 1 dan DeepSeek menangani Tahap 2–3. Deteksi watermark SynthID tetap tersedia di lapisan API/konfigurasi server tetapi tidak lagi ditampilkan pada layar analisis.
+
+DeepSeek Flash (`deepseek-flash`, V4.1) adalah provider eksternal opt-in per analisis (mode live) untuk atomizer Tahap 2 dan observasi multimodal Tahap 3: vision + json_object pada endpoint OpenAI-compatible `https://api.deepseek.com`, tanpa thinking mode untuk ekstraksi deterministik, dan setiap respons divalidasi ulang terhadap kontrak. Aktifkan dengan `AURORA_DEEPSEEK_ENABLED=true` + `AURORA_DEEPSEEK_API_KEY` (server-side); byte asli tidak dikirim (hanya caption + preview ternormalisasi). Tersedia **fitur tes koneksi** (tombol "Tes koneksi + vision" di halaman Pengaturan atau `make deepseek-live-test`): mengirim satu permintaan JSON kecil + satu gambar 16×16 dan melaporkan kode kegagalan yang dapat ditindaklanjuti (auth, endpoint bukan API, kuota/parameter provider, rate limit, timeout). Untuk gateway New API/one-api, base URL harus menyertakan `/v1` (mis. `https://host/v1`) dan biarkan `thinking` tidak dikirim kecuali memakai API resmi DeepSeek. Hive adalah provider eksternal opt-in per analisis (mode live): secret **V3 wajib** saat `AURORA_HIVE_ENABLED=true` dan mengaktifkan tiga jalur — deteksi **AI-generated & deepfake** pada byte asli (Tahap 1, model `hive/ai-generated-and-deepfake-content-detection`, ambang provider 0.9), **atomizer VLM** (Tahap 2), dan **observasi multimodal** (Tahap 3). Project key **V2 bersifat opsional** (enterprise; origin/OCR/objek/scene/orang/logo/selebriti/terjemahan) — tanpa kunci V2 seluruh tahap tetap berfungsi. Kredensial hanya disimpan server-side. Deteksi watermark SynthID adalah jalur terpisah: `AURORA_SYNTHID_ENABLED=true` mewajibkan `AURORA_SYNTHID_ENDPOINT` (gateway operator) + `AURORA_SYNTHID_API_KEY`, dan pengguna tetap memilih opt-in per analisis pada UI.
 
 ## Docker dan satu server
 

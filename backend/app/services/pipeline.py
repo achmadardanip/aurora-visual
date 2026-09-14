@@ -7,6 +7,14 @@ import httpx
 import torch
 from aurora_visual.alignment.uot import align
 from aurora_visual.atomization.parser import HiveVLMAtomizer, RuleAtomizer, StructuredLLMAtomizer
+from aurora_visual.deepseek import (
+    DeepSeekAtomizer,
+    DeepSeekClient,
+    DeepSeekError,
+)
+from aurora_visual.deepseek import (
+    warning_for_error as deepseek_warning_for_error,
+)
 from aurora_visual.entailment.reasoning import assess
 from aurora_visual.hive import (
     PROVIDER_REGION_START,
@@ -53,6 +61,22 @@ def now():
     return datetime.now(timezone.utc)
 
 
+def provider_flags(options):
+    """Resolve per-analysis external provider opt-ins.
+
+    New clients send independent booleans (``hive``/``deepseek``) so both can
+    run together: Hive for stage-1 AI/deepfake detection, DeepSeek Flash for
+    stage-2/3 multimodal analysis. The legacy single ``provider`` string stays
+    accepted for compatibility and is mapped onto the same booleans.
+    """
+    if not isinstance(options, dict):
+        return False, False
+    if "hive" in options or "deepseek" in options:
+        return bool(options.get("hive", False)), bool(options.get("deepseek", False))
+    legacy = options.get("provider", "local")
+    return legacy == "hive", legacy == "deepseek"
+
+
 def analyze(bundle, run_id, settings, media_service, owner="local", progress=lambda _: None):
     started = now()
     clock = time.perf_counter()
@@ -66,6 +90,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
     method = options.get("alignment", "uot")
     backbone = options.get("backbone", settings.backbone)
     top_k = options.get("top_k", 16)
+    region_method = options.get("region_method", "grid")
     progress("Memeriksa asal media dan mengurai klaim")
     assets = []
     for media in bundle.input.images:
@@ -84,15 +109,25 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             }
         )
     primary = assets[0]
-    use_hive = bundle.mode == "live" and settings.hive_enabled and options.get("provider", "local") == "hive"
+    hive_selected, deepseek_selected = provider_flags(options)
+    use_hive = bundle.mode == "live" and settings.hive_enabled and hive_selected
+    use_deepseek = bundle.mode == "live" and settings.deepseek_enabled and deepseek_selected
+    # When both providers are selected, Hive keeps stage-1 AI/deepfake detection
+    # (original bytes) and DeepSeek Flash owns stages 2-3 (multimodal analysis).
+    vlm_hive = use_hive and not use_deepseek
     parser_name = options.get("parser", "rules")
     if not use_hive and (parser_name == "hive-vlm" or options.get("translation_shadow", False)):
         raise ValueError("HIVE_PROVIDER_REQUIRED")
+    if not use_deepseek and parser_name == "deepseek-vlm":
+        raise ValueError("DEEPSEEK_PROVIDER_REQUIRED")
     if use_hive and not settings.hive_v3_secret:
         # V3 is the mandatory Hive credential; validated at config time and
         # enforced here so a mis-built settings object cannot silently degrade.
         raise ValueError("HIVE_V3_REQUIRED")
+    if use_deepseek and not settings.deepseek_api_key:
+        raise ValueError("DEEPSEEK_KEY_REQUIRED")
     hive_extension = None
+    deepseek_extension = None
     warnings = []
     hive_v2_models = []
     hive_v2_groups = []
@@ -103,10 +138,12 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "egress": {
                 # Original bytes leave the server for stage-1 AI/deepfake
                 # detection: via the mandatory V3 detection model (default) or
-                # the optional V2 enterprise origin project.
+                # the optional V2 enterprise origin project. Preview/caption for
+                # stages 2-3 are only sent when Hive runs the VLM (i.e. DeepSeek
+                # is not selected for multimodal analysis).
                 "original_media_stage1": True,
-                "normalized_preview_stage3": True,
-                "caption_stage2_3": True,
+                "normalized_preview_stage3": vlm_hive,
+                "caption_stage2_3": vlm_hive,
             },
             "stage1": None,
             "stage2": None,
@@ -316,7 +353,41 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "parent_atom_set_id": bundle.analysis.atom_set_id,
         }
     else:
-        if parser_name == "hive-vlm" and use_hive:
+        if parser_name == "deepseek-vlm" and use_deepseek:
+            deepseek_extension = {
+                "mode": "external",
+                "egress": {"caption_stage2": True, "normalized_preview_stage3": True},
+                "stage2": None,
+                "stage3": None,
+            }
+            try:
+                parser = DeepSeekAtomizer(
+                    DeepSeekClient(
+                        settings.deepseek_api_key,
+                        settings.deepseek_base_url,
+                        settings.deepseek_model,
+                        settings.deepseek_timeout,
+                        disable_thinking=settings.deepseek_disable_thinking,
+                    )
+                )
+                parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
+                deepseek_extension["stage2"] = {
+                    "provider": "deepseek-flash",
+                    "model": settings.deepseek_model,
+                    "status": "ok",
+                    "atom_count": len(parsed.atoms),
+                }
+            except (DeepSeekError, ValueError) as exc:
+                code = exc.code if isinstance(exc, DeepSeekError) else "atomizer_invalid"
+                warnings.append(deepseek_warning_for_error(code, "deepseek_atomizer"))
+                parsed = RuleAtomizer().parse(bundle.input.claim_text, bundle.input.language)
+                deepseek_extension["stage2"] = {
+                    "provider": "deepseek-flash",
+                    "model": settings.deepseek_model,
+                    "status": "failed_fallback_rules",
+                    "error_code": code,
+                }
+        elif parser_name == "hive-vlm" and use_hive:
             try:
                 parser = HiveVLMAtomizer(HiveV3Client(settings.hive_v3_secret, settings.hive_timeout))
                 parsed = parser.parse(bundle.input.claim_text, bundle.input.language)
@@ -442,7 +513,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             "ocr_provenance": hive_ocr_provenance,
             "regions": [region.model_dump(mode="json") for region in provider_regions],
         }
-    elif use_hive:
+    elif vlm_hive:
         hive_extension["stage3"] = {
             "provider": "hive-v2",
             "representation": "normalized_preview",
@@ -464,7 +535,22 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         bundle.input.claim_text,
         openclip_model=settings.openclip_model,
         openclip_pretrained=settings.openclip_pretrained,
+        region_method=region_method,
+        region_settings=settings,
     )
+    if region_method == "segmentation" and any(
+        region.description.startswith("Grid") for region in features["regions"]
+    ):
+        warnings.append(
+            Warning(
+                code="REGION_SEGMENTATION_FALLBACK",
+                message=(
+                    "Mask R-CNN tidak menemukan instance di salah satu gambar; grid penutup "
+                    "dipakai untuk gambar itu. Ini bukan klaim semantik."
+                ),
+                component="vision",
+            )
+        )
     if backbone == "local-color-v1":
         warnings.append(
             Warning(
@@ -500,7 +586,7 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             )
         )
     assessments = assess(atoms, features, transport, ocr, fixture=bundle.mode == "demo")
-    if use_hive:
+    if vlm_hive:
         try:
             vlm_client = HiveV3Client(settings.hive_v3_secret, settings.hive_timeout)
             vlm_observations = []
@@ -537,6 +623,47 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             hive_extension["stage3"] = {
                 **existing,
                 "vlm": {"provider": "hive-v3-vlm", "status": code},
+            }
+    if use_deepseek:
+        try:
+            deepseek_client = DeepSeekClient(
+                settings.deepseek_api_key,
+                settings.deepseek_base_url,
+                settings.deepseek_model,
+                settings.deepseek_timeout,
+                disable_thinking=settings.deepseek_disable_thinking,
+            )
+            deepseek_observations = []
+            for index, asset in enumerate(assets):
+                raw_observations = deepseek_client.observe(
+                    asset["preview_path"], "image/png", bundle.input.claim_text, atoms
+                )
+                asset_observations = normalize_observations(
+                    raw_observations, {atom.atom_id for atom in atoms}
+                )
+                deepseek_observations.extend(asset_observations)
+                assessments = fuse_observations(
+                    assessments,
+                    asset_observations,
+                    atoms,
+                    asset["ref"],
+                    run_id,
+                    start=PROVIDER_REGION_START + 200_000 + index * 10_000,
+                )
+            deepseek_extension["stage3"] = {
+                "provider": "deepseek-flash",
+                "model": settings.deepseek_model,
+                "status": "ok",
+                "observations": deepseek_observations,
+                "interpretation": "probabilistic_visual_observation_requiring_review",
+            }
+        except (DeepSeekError, ValueError) as exc:
+            code = exc.code if isinstance(exc, DeepSeekError) else "observation_invalid"
+            warnings.append(deepseek_warning_for_error(code, "deepseek_vlm_observation"))
+            deepseek_extension["stage3"] = {
+                "provider": "deepseek-flash",
+                "model": settings.deepseek_model,
+                "status": code,
             }
     logits = None
     checkpoint_meta = None
@@ -604,12 +731,14 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
     elapsed = (time.perf_counter() - clock) * 1000
     # Review advisories (external/parser output needing human audit) accompany
     # successful runs; only degraded or failed components mark a run partial.
-    review_only = {"LLM_REVIEW", "HIVE_ATOMIZER_REVIEW"}
+    review_only = {"LLM_REVIEW", "HIVE_ATOMIZER_REVIEW", "DEEPSEEK_ATOMIZER_REVIEW"}
     partial = any(
         (
             w.code in ("OCR_UNAVAILABLE", "OCR_FAILED", "UOT_NONCONVERGENCE", "LLM_FALLBACK_RULES")
             or w.code.startswith("HIVE_")
             or w.code.startswith("SYNTHID_")
+            or w.code.startswith("DEEPSEEK_")
+            or w.code == "REGION_SEGMENTATION_FALLBACK"
         )
         and w.code not in review_only
         for w in warnings
@@ -656,13 +785,14 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
             for asset in assets
         ],
         "hive": hive_extension,
+        "deepseek": deepseek_extension,
         "synthid": synthid_extension,
         "method": {
             "backbone": backbone,
             "alignment": method,
             "checkpoint": checkpoint_meta,
             "mode": "fixture" if bundle.mode == "demo" else "trained" if logits is not None else "heuristic",
-            "region_method": "grid",
+            "region_method": region_method,
             "calibration": "unavailable",
         },
         "diagnostics": transport.diagnostics,

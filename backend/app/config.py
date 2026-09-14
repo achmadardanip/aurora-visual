@@ -40,6 +40,12 @@ UI_FIELDS: dict[str, tuple[str, bool]] = {
     "synthid_endpoint": ("str", False),
     "synthid_api_key": ("str", True),
     "synthid_timeout": ("float", False),
+    "deepseek_enabled": ("bool", False),
+    "deepseek_base_url": ("str", False),
+    "deepseek_model": ("str", False),
+    "deepseek_api_key": ("str", True),
+    "deepseek_timeout": ("float", False),
+    "deepseek_disable_thinking": ("bool", False),
 }
 UI_RANGES = {
     "max_upload_mb": (1, 50),
@@ -49,6 +55,7 @@ UI_RANGES = {
     "mafindo_timeout": (1, 60),
     "hive_timeout": (1, 120),
     "synthid_timeout": (1, 120),
+    "deepseek_timeout": (1, 120),
 }
 
 
@@ -90,6 +97,11 @@ def normalize_overlay(values: dict) -> dict:
         parsed = urlsplit(endpoint)
         if parsed.scheme not in ("http", "https") or parsed.username or not parsed.netloc:
             raise ValueError("synthid_endpoint harus URL http(s) lengkap tanpa kredensial")
+    deepseek_url = result.get("deepseek_base_url")
+    if deepseek_url:
+        parsed = urlsplit(deepseek_url)
+        if parsed.scheme != "https" or parsed.username or not parsed.netloc:
+            raise ValueError("deepseek_base_url harus URL https lengkap tanpa kredensial")
     for origin in (o.strip() for o in result.get("llm_allowed_origins", "").split(",")):
         if origin and ("*" in origin or "@" in origin):
             raise ValueError("llm_allowed_origins harus origin eksplisit tanpa wildcard/kredensial")
@@ -121,6 +133,19 @@ def validate_synthid_policy(values: dict):
         raise ValueError(
             "synthid_enabled memerlukan synthid_endpoint dan synthid_api_key: gateway SynthID "
             "Detector wajib dikonfigurasi sebelum deteksi watermark diaktifkan"
+        )
+
+
+def validate_deepseek_policy(values: dict):
+    """DeepSeek is opt-in; enabling it requires an API key.
+
+    Raises ValueError when DeepSeek is enabled without a key so no state can
+    advertise the provider while unable to call it.
+    """
+    if values.get("deepseek_enabled") and not values.get("deepseek_api_key"):
+        raise ValueError(
+            "deepseek_enabled memerlukan deepseek_api_key: provider DeepSeek wajib "
+            "dikonfigurasi sebelum dipilih per analisis"
         )
 
 
@@ -178,6 +203,24 @@ class Settings:
         default_factory=lambda: float(os.getenv("AURORA_SYNTHID_TIMEOUT_SECONDS", "45"))
     )
     c2pa_trust_anchors: str = field(default_factory=lambda: os.getenv("AURORA_C2PA_TRUST_ANCHORS", ""))
+    deepseek_enabled: bool = field(
+        default_factory=lambda: os.getenv("AURORA_DEEPSEEK_ENABLED", "false").lower() == "true"
+    )
+    deepseek_base_url: str = field(
+        default_factory=lambda: os.getenv("AURORA_DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    )
+    deepseek_model: str = field(default_factory=lambda: os.getenv("AURORA_DEEPSEEK_MODEL", "deepseek-flash"))
+    deepseek_api_key: str = field(default_factory=lambda: os.getenv("AURORA_DEEPSEEK_API_KEY", ""))
+    deepseek_timeout: float = field(
+        default_factory=lambda: float(os.getenv("AURORA_DEEPSEEK_TIMEOUT_SECONDS", "90"))
+    )
+    deepseek_disable_thinking: bool = field(
+        default_factory=lambda: os.getenv("AURORA_DEEPSEEK_DISABLE_THINKING", "false").lower() == "true"
+    )
+    segmentation_model: str = field(
+        default_factory=lambda: os.getenv("AURORA_SEGMENTATION_MODEL", "maskrcnn_resnet50_fpn_coco")
+    )
+    segmentation_weights: str = field(default_factory=lambda: os.getenv("AURORA_SEGMENTATION_WEIGHTS", ""))
     allowed_hosts: list[str] = field(
         default_factory=lambda: [
             item.strip()
@@ -226,7 +269,8 @@ class Settings:
         normalize_overlay(self.overlay_values())
         validate_hive_policy(self.overlay_values())
         validate_synthid_policy(self.overlay_values())
-        for name in ("media", "derived", "artifacts", "cache"):
+        validate_deepseek_policy(self.overlay_values())
+        for name in ("media", "derived", "artifacts", "cache", "models"):
             (self.data_dir / name).mkdir(parents=True, exist_ok=True)
 
 

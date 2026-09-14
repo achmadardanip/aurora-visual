@@ -1,0 +1,65 @@
+uv run python scripts/dev.py
+
+> aurora-visual-ui@1.0.0 dev
+> vite --host 127.0.0.1 --port 5171
+
+
+  VITE v6.4.3  ready in 88 ms
+
+  ➜  Local:   http://127.0.0.1:5171/
+INFO:     Started server process [45265]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8101 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49578 - "POST /api/v1/analyze HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49578 - "GET /api/v1/jobs/9cb840e9-26f7-4b7a-b3a2-02a89d82d397 HTTP/1.1" 200 OK

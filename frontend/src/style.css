@@ -2329,3 +2329,49 @@ h1 {
     transition: none !important;
   }
 }
+
+.deepseek-test {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.deepseek-test small {
+  color: #66778c;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.deepseek-test-result {
+  padding: 10px 12px;
+  border: 1px solid #dfe6ef;
+  border-left: 3px solid #587fae;
+  border-radius: 6px;
+  background: #f7fafd;
+  color: #435a75;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.deepseek-test-result.ok {
+  border-left-color: #3f8f6b;
+  background: #f3faf6;
+}
+.deepseek-test-result.failed {
+  border-left-color: #b45858;
+  background: #fdf6f6;
+}
+.deepseek-test-result.partial {
+  border-left-color: #b08a3e;
+  background: #fdfaf2;
+}
+.deepseek-test-result ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  color: #66778c;
+  font-size: 10px;
+  line-height: 1.6;
+  max-width: 60ch;
+}

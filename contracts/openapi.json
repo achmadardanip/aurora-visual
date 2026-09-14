@@ -68,6 +68,23 @@
         }
       }
     },
+    "/api/v1/providers/deepseek/test": {
+      "post": {
+        "summary": "Deepseek Test",
+        "description": "Local-only connectivity diagnostic for the DeepSeek provider.\n\nSends one minimal JSON-mode request and one tiny inline image; the\nresponse contains status codes, latencies, and the base URL host only.\nNever returns or logs the API key.",
+        "operationId": "deepseek_test_api_v1_providers_deepseek_test_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/providers/mafindo/latest": {
       "get": {
         "summary": "Mafindo Latest",
