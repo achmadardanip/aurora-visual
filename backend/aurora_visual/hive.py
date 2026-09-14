@@ -67,7 +67,8 @@ def _request_json(
         if response.status_code == 429:
             raise HiveError("rate_limited")
         if response.status_code >= 400:
-            raise HiveError("http_error")
+            # The HTTP status is part of the code (http_error_503) for diagnosis.
+            raise HiveError(f"http_error_{response.status_code}")
         content = _read_response(response, limit)
     try:
         payload = strict_json(content)

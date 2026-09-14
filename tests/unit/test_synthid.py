@@ -119,7 +119,7 @@ def test_bounded_strings_in_verdict():
 
 @pytest.mark.parametrize(
     ("status_code", "code"),
-    [(429, "rate_limited"), (500, "http_error"), (403, "http_error")],
+    [(429, "rate_limited"), (500, "http_error_500"), (403, "http_error_403")],
 )
 def test_http_failures_map_to_error_codes(status_code, code):
     client = SynthIDClient(

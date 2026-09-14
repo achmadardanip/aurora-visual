@@ -127,7 +127,20 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
     if use_deepseek and not settings.deepseek_api_key:
         raise ValueError("DEEPSEEK_KEY_REQUIRED")
     hive_extension = None
-    deepseek_extension = None
+    # DeepSeek runs stage 3 (multimodal observation) even when stage 2
+    # (external atomization) is skipped — atoms preserved from a parent
+    # analysis, or a local parser — so the extension must exist whenever
+    # the provider is selected, not only for the VLM atomizer.
+    deepseek_extension = (
+        {
+            "mode": "external",
+            "egress": {"caption_stage2": False, "normalized_preview_stage3": True},
+            "stage2": None,
+            "stage3": None,
+        }
+        if use_deepseek
+        else None
+    )
     warnings = []
     hive_v2_models = []
     hive_v2_groups = []
@@ -354,12 +367,8 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         }
     else:
         if parser_name == "deepseek-vlm" and use_deepseek:
-            deepseek_extension = {
-                "mode": "external",
-                "egress": {"caption_stage2": True, "normalized_preview_stage3": True},
-                "stage2": None,
-                "stage3": None,
-            }
+            # External atomization additionally sends the canonical caption.
+            deepseek_extension["egress"]["caption_stage2"] = True
             try:
                 parser = DeepSeekAtomizer(
                     DeepSeekClient(

@@ -110,6 +110,9 @@ def test_parse_atoms_uses_json_mode_without_thinking():
     assert seen["auth"] == "Bearer test-key"
     assert seen["body"]["model"] == "deepseek-flash"
     assert seen["body"]["response_format"] == {"type": "json_object"}
+    # Extraction calls request the full budget: reasoning tokens on thinking
+    # models count against max_tokens.
+    assert seen["body"]["max_tokens"] == 8192
     # Default: the optional thinking field is omitted for gateway compatibility.
     assert "thinking" not in seen["body"]
     assert seen["body"]["temperature"] == 0
@@ -191,7 +194,7 @@ def test_malformed_responses_are_rejected(response):
 
 @pytest.mark.parametrize(
     ("status_code", "code"),
-    [(429, "rate_limited"), (500, "http_error"), (404, "http_error")],
+    [(429, "rate_limited"), (500, "http_error_500"), (404, "http_error_404")],
 )
 def test_http_failures_map_to_error_codes(status_code, code):
     client = DeepSeekClient(
@@ -202,6 +205,28 @@ def test_http_failures_map_to_error_codes(status_code, code):
     with pytest.raises(DeepSeekError) as excinfo:
         client.parse_atoms(CAPTION, "id")
     assert excinfo.value.code == code
+
+
+def test_thinking_model_budget_exhaustion_is_reported_as_truncated():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {"message": {"content": ""}, "finish_reason": "length"},
+                ]
+            },
+        )
+
+    client = DeepSeekClient("test-key", transport=httpx.MockTransport(handler))
+    with pytest.raises(DeepSeekError) as excinfo:
+        client.parse_atoms(CAPTION, "id")
+    assert excinfo.value.code == "response_truncated"
+    # Not transient: retrying the same budget cannot help, so exactly one call.
+    assert len(calls) == 1
 
 
 def test_redirect_is_rejected():
@@ -345,6 +370,46 @@ def test_deepseek_run_uses_provider_for_stages_2_and_3(tmp_path, monkeypatch):
     assert assessment.supporting_regions
 
 
+def test_deepseek_reanalysis_with_preserved_atoms_runs_stage3(tmp_path, monkeypatch):
+    settings, media, ref = pipeline_fixture(tmp_path)
+    monkeypatch.setattr("app.services.pipeline.DeepSeekClient", StubDeepSeekClient)
+    first = analyze(
+        live_bundle(ref, {"provider": "deepseek", "parser": "deepseek-vlm"}),
+        str(uuid4()),
+        settings,
+        media,
+    )
+    bundle = live_bundle(ref, {"provider": "deepseek", "parser": "deepseek-vlm"})
+    bundle.case_id, bundle.claim_revision = first.case_id, first.claim_revision
+    bundle.analysis = first.analysis
+    result = analyze(bundle, str(uuid4()), settings, media)
+    extension = result.extensions["aurora_visual"]["deepseek"]
+    # Stage 2 is skipped locally (atoms preserved); stage 3 still observes.
+    assert extension["stage2"] is None
+    assert extension["stage3"]["status"] == "ok"
+    assert extension["egress"] == {"caption_stage2": False, "normalized_preview_stage3": True}
+    assert result.analysis.atom_set_id == first.analysis.atom_set_id
+    codes = [warning.code for warning in result.analysis.run.warnings]
+    assert not any(code.startswith("DEEPSEEK_") for code in codes)
+    assert result.analysis.run.status == "completed"
+
+
+def test_deepseek_with_local_parser_still_observes(tmp_path, monkeypatch):
+    settings, media, ref = pipeline_fixture(tmp_path)
+    monkeypatch.setattr("app.services.pipeline.DeepSeekClient", StubDeepSeekClient)
+    result = analyze(
+        live_bundle(ref, {"provider": "deepseek", "parser": "rules"}),
+        str(uuid4()),
+        settings,
+        media,
+    )
+    extension = result.extensions["aurora_visual"]["deepseek"]
+    assert extension["stage2"] is None
+    assert extension["stage3"]["status"] == "ok"
+    assert extension["egress"] == {"caption_stage2": False, "normalized_preview_stage3": True}
+    assert result.analysis.run.status == "completed"
+
+
 def test_deepseek_failure_falls_back_to_rules_and_partial(tmp_path, monkeypatch):
     settings, media, ref = pipeline_fixture(tmp_path)
     monkeypatch.setattr("app.services.pipeline.DeepSeekClient", FailingDeepSeekClient)
@@ -469,7 +534,7 @@ def test_connection_probe_partial_when_vision_fails():
     report = deepseek_test_connection(client, vision=True)
     assert report["status"] == "partial"
     assert report["checks"][0]["status"] == "ok"
-    assert report["checks"][1]["status"] == "http_error"
+    assert report["checks"][1]["status"] == "http_error_404"
     assert report["checks"][1]["http_status"] == 404
 
 

@@ -132,7 +132,8 @@ class SynthIDClient:
                     if response.status_code == 429:
                         raise SynthIDError("rate_limited")
                     if response.status_code >= 400:
-                        raise SynthIDError("http_error")
+                        # The HTTP status is part of the code (http_error_503) for diagnosis.
+                        raise SynthIDError(f"http_error_{response.status_code}")
                     content = _read_response(response)
             payload = strict_json(content)
         except SynthIDError:

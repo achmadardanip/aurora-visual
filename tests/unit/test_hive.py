@@ -126,7 +126,7 @@ def test_v2_translation_uses_exact_text_data_and_language_options():
     [
         (httpx.Response(302, headers={"location": "https://example.invalid"}), "redirect_rejected"),
         (httpx.Response(429, json={"error": "limited"}), "rate_limited"),
-        (httpx.Response(503, text="private provider body"), "http_error"),
+        (httpx.Response(503, text="private provider body"), "http_error_503"),
         (
             httpx.Response(200, headers={"content-length": str(_MAX_V2_RESPONSE + 1)}),
             "response_too_large",

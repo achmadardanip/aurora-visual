@@ -163,7 +163,7 @@ type Job = {
   job_id: string;
   status: string;
   progress: string;
-  error: { message: string } | null;
+  error: { message: string; detail?: string } | null;
   result: AuroraBundle | null;
 };
 type FieldKind = "str" | "bool" | "int" | "float";
@@ -397,10 +397,14 @@ const detectorStatus: Record<string, string> = {
   failed_fallback_rules: "Gagal · aturan lokal dipakai",
   not_applicable: "Tidak berlaku",
 };
-const statusLabel = (status?: string) =>
-  status
-    ? detectorStatus[status] || status.replaceAll("_", " ")
-    : "Belum tersedia";
+const statusLabel = (status?: string) => {
+  if (!status) return "Belum tersedia";
+  if (status.startsWith("http_error"))
+    return status.length > "http_error".length
+      ? `Provider gagal (HTTP ${status.slice("http_error".length + 1)})`
+      : "Provider gagal";
+  return detectorStatus[status] || status.replaceAll("_", " ");
+};
 const score = (v: number | null | undefined) =>
   v == null ? "Tidak tersedia" : v.toFixed(3);
 
@@ -796,7 +800,12 @@ export default function App() {
                 : "Analisis selesai. Pilih atom untuk menelusuri bukti.",
             );
           }
-          if (next.error) setError(next.error.message);
+          if (next.error)
+            setError(
+              next.error.detail
+                ? `${next.error.message} (${next.error.detail})`
+                : next.error.message,
+            );
           void refresh();
         }
       } catch (e) {

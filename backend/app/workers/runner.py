@@ -1,6 +1,7 @@
 """Persistent queue with process isolation, bounded retries and supervisor leases."""
 
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -17,13 +18,16 @@ from app.services.media import MediaService
 from app.services.pipeline import analyze
 
 
-def fail(session, job_id, code, message, retryable=False):
+def fail(session, job_id, code, message, retryable=False, detail=None):
     with session.begin() as s:
         job = s.get(Job, job_id)
         if job and job.status == "running":
             job.status = "failed"
             job.progress = message
-            job.error = {"code": code, "message": message, "retryable": retryable}
+            error = {"code": code, "message": message, "retryable": retryable}
+            if detail:
+                error["detail"] = detail
+            job.error = error
             s.add(
                 Audit(
                     id=str(uuid4()),
@@ -91,9 +95,14 @@ def execute(settings, session, job_id):
                 )
             )
     except Exception as exc:
+        text = str(exc)
+        # Only developer-defined contract codes (e.g. DEEPSEEK_KEY_REQUIRED,
+        # pure A-Z/0-9/_) are surfaced verbatim; other exception text may
+        # embed captions or secrets, so it degrades to the type name.
+        detail = text if re.fullmatch(r"[A-Z][A-Z0-9_]{3,63}", text) else type(exc).__name__
         code = (
             "MODEL_UNAVAILABLE"
-            if any(w in str(exc).upper() for w in ("CHECKPOINT", "OPENCLIP", "CONFIGURED"))
+            if any(w in text.upper() for w in ("CHECKPOINT", "OPENCLIP", "CONFIGURED"))
             else "ANALYSIS_FAILED"
         )
         fail(
@@ -102,6 +111,7 @@ def execute(settings, session, job_id):
             code,
             "Analisis gagal. Periksa konfigurasi model atau input; riwayat request tetap tersimpan.",
             False,
+            detail,
         )
         # Local diagnostics retain type only; no secrets/captions in logs.
         print(f"Job {job_id}: {type(exc).__name__}: {code}", file=sys.stderr)

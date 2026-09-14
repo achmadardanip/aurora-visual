@@ -24,6 +24,10 @@ DEEPSEEK_MODEL = "deepseek-flash"
 _MAX_RESPONSE = 4_000_000
 _MAX_CONTENT = 512_000
 _MAX_DATA_URI_BYTES = 20_000_000
+# Reasoning tokens count against max_tokens on thinking models, so the
+# extraction calls request the full budget; a smaller cap made a thinking
+# model spend it all on reasoning and return empty content.
+_COMPLETION_TOKENS = 8192
 
 
 class DeepSeekError(Exception):
@@ -85,7 +89,9 @@ class DeepSeekClient:
                     "timeout",
                     "network_error",
                     "malformed_response",
-                ) or (exc.code == "http_error" and exc.status is not None and 500 <= exc.status < 600)
+                ) or (
+                    exc.code.startswith("http_error") and exc.status is not None and 500 <= exc.status < 600
+                )
                 if not transient or attempt >= self.retries:
                     raise
                 last = exc
@@ -134,7 +140,9 @@ class DeepSeekClient:
                     if response.status_code == 429:
                         raise DeepSeekError("rate_limited", 429)
                     if response.status_code >= 400:
-                        raise DeepSeekError("http_error", response.status_code)
+                        # The HTTP status is part of the code (http_error_503)
+                        # so warnings and UI records stay diagnosable.
+                        raise DeepSeekError(f"http_error_{response.status_code}", response.status_code)
                     content_type = str(response.headers.get("content-type", ""))
                     content = _read_response(response, _MAX_RESPONSE)
         except DeepSeekError:
@@ -157,11 +165,17 @@ class DeepSeekClient:
             # Gateways may forward provider errors with HTTP 200.
             raise DeepSeekError("provider_error")
         try:
-            message = payload["choices"][0]["message"]["content"]
+            choice = payload["choices"][0]
+            message = choice["message"]["content"]
         except (KeyError, IndexError, TypeError, ValueError):
             raise DeepSeekError("malformed_response") from None
         if not isinstance(message, str) or len(message.encode()) > _MAX_CONTENT:
             raise DeepSeekError("malformed_response")
+        if not message.strip() and choice.get("finish_reason") == "length":
+            # A thinking model spent the whole completion budget on reasoning
+            # and emitted no content. Distinct from malformed JSON: the fix is
+            # a larger budget (or disabling thinking), not a retry.
+            raise DeepSeekError("response_truncated")
         decoded = _decode_json_content(message)
         if not isinstance(decoded, dict):
             raise DeepSeekError("malformed_response")
@@ -190,7 +204,7 @@ class DeepSeekClient:
                 ),
             },
         ]
-        return self._chat(messages, 2048)
+        return self._chat(messages, _COMPLETION_TOKENS)
 
     def observe(self, path, media_type: str, caption: str, atoms: list[Atom]) -> dict:
         raw = path.read_bytes()
@@ -222,7 +236,7 @@ class DeepSeekClient:
                 ],
             }
         ]
-        return self._chat(messages, 2048)
+        return self._chat(messages, _COMPLETION_TOKENS)
 
 
 class DeepSeekAtomizer:
