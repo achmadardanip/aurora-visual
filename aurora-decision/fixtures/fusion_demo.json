@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "11111111-2222-3333-4444-555555555555",
+  "claim_revision": 1,
+  "mode": "demo",
+  "created_at": "2026-09-15T00:00:00Z",
+  "input": {
+    "claim_text": "Gedung sate dibangun pada tahun 1920 dan memiliki 6 lantai.",
+    "language": "id",
+    "images": [],
+    "as_of": null
+  },
+  "analysis": {
+    "run": {
+      "run_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "mode": "demo",
+      "started_at": "2026-09-15T00:00:00Z",
+      "finished_at": "2026-09-15T00:00:01Z",
+      "status": "completed",
+      "versions": {
+        "service": "demo-importer",
+        "parser": "manual-annotation-v1"
+      },
+      "warnings": [
+        {
+          "code": "SYNTHETIC_FIXTURE",
+          "message": "Anotasi atom manual sintetis untuk pengujian fusi.",
+          "component": "demo"
+        }
+      ]
+    },
+    "atom_set_id": "aset_e0cdc0acef4d61ccae24f35a9d0e1b1adf614ebe88a048d6b7de6b0fc3e3c085",
+    "atomic_claims": [
+      {
+        "atom_id": "a000001",
+        "statement": "Gedung Sate dibangun pada tahun 1920",
+        "role": "time",
+        "subject": "Gedung Sate",
+        "predicate": "dibangun",
+        "object": null,
+        "qualifiers": {
+          "negated": false,
+          "quantity": null,
+          "time": "1920",
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 0,
+            "end": 36
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 0.9,
+        "parser_confidence": null
+      },
+      {
+        "atom_id": "a000002",
+        "statement": "Gedung Sate memiliki 6 lantai",
+        "role": "quantity",
+        "subject": "Gedung Sate",
+        "predicate": "memiliki",
+        "object": "lantai",
+        "qualifiers": {
+          "negated": false,
+          "quantity": 6.0,
+          "time": null,
+          "location": null
+        },
+        "spans": [
+          {
+            "start": 41,
+            "end": 59
+          }
+        ],
+        "depends_on": [],
+        "check_worthiness": 0.8,
+        "parser_confidence": null
+      }
+    ],
+    "visual_assessments": [],
+    "ocr": []
+  },
+  "retrieval": {
+    "run": {
+      "run_id": "ffffffff-1111-2222-3333-444444444444",
+      "mode": "demo",
+      "started_at": "2026-09-15T00:00:02Z",
+      "finished_at": "2026-09-15T00:00:03Z",
+      "status": "completed",
+      "versions": {
+        "service": "demo-fixtures"
+      },
+      "warnings": []
+    },
+    "atom_set_id": "aset_e0cdc0acef4d61ccae24f35a9d0e1b1adf614ebe88a048d6b7de6b0fc3e3c085",
+    "evidence_list": [
+      {
+        "evidence_id": "ev_ffffffff111122223333444444444444_000001",
+        "atom_ids": [
+          "a000001",
+          "a000002"
+        ],
+        "source": {
+          "provider": "demo-fixtures",
+          "kind": "official",
+          "url": "https://demo.example.org/fusion/1",
+          "title": "[DEMO SINTETIS] Situs resmi: sejarah Gedung Sate",
+          "publisher": "Pemprov Demo",
+          "language": "id",
+          "published_at": "2020-05-10T08:00:00Z",
+          "retrieved_at": "2026-09-15T00:00:02Z"
+        },
+        "content": {
+          "text": "Situs resmi pemprov demo mencatat Gedung Sate dibangun pada tahun 1921 dan dirancang arsitek Belanda. Bangunan ini memiliki 6 lantai. Dokumen sintetis untuk pengujian fusi.",
+          "excerpt": "Situs resmi pemprov demo mencatat Gedung Sate dibangun pada tahun 1921 dan dirancang arsitek Belanda",
+          "sha256": "26327b4ca8d58297e30e20f53aec9d8c850678ad69f0d2ba97cdd2ef7f682f70",
+          "status": "full"
+        },
+        "provenance": {
+          "original_url": "https://demo.example.org/fusion/1",
+          "archive_url": null,
+          "first_seen_at": null,
+          "captured_at": null,
+          "date_basis": "published_at",
+          "discovery_method": "demo_fixture",
+          "duplicate_cluster_id": "dup_26327b4ca8d58297e30e20f5",
+          "independence_group_id": "igr_fec4a7fc4a3daaa0225f",
+          "temporal_eligible": true,
+          "usage_note": null,
+          "image_matches": []
+        },
+        "relevance_score": 0.9,
+        "credibility_score": 0.8,
+        "rerank_score": 1.0,
+        "score_breakdown": {
+          "demo": 1.0
+        }
+      },
+      {
+        "evidence_id": "ev_ffffffff111122223333444444444444_000002",
+        "atom_ids": [
+          "a000002"
+        ],
+        "source": {
+          "provider": "demo-fixtures",
+          "kind": "fact_check",
+          "url": "https://demo.example.org/fusion/2",
+          "title": "[DEMO SINTETIS] Cek fakta: jumlah lantai Gedung Sate",
+          "publisher": "Cek Fakta Demo",
+          "language": "id",
+          "published_at": "2026-01-15T09:00:00Z",
+          "retrieved_at": "2026-09-15T00:00:02Z"
+        },
+        "content": {
+          "text": "Tim cek fakta demo memeriksa klaim jumlah lantai Gedung Sate. Berdasarkan dokumen resmi, Gedung Sate memiliki 6 lantai. Dokumen sintetis untuk pengujian.",
+          "excerpt": "Tim cek fakta demo memeriksa klaim jumlah lantai Gedung Sate",
+          "sha256": "b76a2080d4d3773f2805718e7295b72c5af1e6c9a46983f0cb52244c4ada4b3f",
+          "status": "full"
+        },
+        "provenance": {
+          "original_url": "https://demo.example.org/fusion/2",
+          "archive_url": null,
+          "first_seen_at": null,
+          "captured_at": null,
+          "date_basis": "published_at",
+          "discovery_method": "demo_fixture",
+          "duplicate_cluster_id": "dup_b76a2080d4d3773f2805718e",
+          "independence_group_id": "igr-demo-lantai",
+          "temporal_eligible": true,
+          "usage_note": null,
+          "image_matches": []
+        },
+        "relevance_score": 0.9,
+        "credibility_score": 0.8,
+        "rerank_score": 1.0,
+        "score_breakdown": {
+          "demo": 1.0
+        }
+      },
+      {
+        "evidence_id": "ev_ffffffff111122223333444444444444_000003",
+        "atom_ids": [
+          "a000002"
+        ],
+        "source": {
+          "provider": "demo-fixtures",
+          "kind": "news",
+          "url": "https://demo.example.org/fusion/3",
+          "title": "[DEMO SINTETIS] Portal menyiarkan ulang cek fakta lantai",
+          "publisher": "Portal Demo",
+          "language": "id",
+          "published_at": "2026-01-15T11:00:00Z",
+          "retrieved_at": "2026-09-15T00:00:02Z"
+        },
+        "content": {
+          "text": "Portal demo menyiarkan ulang pemeriksaan: Berdasarkan dokumen resmi, Gedung Sate memiliki 6 lantai. Salinan sindikasi dari Cek Fakta Demo. Sintetis untuk pengujian.",
+          "excerpt": "Portal demo menyiarkan ulang pemeriksaan: Berdasarkan dokumen resmi, Gedung Sate memiliki 6 lantai",
+          "sha256": "ddf3b71b38ac2a24eb91fa9ee6cb8e3f43ea50a48949ed696d4211b886002dd4",
+          "status": "full"
+        },
+        "provenance": {
+          "original_url": "https://demo.example.org/fusion/3",
+          "archive_url": null,
+          "first_seen_at": null,
+          "captured_at": null,
+          "date_basis": "published_at",
+          "discovery_method": "demo_fixture",
+          "duplicate_cluster_id": "dup_ddf3b71b38ac2a24eb91fa9e",
+          "independence_group_id": "igr-demo-lantai",
+          "temporal_eligible": true,
+          "usage_note": null,
+          "image_matches": []
+        },
+        "relevance_score": 0.9,
+        "credibility_score": 0.5,
+        "rerank_score": 1.0,
+        "score_breakdown": {
+          "demo": 1.0
+        }
+      }
+    ],
+    "forensic_signals": [],
+    "query_log": [],
+    "provider_status": [
+      {
+        "provider": "demo-fixtures",
+        "capability": "fact_check_search",
+        "status": "ok",
+        "message": null
+      }
+    ]
+  },
+  "decision": null,
+  "warnings": [],
+  "extensions": {
+    "aurora_evidence": {
+      "fixture": "fusion-demo"
+    }
+  }
+}

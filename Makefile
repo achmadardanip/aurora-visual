@@ -1,4 +1,4 @@
-.PHONY: setup dev demo test lint schema smoke browser-test evaluate train experiments build backup verify-backup restore-backup mafindo-live-test deepseek-live-test tune-smoke modal-smoke mafindo-corpus
+.PHONY: setup dev demo test lint schema smoke browser-test system evaluate train experiments build backup verify-backup restore-backup mafindo-live-test deepseek-live-test tune-smoke modal-smoke mafindo-corpus
 setup:
 	uv sync --frozen --python 3.12 --extra ml --extra dev
 	npm ci --prefix frontend
@@ -69,3 +69,6 @@ mafindo-live-test:
 
 deepseek-live-test:
 	uv run aurora deepseek-test --output artifacts/reports/deepseek-test.json
+
+system:
+	uv run python scripts/system.py

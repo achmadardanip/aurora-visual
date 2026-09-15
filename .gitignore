@@ -24,3 +24,13 @@ test-results/
 backups/
 .claude/
 prompt-aurora/
+var-evidence/
+var-decision/
+aurora-evidence/frontend/node_modules/
+aurora-evidence/frontend/dist/
+aurora-evidence/frontend/tsconfig.tsbuildinfo/
+aurora-decision/frontend/node_modules/
+aurora-decision/frontend/dist/
+aurora-decision/frontend/tsconfig.tsbuildinfo/
+aurora-evidence/.env.evidence
+aurora-decision/.env.decision

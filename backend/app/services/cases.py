@@ -195,12 +195,19 @@ class CaseService:
                             )
                     elif bundle.claim_revision != current.revision:
                         raise ServiceError("REVISION_CONFLICT", "Revisi kasus tidak cocok.", 409)
-                    elif (bundle.analysis.atom_set_id if bundle.analysis else None) != (
-                        previous.analysis.atom_set_id if previous.analysis else None
+                    elif bundle.analysis is not None and (
+                        bundle.analysis.atom_set_id != previous.analysis.atom_set_id
+                        if previous.analysis
+                        else True
                     ):
                         raise ServiceError(
                             "ATOM_SET_CONFLICT", "Atom set usang; gunakan endpoint koreksi.", 409
                         )
+                    elif previous.retrieval or previous.decision:
+                        # Same input re-submitted with cleared results is an
+                        # explicit re-analysis (orchestrator retries, "analisis
+                        # ulang"); stale derivatives are dropped server-side.
+                        bundle.retrieval, bundle.decision = None, None
                     current.bundle, current.revision, current.updated_at = (
                         dump(bundle),
                         bundle.claim_revision,
