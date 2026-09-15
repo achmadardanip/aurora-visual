@@ -164,6 +164,44 @@ def test_hive_run_without_v3_secret_fails_fast(tmp_path, monkeypatch):
         analyze(live_bundle(ref, {"provider": "hive", "parser": "hive-vlm"}), str(uuid4()), settings, media)
 
 
+def test_unselected_hive_reports_not_selected_not_unconfigured(tmp_path):
+    # Hive is enabled on the server but this analysis stays local: the stage-1
+    # detector status must say "not run because not selected" instead of the
+    # misleading "unconfigured".
+    settings, media, ref = pipeline_fixture(tmp_path)
+    result = analyze(live_bundle(ref, {}), str(uuid4()), settings, media)
+    detectors = result.extensions["aurora_visual"]["screening"]["detectors"]
+    assert detectors
+    for detector in detectors:
+        assert detector["status"] == "not_selected"
+        assert "pilih Hive" in detector["message"]
+    watermark = result.extensions["aurora_visual"]["screening"]["provenance"]["watermark"]
+    assert watermark["status"] == "not_selected"
+    assert "tidak dijalankan" in watermark["message"]
+
+
+def test_demo_mode_reports_external_detection_live_only(tmp_path):
+    settings, media, ref = pipeline_fixture(tmp_path)
+    bundle = live_bundle(ref, {})
+    bundle.mode = "demo"
+    result = analyze(bundle, str(uuid4()), settings, media)
+    detectors = result.extensions["aurora_visual"]["screening"]["detectors"]
+    for detector in detectors:
+        assert detector["status"] == "not_selected"
+        assert "mode Live" in detector["message"]
+
+
+def test_no_provider_configured_keeps_honest_unconfigured(tmp_path):
+    settings, media, ref = pipeline_fixture(tmp_path)
+    settings.hive_enabled = False
+    result = analyze(live_bundle(ref, {}), str(uuid4()), settings, media)
+    detectors = result.extensions["aurora_visual"]["screening"]["detectors"]
+    for detector in detectors:
+        # Nothing on the server: the plain local default is accurate.
+        assert detector["status"] == "unavailable"
+        assert detector["provider"] == "unconfigured"
+
+
 class FailingLLMParser:
     def __init__(self, url, model, allowed_origins):
         pass

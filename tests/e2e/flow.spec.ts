@@ -38,15 +38,17 @@ test("demo contradiction, atom correction, reanalysis and history", async ({
       name: /Bidang ini berwarna merah Bertentangan/,
     }),
   ).toBeVisible({ timeout: 30000 });
-  await expect(page.getByText("TAHAP 1 · SCREENING ASAL MEDIA")).toBeVisible();
+  await expect(
+    page.getByText("LANGKAH 2 · PEMERIKSAAN ASAL MEDIA"),
+  ).toBeVisible();
   await expect(
     page.getByText(
-      "Screening asal media tidak menentukan kebenaran caption dan tidak mengubah status Didukung, Bertentangan, atau Tidak teramati.",
+      "Pemeriksaan asal media tidak menentukan kebenaran caption dan tidak mengubah status Didukung, Bertentangan, atau Tidak teramati.",
     ),
   ).toBeVisible();
-  await expect(page.getByText("Tahap 3 · multimodal")).toBeVisible();
+  await expect(page.getByText("Langkah 4 · analisis gambar")).toBeVisible();
   await expect(page.locator(".region.contra")).toHaveCount(16);
-  await page.getByRole("button", { name: "Koreksi atom" }).click();
+  await page.getByRole("button", { name: "Koreksi poin klaim" }).click();
   await page
     .getByLabel("Proposisi", { exact: true })
     .fill("Bidang ini berwarna biru");
@@ -98,13 +100,15 @@ test("mobile empty state and unobservable event claims", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: /September 2026 Tidak teramati/ }),
   ).toBeVisible({ timeout: 30000 });
-  await expect(page.getByText("TAHAP 1 · SCREENING ASAL MEDIA")).toBeVisible();
-  const detectorRow = page.locator(".screening-ledger > div", {
-    hasText: "Detektor AI / deepfake",
-  });
-  await expect(detectorRow.getByText("Belum dikonfigurasi")).toBeVisible();
   await expect(
-    detectorRow.getByText(/bukan verdict autentisitas/),
+    page.getByText("LANGKAH 2 · PEMERIKSAAN ASAL MEDIA"),
+  ).toBeVisible();
+  const detectorRow = page.locator(".screening-ledger > div", {
+    hasText: "Deteksi AI / deepfake",
+  });
+  await expect(detectorRow.getByText("Tidak dijalankan")).toBeVisible();
+  await expect(
+    detectorRow.getByText(/bukan keputusan akhir keaslian/),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /di Monas Tidak teramati/ }),

@@ -315,8 +315,9 @@ def test_without_opt_in_no_synthid_extension_and_local_watermark_slot(tmp_path, 
     result = analyze(live_bundle(ref, {}), str(uuid4()), settings, media)
     assert requested == []
     assert result.extensions["aurora_visual"]["synthid"] is None
+    # Not opted in on this run: honest "not run" status, not a config failure.
     assert (
-        result.extensions["aurora_visual"]["screening"]["provenance"]["watermark"]["status"] == "unavailable"
+        result.extensions["aurora_visual"]["screening"]["provenance"]["watermark"]["status"] == "not_selected"
     )
     assert result.analysis.run.status == "completed"
 

@@ -168,7 +168,9 @@ def test_observe_sends_inline_image_with_detail():
     content = seen["body"]["messages"][0]["content"]
     image_part = next(part for part in content if part["type"] == "image_url")
     assert image_part["image_url"]["url"].startswith("data:image/png;base64,")
-    assert image_part["image_url"]["detail"] == "original"
+    # No "detail" enum: some OpenAI-compatible gateways reject the value while
+    # still analyzing the inline image at full resolution.
+    assert "detail" not in image_part["image_url"]
     assert raw["observations"][0]["relation"] == "supports"
 
 

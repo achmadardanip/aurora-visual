@@ -126,6 +126,35 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
         raise ValueError("HIVE_V3_REQUIRED")
     if use_deepseek and not settings.deepseek_api_key:
         raise ValueError("DEEPSEEK_KEY_REQUIRED")
+    # Stage-1 defaults from screen_image say "unconfigured" because the local
+    # screen cannot know whether an external provider was opted in. Annotate
+    # the per-run truth instead: when the server has a provider configured but
+    # this analysis did not select it, the honest status is "not run", not a
+    # configuration failure.
+    if not use_hive:
+        for asset in assets:
+            for detector in asset["screening"]["detectors"]:
+                if detector["provider"] == "unconfigured":
+                    if bundle.mode != "live":
+                        detector["status"] = "not_selected"
+                        detector["message"] = (
+                            "Deteksi AI/deepfake eksternal hanya dijalankan pada analisis mode Live."
+                        )
+                    elif settings.hive_enabled:
+                        detector["status"] = "not_selected"
+                        detector["message"] = (
+                            "Deteksi AI/deepfake tidak dijalankan pada analisis ini; pilih Hive "
+                            "saat memulai analisis untuk mengaktifkannya."
+                        )
+    synthid_requested = bundle.mode == "live" and bool(options.get("synthid_detector", False))
+    if not synthid_requested:
+        for asset in assets:
+            watermark = asset["screening"]["provenance"]["watermark"]
+            if watermark["status"] == "unavailable":
+                watermark["status"] = "not_selected"
+                watermark["message"] = (
+                    "Pemeriksaan watermark SynthID tidak dijalankan pada analisis ini (opsional)."
+                )
     hive_extension = None
     # DeepSeek runs stage 3 (multimodal observation) even when stage 2
     # (external atomization) is skipped — atoms preserved from a parent
@@ -315,7 +344,6 @@ def analyze(bundle, run_id, settings, media_service, owner="local", progress=lam
     # SynthID Detector watermark screening (stage 1): opt-in per analysis in
     # live mode; original bytes only leave the server to the configured gateway
     # when both the admin enablement and this request-level option are set.
-    synthid_requested = bundle.mode == "live" and bool(options.get("synthid_detector", False))
     synthid_extension = None
     if synthid_requested:
         synthid_client = SynthIDClient(

@@ -85,7 +85,12 @@ def test_origin_screen_stays_module_local_and_preserves_visual_semantics(client,
     assert screening["target"]["asset_id"] == result["input"]["images"][0]["asset_id"]
     assert screening["decision"]["does_not_affect_visual_assessment"] is True
     assert screening["decision"]["does_not_decide_claim_truth"] is True
-    assert all(detector["status"] == "unavailable" for detector in screening["detectors"])
+    # Demo runs never use external detectors: reported as not selected, not as
+    # a server configuration failure.
+    assert all(
+        detector["status"] == "not_selected" and "mode Live" in detector["message"]
+        for detector in screening["detectors"]
+    )
     assert result["retrieval"] is None and result["decision"] is None
     assert all(a["visual_status"] == "Supported" for a in result["analysis"]["visual_assessments"])
 

@@ -232,7 +232,10 @@ class DeepSeekClient:
                 "role": "user",
                 "content": [
                     {"type": "text", "text": json.dumps(prompt, ensure_ascii=False)},
-                    {"type": "image_url", "image_url": {"url": data_uri, "detail": "original"}},
+                    # No "detail" field: some OpenAI-compatible gateways reject the
+                    # "original" enum value while still analyzing the inline image
+                    # at full resolution.
+                    {"type": "image_url", "image_url": {"url": data_uri}},
                 ],
             }
         ]
@@ -380,7 +383,9 @@ def test_connection(client: DeepSeekClient, vision: bool = True, probe_timeout: 
                                 },
                                 {
                                     "type": "image_url",
-                                    "image_url": {"url": _probe_image_data_uri(), "detail": "low"},
+                                    # Same shape as production observe() calls: no
+                                    # "detail" field, which some gateways reject.
+                                    "image_url": {"url": _probe_image_data_uri()},
                                 },
                             ],
                         }

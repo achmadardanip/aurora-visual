@@ -191,19 +191,19 @@ type SettingsGroup = {
 };
 const SETTINGS_GROUPS: SettingsGroup[] = [
   {
-    title: "Pipeline & server",
+    title: "Alur pemrosesan & server",
     description:
-      "Backbone visual, OCR, dan batas operasional yang berlaku untuk analisis berikutnya.",
+      "Cara aplikasi membaca gambar, bahasa OCR, dan batas operasional untuk analisis berikutnya.",
     fields: [
       {
         name: "backbone",
-        label: "Metode backbone",
+        label: "Cara membaca gambar",
         options: [
           {
             value: "local-color-v1",
-            label: "local-color-v1 (lokal, tanpa model)",
+            label: "Analisis warna sederhana (lokal, tanpa model)",
           },
-          { value: "openclip", label: "openclip (embedding CLIP)" },
+          { value: "openclip", label: "OpenCLIP (AI pembaca gambar)" },
         ],
       },
       {
@@ -232,7 +232,7 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
   {
     title: "OpenCLIP",
     description:
-      "Model dan checkpoint OpenCLIP untuk embedding visual. Mengubah nilai ini memengaruhi cache fitur; hasil analisis lama tidak berubah.",
+      "Model OpenCLIP untuk membaca isi gambar. Mengubah nilai ini memengaruhi hasil analisis berikutnya; hasil analisis lama tidak berubah.",
     fields: [
       {
         name: "openclip_model",
@@ -241,15 +241,15 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
       },
       {
         name: "openclip_pretrained",
-        label: "Tag pretrained / sumber bobot",
-        hint: "mis. openai, laion2b_s34b_b79k, atau path file",
+        label: "Sumber bobot model",
+        hint: "mis. openai, laion2b_s34b_b79k, atau lokasi berkas",
       },
     ],
   },
   {
-    title: "Ollama (atomizer LLM)",
+    title: "Ollama (AI pengurai klaim)",
     description:
-      "Endpoint LLM structured-output untuk penguraian klaim atomik. Origin server harus masuk allowlist.",
+      "Alamat server AI lokal untuk memecah klaim menjadi poin-poin. Alamat server harus masuk daftar izin.",
     fields: [
       {
         name: "llm_url",
@@ -259,100 +259,100 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
       { name: "llm_model", label: "Nama model" },
       {
         name: "llm_allowed_origins",
-        label: "Origin yang diizinkan",
+        label: "Alamat yang diizinkan",
         hint: "Pisahkan dengan koma; tanpa wildcard",
       },
     ],
   },
   {
-    title: "Three-state-head",
+    title: "Model penentu status",
     description:
-      "Checkpoint head probabilitas tiga kelas. Checkpoint harus lolos validasi metadata/split sebelum dipakai.",
-    fields: [{ name: "checkpoint", label: "Path checkpoint (.pt)" }],
+      "Berkas model penentu status (3 pilihan status). Berkas harus lolos pemeriksaan kelayakan sebelum dipakai.",
+    fields: [{ name: "checkpoint", label: "Lokasi berkas model (.pt)" }],
   },
   {
     title: "Hive",
     description:
-      "Provider eksternal opsional. Secret V3 wajib saat Hive diaktifkan; project key V2 opsional dan analisis tetap berfungsi tanpa V2. Kebijakan egress diatur admin.",
+      "Layanan eksternal opsional untuk memeriksa tanda buatan AI. Kunci V3 wajib saat Hive diaktifkan; kunci V2 tidak wajib dan semua langkah tetap berfungsi tanpanya. Kebijakan pengiriman data keluar diatur admin.",
     fields: [
-      { name: "hive_enabled", label: "Aktifkan provider Hive" },
-      { name: "hive_timeout", label: "Timeout Hive (detik)", hint: "1–120" },
+      { name: "hive_enabled", label: "Aktifkan layanan Hive" },
+      { name: "hive_timeout", label: "Batas waktu Hive (detik)", hint: "1–120" },
       {
         name: "hive_v3_secret",
-        label: "V3 secret key (wajib)",
+        label: "Kunci V3 (wajib)",
         hint: "wajib saat Hive aktif; hanya disimpan di server",
       },
       {
         name: "hive_v2_shared_key",
-        label: "V2 project key bersama (opsional)",
+        label: "Kunci V2 bersama (opsional)",
       },
-      { name: "hive_v2_origin_key", label: "V2 origin key (opsional)" },
-      { name: "hive_v2_ocr_key", label: "V2 OCR key (opsional)" },
-      { name: "hive_v2_object_key", label: "V2 object key (opsional)" },
-      { name: "hive_v2_scene_key", label: "V2 scene key (opsional)" },
-      { name: "hive_v2_people_key", label: "V2 people key (opsional)" },
-      { name: "hive_v2_logo_key", label: "V2 logo key (opsional)" },
-      { name: "hive_v2_celebrity_key", label: "V2 celebrity key (opsional)" },
+      { name: "hive_v2_origin_key", label: "Kunci V2 asal media (opsional)" },
+      { name: "hive_v2_ocr_key", label: "Kunci V2 OCR (opsional)" },
+      { name: "hive_v2_object_key", label: "Kunci V2 objek (opsional)" },
+      { name: "hive_v2_scene_key", label: "Kunci V2 latar (opsional)" },
+      { name: "hive_v2_people_key", label: "Kunci V2 orang (opsional)" },
+      { name: "hive_v2_logo_key", label: "Kunci V2 logo (opsional)" },
+      { name: "hive_v2_celebrity_key", label: "Kunci V2 tokoh (opsional)" },
       {
         name: "hive_v2_translation_key",
-        label: "V2 translation key (opsional)",
+        label: "Kunci V2 terjemahan (opsional)",
       },
     ],
   },
   {
-    title: "DeepSeek Flash (vision)",
+    title: "DeepSeek Flash (membaca gambar)",
     description:
-      "Provider eksternal opt-in untuk atomizer Tahap 2 dan observasi multimodal Tahap 3. Model deepseek-flash (vision + JSON output) dari api.deepseek.com; respons selalu divalidasi ulang terhadap kontrak AURORA. Aktifkan hanya dengan API key server-side.",
+      "Layanan AI eksternal opsional untuk memecah klaim (Langkah 3) dan membaca isi gambar (Langkah 4). Setiap jawaban diperiksa ulang sesuai aturan AURORA dan bukan kebenaran akhir. Aktifkan hanya dengan kunci API yang disimpan di server.",
     fields: [
-      { name: "deepseek_enabled", label: "Aktifkan provider DeepSeek" },
+      { name: "deepseek_enabled", label: "Aktifkan layanan DeepSeek" },
       {
         name: "deepseek_base_url",
-        label: "Base URL API",
+        label: "Alamat API",
         hint: "harus https; gateway New API/one-api sertakan /v1 (mis. https://seekai.cc/v1)",
       },
       {
         name: "deepseek_model",
         label: "Nama model",
-        hint: "default deepseek-flash (V4.1 Flash, vision)",
+        hint: "bawaan deepseek-flash (V4.1 Flash, bisa membaca gambar)",
       },
       {
         name: "deepseek_api_key",
-        label: "API key (wajib saat aktif)",
+        label: "Kunci API (wajib saat aktif)",
         hint: "hanya disimpan di server",
       },
-      { name: "deepseek_timeout", label: "Timeout (detik)", hint: "1–120" },
+      { name: "deepseek_timeout", label: "Batas waktu (detik)", hint: "1–120" },
       {
         name: "deepseek_disable_thinking",
         label:
-          "Kirim thinking=disabled (API resmi DeepSeek; gateway tertentu menolak)",
+          "Matikan mode berpikir (API resmi DeepSeek; sebagian gateway menolak)",
       },
     ],
   },
   {
     title: "SynthID Detector",
     description:
-      "Deteksi watermark tak terlihat SynthID (Tahap 1) melalui gateway operator. Portal resmi Google DeepMind masih early access tanpa API publik terdokumentasi; aktifkan hanya bila endpoint gateway resmi + API key tersedia. Setiap analisis tetap memilih opt-in pernah/jalan.",
+      "Pemeriksa tanda tangan tak terlihat SynthID (Langkah 2) melalui server perantara resmi. Portal resmi Google DeepMind masih tahap awal tanpa API publik; aktifkan hanya bila alamat server perantara + kunci API tersedia. Setiap analisis tetap memilih sendiri apakah pemeriksaan ini dijalankan.",
     fields: [
-      { name: "synthid_enabled", label: "Aktifkan detektor SynthID" },
+      { name: "synthid_enabled", label: "Aktifkan pemeriksa SynthID" },
       {
         name: "synthid_endpoint",
-        label: "URL gateway",
+        label: "Alamat server perantara",
         hint: "mis. https://gateway-mitra.example/synthid",
       },
       {
         name: "synthid_api_key",
-        label: "API key gateway",
+        label: "Kunci API",
         hint: "hanya disimpan di server",
       },
-      { name: "synthid_timeout", label: "Timeout (detik)", hint: "1–120" },
+      { name: "synthid_timeout", label: "Batas waktu (detik)", hint: "1–120" },
     ],
   },
   {
     title: "MAFINDO",
-    description: "Diagnostik kompatibilitas provider (read-only).",
+    description: "Pemeriksaan kompatibilitas koneksi (hanya membaca).",
     fields: [
-      { name: "mafindo_api_key", label: "API key" },
-      { name: "mafindo_timeout", label: "Timeout (detik)", hint: "1–60" },
+      { name: "mafindo_api_key", label: "Kunci API" },
+      { name: "mafindo_timeout", label: "Batas waktu (detik)", hint: "1–60" },
     ],
   },
 ];
@@ -378,24 +378,26 @@ const roleNames: Record<string, string> = {
   cause: "Sebab",
 };
 const detectorStatus: Record<string, string> = {
-  ok: "Teramati",
+  ok: "Berhasil",
   inconclusive: "Belum konklusif",
-  unsupported: "Tidak didukung project",
-  unsupported_output: "Output tidak didukung",
-  unavailable: "Belum dikonfigurasi",
-  unconfigured: "Belum dikonfigurasi",
+  unsupported: "Tidak didukung",
+  unsupported_output: "Hasil tidak didukung",
+  unavailable: "Belum diatur di server",
+  unconfigured: "Belum diatur di server",
   unconfigured_or_unsupported: "Belum tersedia",
   optional: "Opsional",
-  failed: "Provider gagal",
-  provider_failed: "Provider gagal",
-  http_error: "Provider gagal",
+  not_selected: "Tidak dijalankan",
+  failed: "Layanan gagal",
+  provider_failed: "Layanan gagal",
+  http_error: "Layanan gagal",
   network_error: "Jaringan gagal",
-  timeout: "Provider timeout",
-  rate_limited: "Rate limited",
-  malformed_response: "Respons tidak valid",
+  timeout: "Waktu habis",
+  rate_limited: "Terlalu banyak permintaan",
+  malformed_response: "Jawaban tidak valid",
   observation_invalid: "Observasi tidak valid",
-  failed_fallback_rules: "Gagal · aturan lokal dipakai",
+  failed_fallback_rules: "Gagal · memakai aturan lokal",
   not_applicable: "Tidak berlaku",
+  response_truncated: "Jawaban terpotong",
 };
 const statusLabel = (status?: string) => {
   if (!status) return "Belum tersedia";
@@ -631,7 +633,7 @@ export default function App() {
     mode === "live" && hiveProvider && deepseekProvider
       ? "Hive + DeepSeek"
       : mode === "live" && hiveProvider
-        ? "Hive eksternal"
+        ? "Hive (eksternal)"
         : mode === "live" && deepseekProvider
           ? "DeepSeek Flash"
           : "Lokal";
@@ -797,7 +799,7 @@ export default function App() {
             setNotice(
               next.status === "partial"
                 ? "Analisis parsial. Periksa peringatan komponen."
-                : "Analisis selesai. Pilih atom untuk menelusuri bukti.",
+                : "Analisis selesai. Pilih poin klaim untuk menelusuri bukti.",
             );
           }
           if (next.error)
@@ -1070,7 +1072,7 @@ export default function App() {
       setJob({
         job_id: response.job_id,
         status: "queued",
-        progress: "Menunggu worker",
+        progress: "Menunggu giliran pemrosesan",
         result: null,
         error: null,
       });
@@ -1112,7 +1114,7 @@ export default function App() {
       display(result);
       setReason("");
       setNotice(
-        "Koreksi tersimpan sebagai atom set baru. Jalankan analisis ulang.",
+        "Koreksi tersimpan sebagai daftar poin klaim baru. Jalankan analisis ulang.",
       );
     });
   }
@@ -1195,11 +1197,11 @@ export default function App() {
           <ShieldCheck size={21} />
           <strong>Bukti yang bisa ditelusuri.</strong>
           <p>
-            Setiap klaim diperiksa terpisah. Hasil visual bukan verdict faktual
-            akhir.
+            Setiap poin klaim diperiksa terpisah. Hasil visual bukan putusan
+            akhir tentang faktanya.
           </p>
           <span>
-            MODUL 01 <i /> KONTRAK 1.0.0
+            VERSI 1.0.0
           </span>
         </div>
         <div className="sidebar-footer">
@@ -1230,7 +1232,7 @@ export default function App() {
           <div className="page-heading">
             <div>
               <div className="eyebrow">
-                <span /> IMAGE–CAPTION CONSISTENCY
+                <span /> KECOCOKAN GAMBAR DAN CAPTION
               </div>
               <h1>
                 {page === "analysis"
@@ -1243,12 +1245,12 @@ export default function App() {
               </h1>
               <p>
                 {page === "analysis"
-                  ? "Hubungkan klaim atomik dengan bukti yang benar-benar terlihat."
+                  ? "Hubungkan setiap poin klaim dengan bukti yang benar-benar terlihat."
                   : page === "history"
                     ? "Kasus, revisi, dan hasil analisis tersimpan di workspace Anda."
                     : page === "methods"
                       ? "Ketahui apa yang dijalankan, apa yang tersedia, dan batas hasilnya."
-                      : "Atur OpenCLIP, Ollama, Hive, dan metode lain langsung dari UI. Perubahan berlaku untuk analisis berikutnya."}
+                      : "Atur model dan layanan eksternal langsung dari UI. Perubahan berlaku untuk analisis berikutnya."}
               </p>
             </div>
             <button
@@ -1278,31 +1280,31 @@ export default function App() {
             <>
               <div
                 className="workflow-strip"
-                aria-label="Tahapan analisis AURORA"
+                aria-label="Langkah analisis AURORA"
               >
                 <span className={mediaList.length ? "current" : ""}>
-                  <span>0</span> Masukan
+                  <span>1</span> Masukan
                 </span>
                 <i />
                 <span className={extension?.screening ? "current" : ""}>
-                  <span>1</span> Asal media
+                  <span>2</span> Asal media
                 </span>
                 <i />
                 <span className={analysis ? "current" : ""}>
-                  <span>2</span> Urai klaim
+                  <span>3</span> Urai klaim
                 </span>
                 <i />
                 <span className={visual.length ? "current" : ""}>
-                  <span>3</span> Analisis multimodal
+                  <span>4</span> Analisis gambar
                 </span>
                 <div>
-                  <Layers3 size={14} /> OCR · region · UOT
+                  <Layers3 size={14} /> OCR · area gambar · pencocokan teks–gambar
                 </div>
               </div>
               <section className="card input-card">
                 <div className="card-top">
                   <div>
-                    <span className="section-number">TAHAP 0</span>
+                    <span className="section-number">LANGKAH 1</span>
                     <h2>Masukan analisis</h2>
                   </div>
                   <div className="mode-switch" aria-label="Mode analisis">
@@ -1468,7 +1470,7 @@ export default function App() {
                   </div>
                   <div className="caption-field">
                     <label className="field-label" htmlFor="caption">
-                      CAPTION ASLI{" "}
+                      TEKS KLAIM ASLI (CAPTION){" "}
                       <span>{[...caption].length}/10.000 karakter</span>
                     </label>
                     <textarea
@@ -1499,14 +1501,14 @@ export default function App() {
                         </select>
                       </label>
                       <label>
-                        Model visual
+                        Cara membaca gambar
                         <select
                           value={backbone}
                           onChange={(e) => setBackbone(e.target.value)}
                           disabled={!!running}
                         >
                           <option value="local-color-v1">
-                            Lokal · warna bidang
+                            Lokal · analisis warna sederhana
                           </option>
                           <option
                             value="openclip"
@@ -1539,7 +1541,7 @@ export default function App() {
                             onChange={(e) => setHiveProvider(e.target.checked)}
                             disabled={!!running || !hiveV3Ready}
                           />
-                          Hive · deteksi AI &amp; deepfake (Tahap 1)
+                          Hive · deteksi AI &amp; deepfake (Langkah 2)
                         </label>
                         <label>
                           <input
@@ -1550,14 +1552,14 @@ export default function App() {
                             }
                             disabled={!!running || !deepseekReady}
                           />
-                          DeepSeek Flash · multimodal (Tahap 2–3)
+                          DeepSeek Flash · urai klaim &amp; baca gambar (Langkah 3–4)
                         </label>
                       </div>
                     )}
                     {mode === "live" && !hiveProvider && !deepseekProvider && (
                       <div className="field-row">
                         <label>
-                          Parser klaim (Tahap 2)
+                          Cara memecah klaim (Langkah 3)
                           <select
                             value={parser}
                             onChange={(e) =>
@@ -1566,10 +1568,10 @@ export default function App() {
                             disabled={!!running}
                           >
                             <option value="rules">
-                              Aturan lokal (deterministik)
+                              Aturan lokal (hasil selalu sama)
                             </option>
                             <option value="llm" disabled={!ollamaReady}>
-                              LLM Ollama {ollamaReady ? "" : "· belum tersedia"}
+                              AI Ollama {ollamaReady ? "" : "· belum tersedia"}
                             </option>
                           </select>
                         </label>
@@ -1578,7 +1580,7 @@ export default function App() {
                     {mode === "live" && (
                       <div className="field-row">
                         <label>
-                          Wilayah visual (Tahap 3)
+                          Cara membagi area gambar (Langkah 4)
                           <select
                             value={regionMethod}
                             onChange={(e) =>
@@ -1593,45 +1595,45 @@ export default function App() {
                               value="segmentation"
                               disabled={!segmentationReady}
                             >
-                              Mask R-CNN pretrained (proposal objek)
+                              Deteksi objek otomatis (Mask R-CNN)
                               {segmentationReady
                                 ? ""
-                                : " · bobot belum diunduh"}
+                                : " · berkas model belum diunduh"}
                             </option>
                           </select>
                         </label>
                         <p className="field-hint">
-                          Segmentasi adalah proposal objek pretrained (COCO),
-                          bukan klaim semantik; tanpa deteksi yang cukup, gambar
-                          memakai grid dan hasil diberi peringatan.
+                          Deteksi objek hanya mengusulkan kemungkinan objek,
+                          bukan menilai kebenaran klaim. Bila deteksi kurang,
+                          gambar dibagi kotak merata dan hasil diberi
+                          peringatan.
                         </p>
                       </div>
                     )}
                     {mode === "live" && !hiveV3Ready && (
                       <p className="provider-unavailable">
-                        Hive belum dapat dipilih: secret V3 (wajib) belum
-                        dikonfigurasi di server. Project key V2 tidak wajib —
-                        Tahap 1–3 tetap berfungsi hanya dengan V3.
+                        Hive belum dapat dipilih: kunci V3 (wajib) belum diatur
+                        di server. Kunci V2 tidak wajib — semua langkah tetap
+                        berfungsi hanya dengan V3.
                       </p>
                     )}
                     {mode === "live" && deepseekProvider && (
                       <div className="egress-disclosure" role="note">
                         <ShieldCheck size={16} />
                         <span>
-                          Dengan memilih DeepSeek Flash, caption kanonis dikirim
-                          untuk atomisasi Tahap 2 dan preview gambar
-                          ternormalisasi dikirim untuk observasi multimodal
-                          Tahap 3 (byte asli tidak dikirim). Model adalah
-                          deepseek-flash dengan mode vision + json_object;
-                          setiap respons divalidasi ulang terhadap kontrak
-                          AURORA dan tetap bukan kebenaran faktual.
+                          Dengan memilih DeepSeek Flash, teks klaim baku
+                          dikirim untuk memecah klaim (Langkah 3) dan salinan
+                          gambar versi ringkas dikirim untuk dibaca AI (Langkah
+                          4). Berkas asli tidak dikirim. Setiap jawaban AI
+                          diperiksa ulang sesuai aturan AURORA dan tetap bukan
+                          kebenaran akhir.
                         </span>
                       </div>
                     )}
                     {mode === "live" && !deepseekReady && (
                       <p className="provider-unavailable">
-                        DeepSeek Flash belum dapat dipilih: API key server-side
-                        belum dikonfigurasi (AURORA_DEEPSEEK_API_KEY).
+                        DeepSeek Flash belum dapat dipilih: kunci API server
+                        belum diatur (AURORA_DEEPSEEK_API_KEY).
                       </p>
                     )}
                     {mode === "live" && hiveProvider && (
@@ -1639,8 +1641,8 @@ export default function App() {
                         <ShieldCheck size={16} />
                         <span>
                           {deepseekProvider
-                            ? "Hive menerima byte gambar asli hanya untuk deteksi AI/deepfake Tahap 1 (model V3). Caption dan preview untuk analisis multimodal Tahap 2–3 dikirim ke DeepSeek Flash. Kredensial tetap di server; kebijakan retensi provider berlaku."
-                            : "Dengan menjalankan analisis, byte gambar asli dikirim ke Hive untuk deteksi AI/deepfake Tahap 1 (model deteksi V3; project V2 enterprise dipakai bila dikonfigurasi); preview ternormalisasi dan caption dikirim untuk Tahap 2–3 (VLM V3). Kredensial tetap di server. Kebijakan retensi provider berlaku."}
+                            ? "Hive menerima salinan gambar asli hanya untuk periksa tanda buatan AI (Langkah 2). Teks klaim dan salinan gambar ringkas untuk Langkah 3–4 dikirim ke DeepSeek Flash. Kredensial tetap di server; kebijakan penyimpanan layanan berlaku."
+                            : "Dengan menjalankan analisis, salinan gambar asli dikirim ke Hive untuk periksa tanda buatan AI (Langkah 2); salinan gambar ringkas dan teks klaim dikirim untuk Langkah 3–4. Kredensial tetap di server. Kebijakan penyimpanan layanan berlaku."}
                         </span>
                       </div>
                     )}
@@ -1651,9 +1653,9 @@ export default function App() {
                     <ShieldCheck size={15} />{" "}
                     {mode === "live"
                       ? hiveProvider || deepseekProvider
-                        ? "Pemrosesan eksternal dipilih · hasil probabilistik dan jalur lokal tetap diaudit"
-                        : "Komputasi lokal nyata · hasil heuristik konservatif"
-                      : "Fixture berlabel jelas, tanpa klaim akurasi"}
+                        ? "Layanan eksternal dipilih · hasil berupa perkiraan dan jejak proses lokal tetap tersimpan"
+                        : "Diproses sepenuhnya di komputer ini · hasil perkiraan yang hati-hati"
+                      : "Contoh demo berlabel jelas, tanpa klaim akurasi"}
                   </span>
                   <button
                     className="button primary"
@@ -1714,7 +1716,7 @@ export default function App() {
                     >
                       <div className="screening-kicker">
                         <Fingerprint size={18} />
-                        <span>TAHAP 1 · SCREENING ASAL MEDIA</span>
+                        <span>LANGKAH 2 · PEMERIKSAAN ASAL MEDIA</span>
                       </div>
                       <div className="screening-summary">
                         <div>
@@ -1727,7 +1729,7 @@ export default function App() {
                           className={`screening-status ${screening.decision.label}`}
                         >
                           {screening.decision.label === "likely_ai_generated"
-                            ? "Perlu telaah"
+                            ? "Perlu ditinjau"
                             : screening.decision.label === "no_strong_ai_signal"
                               ? "Sinyal lokal"
                               : "Tidak pasti"}
@@ -1735,20 +1737,20 @@ export default function App() {
                       </div>
                       <div className="screening-ledger">
                         <div>
-                          <span>Metadata</span>
+                          <span>Data teknis gambar</span>
                           <strong>
                             {screening.metadata.status === "observed"
-                              ? `${screening.metadata.field_names.length} field diamati`
+                              ? `${screening.metadata.field_names.length} informasi terbaca`
                               : "Tidak dapat dibaca"}
                           </strong>
                           <small>
                             {screening.metadata.camera_metadata_present
-                              ? "Metadata kamera ada"
-                              : "Metadata kamera tidak tersedia"}
+                              ? "Data kamera ada"
+                              : "Data kamera tidak tersedia"}
                           </small>
                         </div>
                         <div>
-                          <span>Provenance / C2PA</span>
+                          <span>Jejak asal (C2PA)</span>
                           <strong>{screening.provenance.c2pa.status}</strong>
                           <small>
                             {screening.provenance.c2pa.verification}
@@ -1759,29 +1761,29 @@ export default function App() {
                           </small>
                         </div>
                         <div>
-                          <span>Detektor AI / deepfake</span>
+                          <span>Deteksi AI / deepfake</span>
                           <strong>{detectorSummary || "Belum tersedia"}</strong>
                           <small>
                             {screening.detectors
                               .map((detector) =>
                                 detector.task === "ai_generation_detection"
-                                  ? "Generasi AI"
+                                  ? "Gambar buatan AI"
                                   : "Deepfake",
                               )
                               .join(" · ")}{" "}
-                            · bukan verdict autentisitas
+                            · bukan keputusan akhir keaslian
                           </small>
                         </div>
                       </div>
                       <p className="screening-boundary">
                         <CircleHelp size={15} />
-                        Screening asal media tidak menentukan kebenaran caption
-                        dan tidak mengubah status Didukung, Bertentangan, atau
-                        Tidak teramati.
+                        Pemeriksaan asal media tidak menentukan kebenaran
+                        caption dan tidak mengubah status Didukung,
+                        Bertentangan, atau Tidak teramati.
                       </p>
                       <details className="screening-details">
                         <summary>
-                          Detail metadata, provenance, dan keterbatasan
+                          Detail data teknis, jejak asal, dan keterbatasan
                         </summary>
                         <p>
                           Perangkat lunak:{" "}
@@ -1797,7 +1799,7 @@ export default function App() {
                         </p>
                         {screening.provenance.c2pa.claim_generator && (
                           <p>
-                            Claim generator:{" "}
+                            Pembuat berkas:{" "}
                             {screening.provenance.c2pa.claim_generator}
                             {screening.provenance.c2pa.signer?.issuer
                               ? ` · penerbit sertifikat: ${screening.provenance.c2pa.signer.issuer}`
@@ -1823,32 +1825,34 @@ export default function App() {
                           <h3 id="deepseek-title">Jejak pemrosesan DeepSeek</h3>
                           <p>
                             {deepseek.stage2?.model || "deepseek-flash"} ·
-                            egress caption Tahap 2 dan preview ternormalisasi
-                            Tahap 3; byte asli tidak dikirim. Hasil selalu
-                            divalidasi ulang dan bukan kebenaran faktual.
+                            mengirim teks klaim (Langkah 3) dan salinan gambar
+                            ringkas (Langkah 4); berkas asli tidak dikirim.
+                            Hasil selalu diperiksa ulang dan bukan kebenaran
+                            akhir.
                           </p>
                         </div>
                       </div>
                       <div className="hive-stage-grid">
                         <div>
-                          <span>Tahap 2 · atomizer</span>
+                          <span>Langkah 3 · pemecah klaim</span>
                           <strong>
                             {statusLabel(deepseek.stage2?.status)}
                           </strong>
                           <small>
                             {deepseek.stage2?.error_code
                               ? `kode: ${deepseek.stage2.error_code}`
-                              : "Atom divalidasi terhadap kontrak kanonis"}
+                              : "Poin klaim diperiksa sesuai format baku"}
                           </small>
                         </div>
                         <div>
-                          <span>Tahap 3 · observasi VLM</span>
+                          <span>Langkah 4 · pembacaan gambar oleh AI</span>
                           <strong>
                             {statusLabel(deepseek.stage3?.status)}
                           </strong>
                           <small>
-                            Observasi probabilistik berregion; konflik dengan
-                            jalur lokal ditahan sebagai Tidak teramati.
+                            Hasil AI berupa perkiraan per area gambar; bila
+                            bertentangan dengan hasil lokal, status diubah
+                            menjadi Tidak teramati.
                           </small>
                         </div>
                       </div>
@@ -1864,45 +1868,45 @@ export default function App() {
                         <div>
                           <h3 id="hive-title">Jejak pemrosesan Hive</h3>
                           <p>
-                            Jalur V3 (deteksi AI/deepfake, atomizer, observasi
-                            multimodal) terverifikasi live; project key V2
-                            enterprise opsional dan tidak diperlukan.
+                            Layanan V3 (periksa tanda AI, pemecah klaim,
+                            pembacaan gambar) aktif dan teruji; kunci V2
+                            bersifat opsional dan tidak diperlukan.
                           </p>
                         </div>
                       </div>
                       <div className="hive-stage-grid">
                         <div>
-                          <span>Tahap 1 · byte asli</span>
+                          <span>Langkah 2 · berkas asli</span>
                           <strong>{statusLabel(hive.stage1?.status)}</strong>
                           <small>
-                            AI/deepfake dan metadata provider tidak memengaruhi
-                            status visual.
+                            Hasil periksa tanda AI tidak memengaruhi status
+                            visual.
                           </small>
                         </div>
                         <div>
-                          <span>Tahap 2 · caption kanonis</span>
+                          <span>Langkah 3 · teks klaim baku</span>
                           <strong>{statusLabel(hive.stage2?.status)}</strong>
                           <small>
                             {hive.stage2?.provider ||
-                              "Hive VLM belum dijalankan"}
+                              "Pembacaan klaim Hive belum dijalankan"}
                           </small>
                         </div>
                         <div>
-                          <span>Tahap 3 · preview normal</span>
+                          <span>Langkah 4 · salinan gambar ringkas</span>
                           <strong>
                             {statusLabel(
                               hive.stage3?.vlm?.status || hive.stage3?.status,
                             )}
                           </strong>
                           <small>
-                            {hive.stage3?.models?.length || 0} output model V2 ·
-                            observasi memerlukan telaah.
+                            {hive.stage3?.models?.length || 0} hasil model V2 ·
+                            perlu ditinjau manusia.
                           </small>
                         </div>
                       </div>
                       {!!hive.provider_status?.length && (
                         <details>
-                          <summary>Status kapabilitas project key</summary>
+                          <summary>Status fitur kunci V2</summary>
                           <ul>
                             {hive.provider_status.map((item, index) => (
                               <li key={`${item.capability}-${index}`}>
@@ -1926,7 +1930,7 @@ export default function App() {
                         </span>
                       </div>
                       <h2>
-                        {analysis.atomic_claims.length} klaim atomik, jejak
+                        {analysis.atomic_claims.length} poin klaim, jejak
                         bukti terbuka.
                       </h2>
                     </div>
@@ -1980,7 +1984,7 @@ export default function App() {
                           <h3>Bukti pada gambar</h3>
                         </div>
                         <span className="tiny-tag">
-                          {bundle!.input.images.length} GAMBAR · GRID REGIONS
+                          {bundle!.input.images.length} GAMBAR · AREA KOTAK
                         </span>
                       </div>
                       {bundle!.input.images.map((m) => (
@@ -1995,8 +1999,8 @@ export default function App() {
                         <Focus size={15} />
                         {assessment?.supporting_regions.length ||
                         assessment?.contradicting_regions.length
-                          ? "Region disorot untuk atom yang dipilih."
-                          : "Belum ada region bukti untuk atom ini."}
+                          ? "Area disorot untuk poin klaim yang dipilih."
+                          : "Belum ada area bukti untuk poin klaim ini."}
                       </div>
                       <div className="original-caption">
                         <span className="field-label">
@@ -2007,8 +2011,8 @@ export default function App() {
                       <div className="evidence-note">
                         <ShieldCheck size={17} />
                         <p>
-                          Grid adalah pembagian gambar, bukan segmentasi objek.
-                          Token global hanya memberi konteks.
+                          Kotak hanyalah pembagian gambar, bukan deteksi
+                          objek. Gambar utuh hanya memberi konteks.
                         </p>
                       </div>
                     </div>
@@ -2016,7 +2020,7 @@ export default function App() {
                       <div className="card-top">
                         <div>
                           <Layers3 size={17} />
-                          <h3>Tahap 2 · klaim atomik</h3>
+                          <h3>Langkah 3 · poin klaim</h3>
                         </div>
                         <button
                           className="text-button"
@@ -2026,7 +2030,7 @@ export default function App() {
                             setReason("");
                           }}
                         >
-                          <Pencil size={13} /> Koreksi atom
+                          <Pencil size={13} /> Koreksi poin klaim
                         </button>
                       </div>
                       <div className="atom-list">
@@ -2070,7 +2074,7 @@ export default function App() {
                       </div>
                       <p className="rationale">
                         {assessment?.rationale ||
-                          "Atom telah dikoreksi. Hasil turunan dikosongkan sampai analisis ulang."}
+                          "Poin klaim telah dikoreksi. Hasil turunan dikosongkan sampai analisis ulang."}
                       </p>
                       {assessment?.counter_evidence && (
                         <div className="counter-evidence">
@@ -2080,21 +2084,21 @@ export default function App() {
                       )}
                       <div className="inspection-metrics">
                         <div>
-                          <span>Confidence parser</span>
+                          <span>Keyakinan pembacaan klaim</span>
                           <strong>{score(atom.parser_confidence)}</strong>
                         </div>
                         <div>
-                          <span>Observabilitas</span>
+                          <span>Kemudahan diperiksa</span>
                           <strong>
                             {score(assessment?.observability_score)}
                           </strong>
                         </div>
                         <div>
-                          <span>Unmatched mass</span>
+                          <span>Bagian bukti tak terpakai</span>
                           <strong>{score(assessment?.unmatched_mass)}</strong>
                         </div>
                         <div>
-                          <span>Probabilitas head</span>
+                          <span>Perkiraan probabilitas</span>
                           <strong>
                             {assessment?.probabilities
                               ? Object.entries(assessment.probabilities)
@@ -2105,7 +2109,7 @@ export default function App() {
                         </div>
                       </div>
                       <details>
-                        <summary>Struktur dan span caption</summary>
+                        <summary>Struktur dan potongan teks klaim</summary>
                         <p>
                           Subjek: {atom.subject ?? "—"} · Predikat:{" "}
                           {atom.predicate} · Objek: {atom.object ?? "—"}
@@ -2117,7 +2121,7 @@ export default function App() {
                           {atom.qualifiers.location ?? "—"}
                         </p>
                         <p>
-                          Dependensi:{" "}
+                          Bergantung pada:{" "}
                           {atom.depends_on.join(", ") || "Tidak ada"}
                         </p>
                         {atom.spans.map((span, i) => (
@@ -2134,16 +2138,16 @@ export default function App() {
                   <div className="result-bottom">
                     <div className="card small-card">
                       <h3>
-                        <ScanText size={16} /> Tahap 3 · multimodal
+                        <ScanText size={16} /> Langkah 4 · analisis gambar
                       </h3>
                       <dl>
-                        <dt>Region</dt>
+                        <dt>Pembagian area</dt>
                         <dd>{extension?.method?.region_method || "—"}</dd>
                         <dt>OCR</dt>
-                        <dd>{analysis.ocr.length} observasi teks</dd>
-                        <dt>Grounding</dt>
+                        <dd>{analysis.ocr.length} teks terbaca</dd>
+                        <dt>Pencocokan teks–area</dt>
                         <dd>{extension?.method?.alignment || "—"}</dd>
-                        <dt>Visual baseline</dt>
+                        <dt>Cara dasar membaca gambar</dt>
                         <dd>{extension?.method?.backbone || "—"}</dd>
                       </dl>
                     </div>
@@ -2152,17 +2156,17 @@ export default function App() {
                         <Settings2 size={16} /> Metode eksekusi
                       </h3>
                       <dl>
-                        <dt>Backbone</dt>
+                        <dt>Model pembaca gambar</dt>
                         <dd>
                           {extension?.method?.backbone || "Belum dijalankan"}
                         </dd>
-                        <dt>Alignment</dt>
+                        <dt>Metode pencocokan</dt>
                         <dd>{extension?.method?.alignment || "—"}</dd>
-                        <dt>Jenis inferensi</dt>
+                        <dt>Jenis proses</dt>
                         <dd>{extension?.method?.mode || "Koreksi manusia"}</dd>
                         <dt>Kalibrasi</dt>
                         <dd>Tidak tersedia</dd>
-                        <dt>Checkpoint</dt>
+                        <dt>Berkas model penentu</dt>
                         <dd>{analysis.run.versions.head || "Tidak ada"}</dd>
                       </dl>
                     </div>
@@ -2177,17 +2181,18 @@ export default function App() {
                         ].map((w, i) => (
                           <li key={i}>{w.message}</li>
                         ))}
-                        {!analysis.run.warnings.length && (
-                          <li>
-                            Hasil baru belum tersedia untuk atom yang dikoreksi.
-                          </li>
-                        )}
+                         {!analysis.run.warnings.length && (
+                           <li>
+                             Hasil baru belum tersedia untuk poin klaim yang
+                             dikoreksi.
+                           </li>
+                         )}
                       </ul>
                     </div>
                   </div>
                   <details className="card ocr-panel">
                     <summary>
-                      Observasi OCR · {analysis.ocr.length} teks terbaca
+                      Teks pada gambar (OCR) · {analysis.ocr.length} terbaca
                     </summary>
                     <p>
                       Tulisan pada gambar tidak membuktikan isi tulisan atau
@@ -2221,9 +2226,9 @@ export default function App() {
                         <div key={i}>
                           <strong>{s.kind}</strong>
                           <span>
-                            Revisi {s.bundle.claim_revision} ·{" "}
-                            {s.bundle.analysis?.atom_set_id.slice(0, 20) ||
-                              "Belum ada atom"}
+                             Revisi {s.bundle.claim_revision} ·{" "}
+                             {s.bundle.analysis?.atom_set_id.slice(0, 20) ||
+                              "Belum ada poin klaim"}
                           </span>
                           <p>{s.reason}</p>
                         </div>
@@ -2245,16 +2250,16 @@ export default function App() {
                     <Focus size={23} />
                     <h3>Periksa bukti visualnya</h3>
                     <p>
-                      Setiap dukungan atau bantahan memiliki region dan alasan
-                      yang dapat diperiksa.
+                      Setiap dukungan atau bantahan memiliki area gambar dan
+                      alasan yang dapat diperiksa.
                     </p>
                   </div>
                   <div>
                     <CircleHelp size={23} />
                     <h3>Ketidakpastian tetap terlihat</h3>
                     <p>
-                      Tidak terlihat bukan berarti salah. Cue yang kurang
-                      menghasilkan Unobservable.
+                      Tidak teramati bukan berarti salah. Bila petunjuk di
+                      gambar kurang, statusnya Tidak teramati.
                     </p>
                   </div>
                 </div>
@@ -2265,7 +2270,7 @@ export default function App() {
                   className="text-button"
                   onClick={() => importFile.current?.click()}
                 >
-                  <Upload size={14} /> Impor JSON / ZIP
+                  <Upload size={14} /> Impor berkas hasil (JSON/ZIP)
                 </button>
               </div>
             </>
@@ -2280,7 +2285,7 @@ export default function App() {
                   className="text-button"
                   onClick={() => importFile.current?.click()}
                 >
-                  <Upload size={15} /> Impor bundle
+                  <Upload size={15} /> Impor berkas hasil
                 </button>
               </div>
               {history.length ? (
@@ -2345,27 +2350,29 @@ export default function App() {
               <div className="card method-config">
                 <h3>Konfigurasi pemeriksaan berikutnya</h3>
                 <label>
-                  Metode alignment
+                  Metode pencocokan teks–gambar
                   <select
                     value={alignment}
                     onChange={(e) => setAlignment(e.target.value)}
                   >
                     {[
-                      "uot",
-                      "balanced-ot",
-                      "attention",
-                      "max-region",
-                      "mean-region",
-                      "global",
-                    ].map((m) => (
-                      <option key={m}>{m}</option>
+                      ["uot", "uot (pencocokan seimbang)"],
+                      ["balanced-ot", "balanced-ot (pencocokan seimbang sederhana)"],
+                      ["attention", "attention (fokus per area)"],
+                      ["max-region", "max-region (area terkuat)"],
+                      ["mean-region", "mean-region (rata-rata area)"],
+                      ["global", "global (gambar utuh)"],
+                    ].map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
                     ))}
                   </select>
                 </label>
                 <p>
-                  Probabilitas head dan skor alignment adalah besaran berbeda.
-                  Kalibrasi utama serta verdict faktual menjadi tanggung jawab
-                  modul keputusan.
+                  Angka perkiraan dan skor pencocokan adalah dua hal berbeda.
+                  Keputusan akhir faktual ditentukan oleh modul keputusan,
+                  bukan halaman ini.
                 </p>
                 <label>
                   Token akses server (jika diwajibkan)
@@ -2567,9 +2574,9 @@ export default function App() {
                 ))}
               </div>
               <section className="card settings-card env-only">
-                <h3>Hanya via environment</h3>
+                <h3>Hanya lewat pengaturan server</h3>
                 <p>
-                  Kolom di bawah ini memengaruhi keamanan dan transport server,
+                  Kolom di bawah ini memengaruhi keamanan dan jaringan server,
                   sehingga hanya dapat diubah lewat variabel lingkungan
                   (AURORA_*) sebelum server dinyalakan.
                 </p>
@@ -2636,10 +2643,10 @@ export default function App() {
           >
             <header>
               <div>
-                <h2 id="editor-title">Koreksi klaim atomik</h2>
+                <h2 id="editor-title">Koreksi poin klaim</h2>
                 <p>
-                  Caption asli tetap tersimpan. Koreksi membuat atom set baru
-                  dan mengosongkan hasil turunannya.
+                  Teks klaim asli tetap tersimpan. Koreksi membuat daftar poin
+                  klaim baru dan mengosongkan hasil turunannya.
                 </p>
               </div>
               <button
@@ -2740,7 +2747,7 @@ export default function App() {
                     </label>
                   </div>
                   <details>
-                    <summary>Kualifikasi & referensi</summary>
+                    <summary>Rincian tambahan</summary>
                     <div className="field-row">
                       {(["quantity", "time", "location"] as const).map((k) => (
                         <label key={k}>
@@ -2772,7 +2779,7 @@ export default function App() {
                       ))}
                     </div>
                     <label>
-                      Depends on (pisahkan koma)
+                      Bergantung pada (pisahkan koma)
                       <input
                         value={a.depends_on.join(",")}
                         onChange={(e) =>
@@ -2793,9 +2800,9 @@ export default function App() {
                       />
                     </label>
                     <p>
-                      Span caption asli:{" "}
+                      Potongan teks asli:{" "}
                       {a.spans.map((s) => `[${s.start}, ${s.end})`).join(", ")}.
-                      Perubahan isi harus tetap sesuai span ini.
+                      Perubahan isi harus tetap sesuai potongan ini.
                     </p>
                   </details>
                 </div>
